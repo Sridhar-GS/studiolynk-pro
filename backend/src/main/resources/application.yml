@@ -23,6 +23,24 @@ spring:
     enabled: true
     baseline-on-migrate: true
     locations: classpath:db/migration
+  mail:
+    host: ${SMTP_HOST:smtp.gmail.com}
+    port: ${SMTP_PORT:587}
+    username: ${SMTP_USERNAME:}
+    password: ${SMTP_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+# Security & JWT Configuration
+security:
+  jwt:
+    # 256-bit base64-encoded secret key
+    secret: ${JWT_SECRET:dGhpc0lzQVZlcnlTZWN1cmVTZWNyZXRLZXlGb3JTdHVkaW9MeW5rSldUMjU2Qml0c0VuY3J5cHRpb25LZXk=}
+    expiration-hours: ${JWT_EXPIRATION_HOURS:24}
 
 management:
   endpoints:

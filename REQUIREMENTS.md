@@ -3,21 +3,21 @@
 Status values: `PLANNED`, `IN PROGRESS`, `IMPLEMENTED`, `TESTED`.
 
 ## Authentication
-- AUTH-001 — User registration shall use email and password.
-- AUTH-002 — A single login page shall route users according to account role.
-- AUTH-003 — Password reset shall use an email-delivered OTP.
-- AUTH-004 — Firebase shall not be used for authentication or password reset.
-- AUTH-005 — Password reset OTP shall expire after 5 minutes.
-- AUTH-006 — OTP resend shall use a cooldown and attempt limits.
-- AUTH-007 — Password policy shall enforce at least 8 characters, uppercase, lowercase, number, and special character.
-- AUTH-008 — JWT authentication and Spring Security shall protect authenticated APIs.
+- AUTH-001 — User registration shall use email and password. `[TESTED]`
+- AUTH-002 — A single login page shall route users according to account role. `[TESTED]`
+- AUTH-003 — Password reset shall use an email-delivered OTP. `[TESTED]`
+- AUTH-004 — Firebase shall not be used for authentication or password reset. `[TESTED]`
+- AUTH-005 — Password reset OTP shall expire after 5 minutes. `[TESTED]`
+- AUTH-006 — OTP resend shall use a cooldown and attempt limits. `[TESTED]`
+- AUTH-007 — Password policy shall enforce at least 8 characters, uppercase, lowercase, number, and special character. `[TESTED]`
+- AUTH-008 — JWT authentication and Spring Security shall protect authenticated APIs. `[TESTED]`
 
 ## Account onboarding
-- ONB-001 — Signup shall lead to role selection before role-specific onboarding.
-- ONB-002 — Only onboarding-completed accounts may enter the main platform.
-- ONB-003 — After onboarding completion, the user shall be redirected to the appropriate profile page.
-- ONB-004 — Users may leave incomplete onboarding and resume it after login.
-- ONB-005 — Profile completion percentage may be shown to encourage complete profiles.
+- ONB-001 — Signup shall lead to role selection before role-specific onboarding. `[TESTED]`
+- ONB-002 — Only onboarding-completed accounts may enter the main platform. `[TESTED]`
+- ONB-003 — After onboarding completion, the user shall be redirected to the appropriate profile page. `[PLANNED]`
+- ONB-004 — Users may leave incomplete onboarding and resume it after login. `[TESTED]`
+- ONB-005 — Profile completion percentage may be shown to encourage complete profiles. `[PLANNED]`
 
 ## Studio
 - STU-001 — Studio onboarding shall collect studio name, studio photo/logo, owner name, email, phone, address, map location, years of operation, and social/website links.

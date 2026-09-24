@@ -124,3 +124,75 @@
   5. `openApiDocsAccessible`: `/v3/api-docs` emits valid OpenAPI JSON specification.
 - **Frontend Build**: `npm run build` -> **built in 4.56s (0 errors)**.
 - **Database Schema**: 27 tables verified in MySQL with all FK constraints and indexes active.
+
+---
+
+## Phase 3 — Authentication & Security Foundation
+**Completed Date:** 2026-09-24  
+**Status:** COMPLETED & TESTED
+
+### Implemented Modules & Capabilities
+1. **Spring Security & JJWT Architecture**:
+   - Added `spring-boot-starter-security`, `spring-boot-starter-mail`, and `jjwt-api`, `jjwt-impl`, `jjwt-jackson` (v0.12.6) to `backend/pom.xml`.
+   - Implemented `JwtTokenProvider` generating HMAC-SHA256 signed tokens containing subject (email), user ID, and role claim with a 24-hour expiration window.
+   - Implemented `CustomUserDetailsService` resolving users from MySQL and mapping role into Spring Security granted authorities (`ROLE_STUDIO`, `ROLE_FREELANCER`, `ROLE_ADMIN`).
+   - Implemented `JwtAuthenticationFilter` intercepting incoming HTTP requests, extracting `Authorization: Bearer <token>`, validating claims, and populating `SecurityContextHolder`.
+   - Implemented `JwtAuthenticationEntryPoint` returning structured JSON 401 Unauthorized responses matching the standard `ApiError` format.
+   - Configured `SecurityConfig` with `BCryptPasswordEncoder`, stateless session creation policy (`SessionCreationPolicy.STATELESS`), CORS configuration, and explicit request authorization rules protecting all platform resources while keeping register, login, forgot-password, health, and OpenAPI docs accessible.
+
+2. **User Registration & Role Selection (AUTH-001, ONB-001, AUTH-007)**:
+   - Implemented `AuthService` and `AuthServiceImpl` with BCrypt password hashing.
+   - Enforced password complexity verification matching AUTH-007: minimum 8 characters, at least 1 uppercase letter, at least 1 lowercase letter, at least 1 number, and at least 1 special character.
+   - Handled role specification at registration (`STUDIO` or `FREELANCER`) per ONB-001, persisting the user in MySQL with `onboardingCompleted = false`.
+   - Prevented duplicate user registration with `DuplicateResourceException` (HTTP 409).
+   - Automatically issued a signed JWT token upon registration so the user seamlessly transitions into onboarding.
+
+3. **Single Login Portal & Role-Based Routing (AUTH-002)**:
+   - Implemented `POST /api/auth/login` validating credentials against BCrypt hashes.
+   - Returns `AuthResponseDto` containing JWT token and `UserSummaryDto` with `userId`, `email`, `role`, and `onboardingCompleted`.
+   - Implemented `GET /api/auth/me` allowing frontend clients to refresh session state and verify JWT token validity on page reload.
+
+4. **OTP-Based Password Reset via SMTP (AUTH-003, AUTH-004, AUTH-005, AUTH-006)**:
+   - Avoided Firebase completely in adherence to AUTH-004.
+   - Implemented `PasswordResetOtp` entity mapped to MySQL table `password_reset_otps`.
+   - Generated cryptographically secure 6-digit numeric OTPs.
+   - Configured strict 5-minute OTP lifetime window (AUTH-005).
+   - Enforced maximum 3 failed verification attempts before the OTP is invalidated (AUTH-006).
+   - Enforced 60-second cooldown period between successive OTP requests to prevent abuse (AUTH-006).
+   - Implemented `EmailService` utilizing `JavaMailSender` with a graceful dev fallback that logs the OTP code to server output when live SMTP credentials are not yet configured.
+   - Implemented `POST /api/auth/forgot-password`, `POST /api/auth/verify-reset-otp`, and `POST /api/auth/reset-password` endpoints.
+
+5. **Onboarding Access Gate (ONB-001, ONB-002, ONB-004)**:
+   - Implemented `OnboardingController` (`GET /api/onboarding/status`) checking whether the logged-in user has completed onboarding for their role.
+   - Incomplete accounts cannot access main platform routes and are gated to `/onboarding`.
+   - Accounts can safely log out and resume onboarding later upon logging back in (ONB-004).
+
+6. **React Frontend Authentication & UI Experience**:
+   - `frontend/src/services/api.ts`: Configured Axios interceptors to automatically attach JWT Bearer tokens and clear local state upon 401 responses.
+   - `frontend/src/context/AuthContext.tsx`: Full React Context providing `user`, `token`, `login`, `register`, `logout`, `refreshUser`, and automatic session hydration from `/api/auth/me`.
+   - `frontend/src/components/common/Navbar.tsx`: Photography-themed navigation header with role badges, onboarding indicator, and sign-out action.
+   - `frontend/src/components/common/ProtectedRoute.tsx`: Route guard enforcing authentication and onboarding completion requirements.
+   - `frontend/src/pages/auth/LoginPage.tsx`: Single login form with password visibility toggle, error handling, and role/onboarding-based navigation.
+   - `frontend/src/pages/auth/RegisterPage.tsx`: Interactive visual cards for role selection (`STUDIO` vs `FREELANCER`), email input, and real-time password requirement checklist (AUTH-007).
+   - `frontend/src/pages/auth/ForgotPasswordPage.tsx`: 3-step interactive wizard (request OTP -> verify 6-digit OTP with 5-min timer and 60s cooldown -> set new strong password -> success confirmation).
+   - `frontend/src/pages/onboarding/OnboardingPendingPage.tsx`: Dedicated gate view informing users of pending onboarding requirements for their specific role with save & resume later support.
+   - `frontend/src/pages/HomePage.tsx` and `frontend/src/App.tsx`: Fully wired client SPA with React Router.
+
+### Verification Summary
+- **Backend Test Suite**: `mvn test` -> **14 of 14 tests PASSED (0 failures, 0 errors, 0 skipped)** in 21.7s:
+  1. `StudioLynkApplicationTests.contextLoads`
+  2. `StudioLynkApplicationTests.healthEndpointReturnsUp`
+  3. `StudioLynkApplicationTests.catalogueSkillsReturnsSeededData`
+  4. `StudioLynkApplicationTests.testUserPersistence`
+  5. `StudioLynkApplicationTests.openApiDocsAccessible`
+  6. `AuthControllerTests.registerStudioSuccessfully`
+  7. `AuthControllerTests.registerFreelancerSuccessfully`
+  8. `AuthControllerTests.registerDuplicateEmailFails`
+  9. `AuthControllerTests.registerWeakPasswordFails`
+  10. `AuthControllerTests.loginSuccessReturnsJwtToken`
+  11. `AuthControllerTests.loginInvalidPasswordFails`
+  12. `AuthControllerTests.getCurrentUserWithToken`
+  13. `AuthControllerTests.getCurrentUserWithoutTokenFails`
+  14. `AuthControllerTests.forgotPasswordAndResetFlow`
+- **Frontend Build**: `npm run build` -> **Compiled cleanly with TypeScript type-checking and Vite production asset bundling in 5.34s (0 errors)**.
+

@@ -7,10 +7,31 @@ export interface HealthStatus {
   timestamp?: string;
 }
 
-export interface UserSession {
+export interface UserSummary {
+  id: number;
+  email: string;
+  role: UserRole;
+  onboardingCompleted: boolean;
+}
+
+export interface AuthResponse {
+  token: string;
+  type: string;
+  user: UserSummary;
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+  timestamp?: string;
+}
+
+export interface OnboardingStatusResponse {
   userId: number;
   email: string;
   role: UserRole;
   onboardingCompleted: boolean;
-  token?: string;
+  message: string;
+  nextStep: string;
 }
