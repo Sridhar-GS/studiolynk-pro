@@ -29,10 +29,10 @@ yarn-error.log*
 # Python & ML Service
 ml-service/venv/
 ml-service/.venv/
-ml-service/__pycache__/
-ml-service/*.pyc
-ml-service/*.pyo
-ml-service/*.pyd
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
 ml-service/.pytest_cache/
 ml-service/data/synthetic_freelancers_dataset.csv
 ml-service/model/*.joblib
