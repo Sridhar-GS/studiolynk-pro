@@ -8,6 +8,9 @@ import { LoginPage } from './pages/auth/LoginPage';
 import { RegisterPage } from './pages/auth/RegisterPage';
 import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage';
 import { OnboardingPendingPage } from './pages/onboarding/OnboardingPendingPage';
+import { StudioOnboardingPage } from './pages/studio/StudioOnboardingPage';
+import { StudioDashboardPage } from './pages/studio/StudioDashboardPage';
+import { StudioProfilePage } from './pages/studio/StudioProfilePage';
 
 export const App: React.FC = () => {
   return (
@@ -25,6 +28,31 @@ export const App: React.FC = () => {
               element={
                 <ProtectedRoute requireOnboardingCompleted={false}>
                   <OnboardingPendingPage />
+                </ProtectedRoute>
+              }
+            />
+            {/* Phase 4: Studio Onboarding & Profile Routes */}
+            <Route
+              path="/onboarding/studio"
+              element={
+                <ProtectedRoute requireOnboardingCompleted={false} allowedRoles={['STUDIO']}>
+                  <StudioOnboardingPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/studio/dashboard"
+              element={
+                <ProtectedRoute requireOnboardingCompleted={true} allowedRoles={['STUDIO', 'ADMIN']}>
+                  <StudioDashboardPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/studio/profile"
+              element={
+                <ProtectedRoute requireOnboardingCompleted={true} allowedRoles={['STUDIO', 'ADMIN']}>
+                  <StudioProfilePage />
                 </ProtectedRoute>
               }
             />

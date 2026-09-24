@@ -3,30 +3,39 @@ package com.studiolynk.controller;
 import com.studiolynk.exception.ResourceNotFoundException;
 import com.studiolynk.model.dto.ApiResponse;
 import com.studiolynk.model.dto.OnboardingStatusDto;
+import com.studiolynk.model.dto.StudioOnboardingRequestDto;
+import com.studiolynk.model.dto.StudioProfileDto;
 import com.studiolynk.model.entity.User;
 import com.studiolynk.model.enums.UserRole;
 import com.studiolynk.repository.UserRepository;
+import com.studiolynk.service.StudioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Controller providing onboarding status inspection and routing guidance.
+ * Controller providing onboarding status inspection, draft persistence, and role-specific completion.
  */
 @RestController
 @RequestMapping("/api/onboarding")
-@Tag(name = "Onboarding", description = "Onboarding gate and account completion status")
+@Tag(name = "Onboarding", description = "Onboarding gate, draft saving, and account completion workflows")
 public class OnboardingController {
 
     private final UserRepository userRepository;
+    private final StudioService studioService;
 
-    public OnboardingController(UserRepository userRepository) {
+    public OnboardingController(UserRepository userRepository, StudioService studioService) {
         this.userRepository = userRepository;
+        this.studioService = studioService;
     }
 
     @GetMapping("/status")
@@ -55,5 +64,25 @@ public class OnboardingController {
         );
 
         return ResponseEntity.ok(ApiResponse.ok(statusDto));
+    }
+
+    @PostMapping("/studio")
+    @Operation(summary = "Submit final studio onboarding and activate platform access (STU-001, STU-004)")
+    public ResponseEntity<ApiResponse<StudioProfileDto>> completeStudioOnboarding(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @Valid @RequestBody StudioOnboardingRequestDto request) {
+
+        StudioProfileDto profile = studioService.saveOrUpdateOnboarding(userDetails.getUsername(), request, true);
+        return ResponseEntity.ok(ApiResponse.ok("Studio onboarding completed successfully. Platform unlocked.", profile));
+    }
+
+    @PutMapping("/studio")
+    @Operation(summary = "Save studio onboarding draft without completing (ONB-004)")
+    public ResponseEntity<ApiResponse<StudioProfileDto>> saveStudioOnboardingDraft(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @Valid @RequestBody StudioOnboardingRequestDto request) {
+
+        StudioProfileDto profile = studioService.saveOrUpdateOnboarding(userDetails.getUsername(), request, false);
+        return ResponseEntity.ok(ApiResponse.ok("Studio onboarding draft saved successfully.", profile));
     }
 }

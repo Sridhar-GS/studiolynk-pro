@@ -12,12 +12,17 @@ export const OnboardingPendingPage: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // If studio, automatically route to studio onboarding form
+    if (user?.role === 'STUDIO') {
+      navigate('/onboarding/studio', { replace: true });
+      return;
+    }
+
     const fetchStatus = async () => {
       try {
         const res = await api.get<ApiResponse<OnboardingStatusResponse>>('/onboarding/status');
         if (res.data?.data) {
           setStatusData(res.data.data);
-          // If already completed in backend, refresh user and redirect
           if (res.data.data.onboardingCompleted) {
             await refreshUser();
             navigate('/', { replace: true });
@@ -31,7 +36,7 @@ export const OnboardingPendingPage: React.FC = () => {
     };
 
     fetchStatus();
-  }, [refreshUser, navigate]);
+  }, [user, refreshUser, navigate]);
 
   const handleLogout = () => {
     logout();

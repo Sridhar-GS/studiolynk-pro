@@ -196,3 +196,69 @@
   14. `AuthControllerTests.forgotPasswordAndResetFlow`
 - **Frontend Build**: `npm run build` -> **Compiled cleanly with TypeScript type-checking and Vite production asset bundling in 5.34s (0 errors)**.
 
+---
+
+## Phase 4 — Studio Onboarding & Profile
+**Completed Date:** 2026-09-24  
+**Status:** COMPLETED & TESTED
+
+### Implemented Modules & Capabilities
+1. **JPA Domain Entities & Database Mapping**:
+   - Implemented `StudioSocialLink` entity mapped to MySQL table `studio_social_links`.
+   - Implemented `StudioIdentitySubmission` entity mapped to MySQL table `studio_identity_submissions` with `SubmissionStatus` (`SUBMITTED`, `VERIFIED`).
+   - Enhanced `Studio` entity with `@OneToMany` cascades for `socialLinks` and `identitySubmissions`.
+   - Created `StudioSocialLinkRepository` and `StudioIdentitySubmissionRepository`.
+
+2. **Data Transfer Objects (DTOs)**:
+   - `StudioOnboardingRequestDto`: Collects studio name, owner name, phone, address, latitude, longitude, years of operation, logo URL, social links, document type, document reference, and owner legal declaration text (STU-001, STU-002).
+   - `StudioUpdateRequestDto`: Dedicated payload for editing studio profile details (STU-005).
+   - `StudioProfileDto`: Complete profile representation returning user details, coordinates, social links, identity declaration, and live profile completion percentage (ONB-005).
+   - `StudioSocialLinkDto` & `StudioIdentitySubmissionDto`.
+
+3. **Service Layer Architecture**:
+   - `StudioService` and `StudioServiceImpl`:
+     - `saveOrUpdateOnboarding`: Supports final onboarding completion (marking `user.onboardingCompleted = true` and unlocking the platform per STU-004) or saving an in-progress draft without completing (ONB-004).
+     - Role restriction: Validates that only users with role `STUDIO` can submit studio onboarding.
+     - STU-003 Compliance: Prototype identity declaration without external Aadhaar integration or Aadhaar number persistence.
+     - `getStudioProfileByEmail` / `getStudioProfileById`: Delivers complete profile data including social links and identity declarations.
+     - `updateStudioProfile`: Enables updating studio name, owner name, phone, address, coordinates, years in business, logo, and social links (STU-005).
+     - `calculateCompletionPercentage`: Computes deterministic health score (0–100%) based on filled attributes (ONB-005).
+
+4. **REST Endpoints**:
+   - `POST /api/onboarding/studio`: Submit final studio onboarding & unlock platform access (STU-001, STU-004).
+   - `PUT /api/onboarding/studio`: Save draft onboarding without completing (ONB-004).
+   - `GET /api/studios/me`: Get current authenticated studio profile and completion metrics.
+   - `PUT /api/studios/me`: Update studio profile details (STU-005).
+   - `GET /api/studios/{id}`: View studio profile by ID.
+   - `GET /api/studios`: List all registered studios.
+
+5. **React Frontend Pages & Navigation**:
+   - `StudioOnboardingPage.tsx`: Interactive multi-section wizard featuring 4 distinct cards (Business Identity, Location & Coordinates with quick presets for Chennai, Bangalore, Mumbai, Hyderabad, Delhi, Kochi, Social Links, and Owner Identity Declaration), live profile completion percentage meter (ONB-005), Save Draft button (ONB-004), and Complete Onboarding submission (STU-004).
+   - `StudioProfilePage.tsx`: Rich profile layout displaying studio header, verified badge, completion meter, phone/email/address/coordinate cards, clickable social links, owner identity verification status, and an inline edit form (STU-005).
+   - `StudioDashboardPage.tsx`: Studio dashboard with operational stats, profile status, and quick workflow cards for Find Freelancers, Work Requirements, and Messages.
+   - `Navbar.tsx`: Updated with role-aware Studio Dashboard and Profile navigation links.
+   - `App.tsx`: Wired protected routes for `/onboarding/studio`, `/studio/dashboard`, `/studio/profile`.
+
+### Verification Summary
+- **Backend Test Suite**: `mvn test` -> **18 of 18 tests PASSED (0 failures, 0 errors, 0 skipped)** in 23.4s:
+  1. `StudioLynkApplicationTests.contextLoads`
+  2. `StudioLynkApplicationTests.healthEndpointReturnsUp`
+  3. `StudioLynkApplicationTests.catalogueSkillsReturnsSeededData`
+  4. `StudioLynkApplicationTests.testUserPersistence`
+  5. `StudioLynkApplicationTests.openApiDocsAccessible`
+  6. `AuthControllerTests.registerStudioSuccessfully`
+  7. `AuthControllerTests.registerFreelancerSuccessfully`
+  8. `AuthControllerTests.registerDuplicateEmailFails`
+  9. `AuthControllerTests.registerWeakPasswordFails`
+  10. `AuthControllerTests.loginSuccessReturnsJwtToken`
+  11. `AuthControllerTests.loginInvalidPasswordFails`
+  12. `AuthControllerTests.getCurrentUserWithToken`
+  13. `AuthControllerTests.getCurrentUserWithoutTokenFails`
+  14. `AuthControllerTests.forgotPasswordAndResetFlow`
+  15. `StudioControllerTests.testStudioOnboardingSuccess` (STU-001, STU-004)
+  16. `StudioControllerTests.testStudioOnboardingDraft` (ONB-004)
+  17. `StudioControllerTests.testNonStudioUserCannotSubmitStudioOnboarding`
+  18. `StudioControllerTests.testGetAndEditStudioProfile` (STU-005)
+- **Frontend Build**: `npm run build` -> **Compiled cleanly with TypeScript type-checking and Vite production asset bundling in 5.83s (0 errors)**.
+
+

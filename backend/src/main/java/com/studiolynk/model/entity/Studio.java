@@ -51,6 +51,14 @@ public class Studio extends BaseEntity {
     @Column(name = "years_of_operation")
     private Integer yearsOfOperation = 0;
 
+    @jakarta.persistence.OneToMany(mappedBy = "studio", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
+    @com.fasterxml.jackson.annotation.JsonManagedReference
+    private java.util.List<StudioSocialLink> socialLinks = new java.util.ArrayList<>();
+
+    @jakarta.persistence.OneToMany(mappedBy = "studio", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
+    @com.fasterxml.jackson.annotation.JsonManagedReference
+    private java.util.List<StudioIdentitySubmission> identitySubmissions = new java.util.ArrayList<>();
+
     public Studio() {
     }
 
@@ -140,5 +148,21 @@ public class Studio extends BaseEntity {
 
     public void setYearsOfOperation(Integer yearsOfOperation) {
         this.yearsOfOperation = yearsOfOperation;
+    }
+
+    public java.util.List<StudioSocialLink> getSocialLinks() {
+        return socialLinks;
+    }
+
+    public void setSocialLinks(java.util.List<StudioSocialLink> socialLinks) {
+        this.socialLinks = socialLinks;
+    }
+
+    public java.util.List<StudioIdentitySubmission> getIdentitySubmissions() {
+        return identitySubmissions;
+    }
+
+    public void setIdentitySubmissions(java.util.List<StudioIdentitySubmission> identitySubmissions) {
+        this.identitySubmissions = identitySubmissions;
     }
 }

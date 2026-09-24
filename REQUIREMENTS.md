@@ -15,16 +15,16 @@ Status values: `PLANNED`, `IN PROGRESS`, `IMPLEMENTED`, `TESTED`.
 ## Account onboarding
 - ONB-001 — Signup shall lead to role selection before role-specific onboarding. `[TESTED]`
 - ONB-002 — Only onboarding-completed accounts may enter the main platform. `[TESTED]`
-- ONB-003 — After onboarding completion, the user shall be redirected to the appropriate profile page. `[PLANNED]`
+- ONB-003 — After onboarding completion, the user shall be redirected to the appropriate profile page. `[TESTED]`
 - ONB-004 — Users may leave incomplete onboarding and resume it after login. `[TESTED]`
-- ONB-005 — Profile completion percentage may be shown to encourage complete profiles. `[PLANNED]`
+- ONB-005 — Profile completion percentage may be shown to encourage complete profiles. `[TESTED]`
 
 ## Studio
-- STU-001 — Studio onboarding shall collect studio name, studio photo/logo, owner name, email, phone, address, map location, years of operation, and social/website links.
-- STU-002 — Studio shall submit an owner identity document/declaration as a prototype identity workflow.
-- STU-003 — No external Aadhaar verification API shall be implemented.
-- STU-004 — Studio may use the platform after completing onboarding; no admin approval is required.
-- STU-005 — Studio shall be able to edit its profile.
+- STU-001 — Studio onboarding shall collect studio name, studio photo/logo, owner name, email, phone, address, map location, years of operation, and social/website links. `[TESTED]`
+- STU-002 — Studio shall submit an owner identity document/declaration as a prototype identity workflow. `[TESTED]`
+- STU-003 — No external Aadhaar verification API shall be implemented. `[TESTED]`
+- STU-004 — Studio may use the platform after completing onboarding; no admin approval is required. `[TESTED]`
+- STU-005 — Studio shall be able to edit its profile. `[TESTED]`
 - STU-006 — Studio shall be able to create work/event requirements.
 
 ## Freelancer
