@@ -157,15 +157,21 @@ export const FreelancerDashboardPage: React.FC = () => {
               </div>
               <div className="flex items-center gap-2">
                 <h2 className="text-base font-bold text-white">Portfolio Showcase</h2>
-                <span className="px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 text-[10px] font-semibold">
-                  Phase 6
+                <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-semibold">
+                  Active
                 </span>
               </div>
               <p className="text-xs text-slate-400 leading-relaxed">
-                High-resolution image galleries and YouTube/Vimeo reel embedding powered by secure AWS S3 storage.
+                Organize projects by category (POR-002), upload multiple high-res photos to AWS S3, and reorder shots (POR-006).
               </p>
             </div>
-            <span className="text-xs text-slate-500 pt-2">Unlocks in Phase 6</span>
+            <Link
+              to="/freelancer/portfolio"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-400 hover:text-indigo-300 pt-2"
+            >
+              <span>Manage Portfolio &amp; S3 Images</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
 
           {/* Card 3: 10-Day Availability (Phase 8) */}

@@ -37,14 +37,14 @@ Status values: `PLANNED`, `IN PROGRESS`, `IMPLEMENTED`, `TESTED`.
 - FRL-007 — Freelancer shall not require admin verification. `[TESTED]`
 
 ## Portfolio
-- POR-001 — Each freelancer shall maintain one portfolio.
-- POR-002 — Portfolio shall support categories.
-- POR-003 — Portfolio categories may be selected/created by the freelancer.
-- POR-004 — A freelancer shall upload multiple images per category.
-- POR-005 — Portfolio supports create/read/update/delete.
-- POR-006 — Portfolio images shall support drag-and-drop reordering.
-- POR-007 — Portfolio has no public/private toggle.
-- POR-008 — Portfolio images shall be stored in AWS S3.
+- POR-001 — Each freelancer shall maintain one portfolio. `[TESTED]`
+- POR-002 — Portfolio shall support categories. `[TESTED]`
+- POR-003 — Portfolio categories may be selected/created by the freelancer. `[TESTED]`
+- POR-004 — A freelancer shall upload multiple images per category. `[TESTED]`
+- POR-005 — Portfolio supports create/read/update/delete. `[TESTED]`
+- POR-006 — Portfolio images shall support drag-and-drop reordering. `[TESTED]`
+- POR-007 — Portfolio has no public/private toggle. `[TESTED]`
+- POR-008 — Portfolio images shall be stored in AWS S3. `[TESTED]`
 - POR-009 — Portfolio relevance for ML shall use selected category plus portfolio metadata/text, not computer vision.
 
 ## Availability

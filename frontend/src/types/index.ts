@@ -186,3 +186,62 @@ export interface FreelancerUpdatePayload {
   equipmentIds?: number[];
 }
 
+// -----------------------------------------------------------------------------
+// Portfolio & S3 Upload Types (Phase 6)
+// -----------------------------------------------------------------------------
+export interface PortfolioImage {
+  id: number;
+  categoryId: number;
+  s3Key: string;
+  imageUrl: string;
+  originalFilename?: string;
+  contentType?: string;
+  fileSize?: number;
+  sortOrder: number;
+  createdAt?: string;
+}
+
+export interface PortfolioCategory {
+  id: number;
+  portfolioId: number;
+  name: string;
+  sortOrder: number;
+  createdAt?: string;
+  images: PortfolioImage[];
+  imageCount: number;
+}
+
+export interface Portfolio {
+  id: number;
+  freelancerId: number;
+  freelancerName?: string;
+  categories: PortfolioCategory[];
+  totalCategories: number;
+  totalImages: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateCategoryPayload {
+  name: string;
+  sortOrder?: number;
+}
+
+export interface UpdateCategoryPayload {
+  name: string;
+  sortOrder?: number;
+}
+
+export interface ReorderItemsPayload {
+  itemIds: number[];
+}
+
+export interface UploadResponse {
+  s3Key: string;
+  imageUrl: string;
+  originalFilename?: string;
+  contentType?: string;
+  fileSize?: number;
+}
+
+

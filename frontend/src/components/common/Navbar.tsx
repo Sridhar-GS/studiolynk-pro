@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Camera, LogOut, User as UserIcon, ShieldAlert, Building2, LayoutDashboard } from 'lucide-react';
+import { Camera, LogOut, User as UserIcon, ShieldAlert, Building2, LayoutDashboard, Image as ImageIcon } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export const Navbar: React.FC = () => {
@@ -26,7 +26,7 @@ export const Navbar: React.FC = () => {
                 StudioLynk
               </span>
               <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/30 font-medium">
-                Phase 5 Active
+                Phase 6 Active
               </span>
             </div>
             <p className="text-[11px] text-slate-400">Photography Studio & Freelancer Network</p>
@@ -75,6 +75,18 @@ export const Navbar: React.FC = () => {
             >
               <LayoutDashboard className="w-3.5 h-3.5" />
               <span>Dashboard</span>
+            </Link>
+
+            <Link
+              to="/freelancer/portfolio"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                location.pathname === '/freelancer/portfolio'
+                  ? 'bg-slate-800 text-teal-400'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+              }`}
+            >
+              <ImageIcon className="w-3.5 h-3.5" />
+              <span>Portfolio (S3)</span>
             </Link>
 
             <Link

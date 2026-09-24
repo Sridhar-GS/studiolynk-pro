@@ -9,6 +9,8 @@
 
 # Java & Spring Boot (Backend)
 backend/target/
+backend/uploads/
+uploads/
 backend/.mvn/wrapper/maven-wrapper.jar
 *.class
 *.jar

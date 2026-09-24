@@ -14,6 +14,7 @@ import { StudioProfilePage } from './pages/studio/StudioProfilePage';
 import { FreelancerOnboardingPage } from './pages/freelancer/FreelancerOnboardingPage';
 import { FreelancerDashboardPage } from './pages/freelancer/FreelancerDashboardPage';
 import { FreelancerProfilePage } from './pages/freelancer/FreelancerProfilePage';
+import { FreelancerPortfolioPage } from './pages/freelancer/FreelancerPortfolioPage';
 
 export const App: React.FC = () => {
   return (
@@ -81,6 +82,15 @@ export const App: React.FC = () => {
               element={
                 <ProtectedRoute requireOnboardingCompleted={true} allowedRoles={['FREELANCER', 'ADMIN']}>
                   <FreelancerProfilePage />
+                </ProtectedRoute>
+              }
+            />
+            {/* Phase 6: Portfolio Showcase Route */}
+            <Route
+              path="/freelancer/portfolio"
+              element={
+                <ProtectedRoute requireOnboardingCompleted={true} allowedRoles={['FREELANCER', 'ADMIN']}>
+                  <FreelancerPortfolioPage />
                 </ProtectedRoute>
               }
             />

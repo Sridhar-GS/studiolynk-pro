@@ -351,5 +351,95 @@
   23. `FreelancerControllerTests.testGetAndEditFreelancerProfile` (FRL-006)
 - **Frontend Build**: `npm run build` -> **Compiled cleanly with TypeScript type-checking and Vite production asset bundling in 6.40s (0 errors)**.
 
+---
+
+## Phase 6 — Portfolio and AWS S3 Storage
+**Completed Date:** 2026-09-24  
+**Status:** COMPLETED & TESTED
+
+### Implemented Modules & Capabilities
+1. **JPA Domain Entities & Database Mappings**:
+   - `Portfolio` (`portfolios` table): Extends `BaseEntity` with auditing timestamps, `@OneToOne` with `Freelancer` (unique constraint), and `@OneToMany` with `PortfolioCategory` (cascade all, orphan removal).
+   - `PortfolioCategory` (`portfolio_categories` table): Linked via `@ManyToOne` to `Portfolio`, holds `name`, `sortOrder`, `createdAt`, and `@OneToMany` with `PortfolioImage` (cascade all, orphan removal).
+   - `PortfolioImage` (`portfolio_images` table): Linked via `@ManyToOne` to `PortfolioCategory`, records `s3Key`, `imageUrl`, `originalFilename`, `contentType`, `fileSize`, `sortOrder`, and `createdAt`.
+   - Created `PortfolioRepository`, `PortfolioCategoryRepository`, and `PortfolioImageRepository`.
+
+2. **Pluggable Storage Architecture (S3 + Local Fallback)**:
+   - `StorageService` interface defining `uploadFile`, `deleteFile`, and `getFileUrl`.
+   - `S3StorageServiceImpl`: Production implementation utilizing AWS SDK v2 (`software.amazon.awssdk:s3:2.25.16`), generating canonical S3 URLs (`https://{bucket}.s3.{region}.amazonaws.com/{key}`).
+   - `LocalStorageServiceImpl`: Seamless fallback for local development and offline environments, writing files to `./uploads` and providing accessible `/api/uploads/{key}` URLs.
+   - `StorageConfig`: Spring `@Configuration` that detects AWS credentials and bucket configuration dynamically, falling back gracefully to local storage when credentials are not configured, and registering a `ResourceHandler` to serve local uploads.
+
+3. **Data Transfer Objects (DTOs)**:
+   - `PortfolioDto`, `PortfolioCategoryDto`, `PortfolioImageDto`: Structured representations with image counts, nested lists, and timestamps.
+   - `CreateCategoryRequestDto` & `UpdateCategoryRequestDto`: Validated category management payloads.
+   - `ReorderItemsRequestDto`: Generic list-based ID sequence payload for image and category reordering.
+   - `UploadResponseDto`: Standardized file upload response containing `s3Key`, `imageUrl`, `originalFilename`, `contentType`, and `fileSize`.
+
+4. **Portfolio Service Layer & Business Rules**:
+   - `PortfolioService` and `PortfolioServiceImpl`:
+     - `getOrCreatePortfolio`: Auto-initializes portfolio for authenticated freelancer (POR-001).
+     - `getPortfolioByFreelancerId`: Public/studio read access (POR-007).
+     - `createCategory`, `updateCategory`, `deleteCategory`: Full category CRUD with automatic cascading S3 file cleanup (POR-002, POR-003, POR-005).
+     - `uploadImages`: Multi-file upload validating MIME types (`image/jpeg`, `image/png`, `image/webp`) and file size (max 10MB) per POR-004 & POR-008. Formats S3 keys matching `portfolio/{freelancerId}/{categoryId}/{uuid}_{filename}`.
+     - `deleteImage`: Deletes image from storage and database (POR-005).
+     - `reorderImages`: Interactive drag/drop sort order reindexing within a category (POR-006).
+     - `reorderCategories`: Sort order reindexing of categories.
+     - `uploadProfileImage`: Handles studio logos and freelancer profile avatars.
+
+5. **REST Endpoints**:
+   - `GET /api/portfolio/me`: Authenticated freelancer portfolio.
+   - `GET /api/portfolio/freelancer/{freelancerId}`: Public/studio viewing.
+   - `POST /api/portfolio/categories`: Create category.
+   - `PUT /api/portfolio/categories/{categoryId}`: Edit category.
+   - `DELETE /api/portfolio/categories/{categoryId}`: Delete category & its images.
+   - `POST /api/portfolio/categories/{categoryId}/images`: Upload images (`multipart/form-data`).
+   - `DELETE /api/portfolio/images/{imageId}`: Delete image.
+   - `PUT /api/portfolio/categories/{categoryId}/reorder`: Reorder images.
+   - `PUT /api/portfolio/categories/reorder`: Reorder categories.
+   - `POST /api/upload/image`: General profile photo and studio logo uploads.
+
+6. **React Frontend Pages & Navigation**:
+   - `types/index.ts`: TypeScript interfaces for `Portfolio`, `PortfolioCategory`, `PortfolioImage`, and payloads.
+   - `services/portfolioService.ts`: Reusable API client for all portfolio and upload operations with `FormData` multipart support.
+   - `FreelancerPortfolioPage.tsx`: Interactive portfolio workspace with category tabs, Add/Rename/Delete category modals, multi-file drag-and-drop upload zone, image grid cards with Move Left / Move Right reordering controls (POR-006), and full-screen lightbox preview.
+   - `FreelancerProfilePage.tsx`: Integrated link to manage portfolio showcase.
+   - `FreelancerDashboardPage.tsx`: Activated the Portfolio Showcase card linking directly to `/freelancer/portfolio`.
+   - `Navbar.tsx`: Added "Portfolio (S3)" link for authenticated freelancers and updated badge to "Phase 6 Active".
+   - `App.tsx`: Added protected route `/freelancer/portfolio`.
+
+### Verification Summary
+- **Backend Test Suite**: `mvn test` -> **28 of 28 tests PASSED (0 failures, 0 errors, 0 skipped)** in 31.5s:
+  1. `StudioLynkApplicationTests.contextLoads`
+  2. `StudioLynkApplicationTests.healthEndpointReturnsUp`
+  3. `StudioLynkApplicationTests.catalogueSkillsReturnsSeededData`
+  4. `StudioLynkApplicationTests.testUserPersistence`
+  5. `StudioLynkApplicationTests.openApiDocsAccessible`
+  6. `AuthControllerTests.registerStudioSuccessfully`
+  7. `AuthControllerTests.registerFreelancerSuccessfully`
+  8. `AuthControllerTests.registerDuplicateEmailFails`
+  9. `AuthControllerTests.registerWeakPasswordFails`
+  10. `AuthControllerTests.loginSuccessReturnsJwtToken`
+  11. `AuthControllerTests.loginInvalidPasswordFails`
+  12. `AuthControllerTests.getCurrentUserWithToken`
+  13. `AuthControllerTests.getCurrentUserWithoutTokenFails`
+  14. `AuthControllerTests.forgotPasswordAndResetFlow`
+  15. `StudioControllerTests.testStudioOnboardingSuccess`
+  16. `StudioControllerTests.testStudioOnboardingDraft`
+  17. `StudioControllerTests.testNonStudioUserCannotSubmitStudioOnboarding`
+  18. `StudioControllerTests.testGetAndEditStudioProfile`
+  19. `FreelancerControllerTests.testFreelancerOnboardingSuccess`
+  20. `FreelancerControllerTests.testFreelancerOnboardingDraft`
+  21. `FreelancerControllerTests.testNonFreelancerUserCannotSubmitFreelancerOnboarding`
+  22. `FreelancerControllerTests.testCreateCustomCatalogueItems`
+  23. `FreelancerControllerTests.testGetAndEditFreelancerProfile`
+  24. `PortfolioControllerTests.testGetOrCreatePortfolio` (POR-001)
+  25. `PortfolioControllerTests.testCategoryCrudOperations` (POR-002, POR-003, POR-005)
+  26. `PortfolioControllerTests.testImageUploadReorderAndDelete` (POR-004, POR-006, POR-008)
+  27. `PortfolioControllerTests.testPublicPortfolioViewing` (POR-007)
+  28. `PortfolioControllerTests.testProfileImageUpload`
+- **Frontend Build**: `npm run build` -> **Compiled cleanly with TypeScript type-checking and Vite production asset bundling in 6.07s (0 errors)**.
+
+
 
 

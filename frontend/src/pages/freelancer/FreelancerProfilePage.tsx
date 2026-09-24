@@ -466,14 +466,17 @@ export const FreelancerProfilePage: React.FC = () => {
 
               <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 space-y-4">
                 <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-teal-400" /> Portfolio Showcase
+                  <Sparkles className="w-4 h-4 text-teal-400" /> Portfolio Showcase (POR-001)
                 </h3>
                 <p className="text-xs text-slate-400 leading-relaxed">
-                  Upload high-res photos and video reel embeds directly to AWS S3.
+                  High-resolution photo galleries and category-based projects hosted securely on AWS S3.
                 </p>
-                <div className="bg-slate-950/70 border border-slate-800 p-3.5 rounded-2xl text-xs text-amber-300">
-                  Portfolio showcase ready for Phase 6.
-                </div>
+                <Link
+                  to="/freelancer/portfolio"
+                  className="block text-center px-4 py-2.5 rounded-xl bg-teal-500/10 hover:bg-teal-500/20 text-teal-300 border border-teal-500/30 text-xs font-semibold transition-colors"
+                >
+                  Manage Portfolio &amp; Upload Images
+                </Link>
               </div>
             </div>
           </div>
