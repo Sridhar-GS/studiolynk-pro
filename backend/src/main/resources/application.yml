@@ -6,6 +6,23 @@ server:
 spring:
   application:
     name: studiolynk-backend
+  datasource:
+    url: ${DB_URL:jdbc:mysql://127.0.0.1:3306/studiolynk?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
+    username: ${DB_USERNAME:studiolynk_user}
+    password: ${DB_PASSWORD:studiolynk_local_pass_2026}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
 
 management:
   endpoints:
@@ -16,7 +33,16 @@ management:
     health:
       show-details: always
 
+# SpringDoc OpenAPI Documentation
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+
 logging:
   level:
     root: INFO
     com.studiolynk: DEBUG
+    org.flywaydb: INFO

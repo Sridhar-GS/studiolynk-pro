@@ -159,7 +159,7 @@ Status values: `PLANNED`, `IN PROGRESS`, `IMPLEMENTED`, `TESTED`.
 ## Documentation and quality
 - DOC-001 — Code shall contain useful comments around non-obvious business logic.
 - DOC-002 — README shall document setup and operation.
-- DOC-003 — API documentation shall be maintained.
+- DOC-003 [IMPLEMENTED] — API documentation shall be maintained.
 - DOC-004 — Database ER documentation shall be maintained.
 - DOC-005 — Architecture documentation shall be maintained.
 - DOC-006 — ML methodology shall be documented.
