@@ -145,16 +145,16 @@ Status values: `PLANNED`, `IN PROGRESS`, `IMPLEMENTED`, `TESTED`.
 - UI-010 — Freelancer shall be able to edit profile information.
 
 ## AWS
-- AWS-001 — EC2 shall use Ubuntu 24.04 LTS.
-- AWS-002 — Development shall use VS Code Remote SSH.
-- AWS-003 — MySQL shall run on EC2 for this prototype.
+- AWS-001 [TESTED] — EC2 shall use Ubuntu 24.04 LTS.
+- AWS-002 [TESTED] — Development shall use VS Code Remote SSH.
+- AWS-003 [IMPLEMENTED] — MySQL shall run on EC2 for this prototype.
 - AWS-004 — S3 shall store profile and portfolio images.
 - AWS-005 — S3 shall use logical prefixes for studio profiles, freelancer profiles, and portfolios.
 - AWS-006 — S3 objects may be publicly accessible for this prototype.
 - AWS-007 — Final demo shall use an Elastic IP.
 - AWS-008 — Nginx shall reverse proxy the final deployed application.
-- AWS-009 — MySQL port 3306 shall not be publicly exposed.
-- AWS-010 — Secrets shall be stored as environment variables.
+- AWS-009 [TESTED] — MySQL port 3306 shall not be publicly exposed.
+- AWS-010 [IMPLEMENTED] — Secrets shall be stored as environment variables.
 
 ## Documentation and quality
 - DOC-001 — Code shall contain useful comments around non-obvious business logic.

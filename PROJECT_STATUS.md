@@ -1,7 +1,7 @@
 # StudioLynk Project Status
 
 ## Current phase
-Specification and architecture preparation.
+Phase 1 completed. Awaiting approval to begin Phase 2 (Spring Boot and MySQL foundation).
 
 ## Overall status
 - [x] Product requirements clarified
@@ -10,20 +10,23 @@ Specification and architecture preparation.
 - [x] Technology stack selected
 - [x] AWS approach selected
 - [x] ML approach selected
-- [ ] Architecture review by project owner
-- [ ] Phase 1 implementation
+- [x] Architecture review by project owner (Phase 0)
+- [x] EC2 and repository foundation (Phase 1)
+- [ ] Spring Boot and MySQL foundation (Phase 2)
+- [ ] Authentication (Phase 3)
 
 ## Completed modules
-None yet.
+- Phase 0 — Architecture Review
+- Phase 1 — EC2 and Repository Foundation (OpenJDK 21, Maven 3.8.7, Node 20 LTS, Python 3.12 venv, MySQL 8 on 127.0.0.1, 2GB swapfile, Git, and functional backend, frontend, and ML service skeletons with passing health checks and tests).
 
 ## In progress
-Documentation and implementation planning.
+Phase 2 preparation (Spring Boot JPA & MySQL foundation).
 
 ## Pending
-All implementation phases.
+Phases 2 through 19.
 
 ## Known issues
 None currently.
 
 ## Next action
-Read `docs/00-MASTER-SPECIFICATION.md`, review the architecture, then begin Phase 0 only after approval.
+Wait for explicit approval to begin Phase 2.
