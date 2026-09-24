@@ -11,6 +11,9 @@ import { OnboardingPendingPage } from './pages/onboarding/OnboardingPendingPage'
 import { StudioOnboardingPage } from './pages/studio/StudioOnboardingPage';
 import { StudioDashboardPage } from './pages/studio/StudioDashboardPage';
 import { StudioProfilePage } from './pages/studio/StudioProfilePage';
+import { FreelancerOnboardingPage } from './pages/freelancer/FreelancerOnboardingPage';
+import { FreelancerDashboardPage } from './pages/freelancer/FreelancerDashboardPage';
+import { FreelancerProfilePage } from './pages/freelancer/FreelancerProfilePage';
 
 export const App: React.FC = () => {
   return (
@@ -53,6 +56,31 @@ export const App: React.FC = () => {
               element={
                 <ProtectedRoute requireOnboardingCompleted={true} allowedRoles={['STUDIO', 'ADMIN']}>
                   <StudioProfilePage />
+                </ProtectedRoute>
+              }
+            />
+            {/* Phase 5: Freelancer Onboarding & Profile Routes */}
+            <Route
+              path="/onboarding/freelancer"
+              element={
+                <ProtectedRoute requireOnboardingCompleted={false} allowedRoles={['FREELANCER']}>
+                  <FreelancerOnboardingPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/freelancer/dashboard"
+              element={
+                <ProtectedRoute requireOnboardingCompleted={true} allowedRoles={['FREELANCER', 'ADMIN']}>
+                  <FreelancerDashboardPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/freelancer/profile"
+              element={
+                <ProtectedRoute requireOnboardingCompleted={true} allowedRoles={['FREELANCER', 'ADMIN']}>
+                  <FreelancerProfilePage />
                 </ProtectedRoute>
               }
             />

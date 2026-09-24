@@ -261,4 +261,95 @@
   18. `StudioControllerTests.testGetAndEditStudioProfile` (STU-005)
 - **Frontend Build**: `npm run build` -> **Compiled cleanly with TypeScript type-checking and Vite production asset bundling in 5.83s (0 errors)**.
 
+---
+
+## Phase 5 — Freelancer Onboarding & Profile
+**Completed Date:** 2026-09-24  
+**Status:** COMPLETED & TESTED
+
+### Implemented Modules & Capabilities
+1. **JPA Domain Entities & Database Mappings**:
+   - Enhanced `Freelancer` entity with `@ManyToMany` relationships:
+     - `skills` mapped via MySQL join table `freelancer_skills` (`freelancer_id`, `skill_id`).
+     - `services` mapped via MySQL join table `freelancer_services` (`freelancer_id`, `service_id`).
+     - `equipment` mapped via MySQL join table `freelancer_equipment` (`freelancer_id`, `equipment_id`).
+   - Implemented bidirectional entity methods and transactional persistence.
+
+2. **Data Transfer Objects (DTOs)**:
+   - `CustomItemRequestDto` & `CustomEquipmentRequestDto`: Dynamic catalogue additions (FRL-002, FRL-003, FRL-005).
+   - `SkillDto`, `ServiceDto`, `EquipmentDto`: Domain transfer objects with custom indicator flags.
+   - `FreelancerOnboardingRequestDto`: Full onboarding payload capturing full name, phone, address, coordinates, experience years, bio, photo URL, full/half-day rates, and selection ID lists for skills, services, and equipment (FRL-001).
+   - `FreelancerUpdateRequestDto`: Dedicated profile editing payload (FRL-006).
+   - `FreelancerProfileDto`: Full representation returning creator identity, contact, rates, category-grouped equipment, skills, services, timestamps, and live completion score (ONB-005).
+
+3. **Catalogue Extensions & Custom Additions (FRL-002, FRL-003, FRL-005)**:
+   - `CatalogueService` & `CatalogueServiceImpl`: Added `createCustomSkill`, `createCustomService`, and `createCustomEquipment` marking `is_custom = true` and linking creator `user_id`.
+   - `CatalogueController`:
+     - `POST /api/skills/custom`: Add custom skill (FRL-002).
+     - `POST /api/services/custom`: Add custom service (FRL-003).
+     - `POST /api/equipment/custom`: Add custom equipment gear under a selected category (FRL-005).
+
+4. **Freelancer Service Layer & Business Logic**:
+   - `FreelancerService` and `FreelancerServiceImpl`:
+     - `saveOrUpdateOnboarding`: Role-restricted (`FREELANCER` only), manages Many-to-Many associations, validates rates and contact information, and activates the account upon final submission (`user.onboardingCompleted = true`).
+     - FRL-007 Compliance: Instant platform unlock upon submission with zero admin verification required.
+     - Draft persistence (ONB-004): Allows saving progress without unlocking the platform.
+     - `getFreelancerProfileByEmail` / `getFreelancerProfileById`: Delivers complete profile data including skills, services, and gear.
+     - `updateFreelancerProfile`: Enables modifying professional profile attributes, rates, skills, services, and equipment (FRL-006).
+     - `calculateCompletionPercentage`: Computes deterministic score (0–100%) matching ONB-005 formula: Full Name (15%), Phone (15%), Address (10%), Coordinates (10%), Experience (10%), Rates (10%), Skills (10%), Services (10%), Equipment (5%), Bio (5%).
+
+5. **REST Endpoints**:
+   - `POST /api/onboarding/freelancer`: Submit final freelancer onboarding and unlock platform access (ONB-002, ONB-003, FRL-007).
+   - `PUT /api/onboarding/freelancer`: Save freelancer onboarding draft without completing (ONB-004).
+   - `GET /api/freelancers/me`: Retrieve authenticated freelancer profile and completion score (FRL-006).
+   - `PUT /api/freelancers/me`: Update authenticated freelancer profile details (FRL-006).
+   - `GET /api/freelancers/{id}`: View freelancer profile by ID.
+   - `GET /api/freelancers`: List all registered freelancers.
+
+6. **React Frontend Pages & Navigation**:
+   - `types/index.ts`: TypeScript interfaces for `Skill`, `ServiceItem`, `EquipmentCategory`, `EquipmentItem`, `FreelancerProfile`, and onboarding/update payloads.
+   - `services/catalogueService.ts`: Reusable API client for catalogue data and custom additions.
+   - `services/freelancerService.ts`: Reusable API client for onboarding, draft persistence, profile fetching, and profile updates.
+   - `FreelancerOnboardingPage.tsx`: Interactive multi-section wizard:
+     - Creator Details & Location with City GPS Presets (Chennai, Bangalore, Mumbai, Hyderabad, Delhi, Kochi).
+     - Photography Skills with custom skill modal (FRL-002).
+     - Services Offered with custom service modal (FRL-003).
+     - Camera Gear & Equipment grouped by category (Cameras, Lenses, Lighting, Drones, Audio, Accessories) with custom gear modal (FRL-004, FRL-005).
+     - Full-day & Half-day pricing rates (FRL-001).
+     - Dynamic profile completion meter (ONB-005).
+     - Save Draft button (ONB-004) and Complete Profile & Launch button (ONB-002, FRL-007).
+   - `FreelancerProfilePage.tsx`: Rich profile layout displaying avatar, verified badge, completion meter, contact details, bio, skills chips, services badges, categorized gear, and inline edit modal/form (FRL-006).
+   - `FreelancerDashboardPage.tsx`: Overview dashboard with rate cards, active skills/gear counts, profile shortcuts, and roadmap teasers for Portfolio (Phase 6), Availability (Phase 8), and Bookings (Phase 9).
+   - `Navbar.tsx`: Updated with Freelancer Dashboard and Profile links, Phase 5 Active badge, and role-based onboarding redirection.
+   - `OnboardingPendingPage.tsx`: Updated with automatic redirection to `/onboarding/freelancer` for freelancer accounts.
+   - `App.tsx`: Wired protected routes for `/onboarding/freelancer`, `/freelancer/dashboard`, `/freelancer/profile`.
+
+### Verification Summary
+- **Backend Test Suite**: `mvn test` -> **23 of 23 tests PASSED (0 failures, 0 errors, 0 skipped)** in 27.5s:
+  1. `StudioLynkApplicationTests.contextLoads`
+  2. `StudioLynkApplicationTests.healthEndpointReturnsUp`
+  3. `StudioLynkApplicationTests.catalogueSkillsReturnsSeededData`
+  4. `StudioLynkApplicationTests.testUserPersistence`
+  5. `StudioLynkApplicationTests.openApiDocsAccessible`
+  6. `AuthControllerTests.registerStudioSuccessfully`
+  7. `AuthControllerTests.registerFreelancerSuccessfully`
+  8. `AuthControllerTests.registerDuplicateEmailFails`
+  9. `AuthControllerTests.registerWeakPasswordFails`
+  10. `AuthControllerTests.loginSuccessReturnsJwtToken`
+  11. `AuthControllerTests.loginInvalidPasswordFails`
+  12. `AuthControllerTests.getCurrentUserWithToken`
+  13. `AuthControllerTests.getCurrentUserWithoutTokenFails`
+  14. `AuthControllerTests.forgotPasswordAndResetFlow`
+  15. `StudioControllerTests.testStudioOnboardingSuccess` (STU-001, STU-004)
+  16. `StudioControllerTests.testStudioOnboardingDraft` (ONB-004)
+  17. `StudioControllerTests.testNonStudioUserCannotSubmitStudioOnboarding`
+  18. `StudioControllerTests.testGetAndEditStudioProfile` (STU-005)
+  19. `FreelancerControllerTests.testFreelancerOnboardingSuccess` (FRL-001, FRL-007, ONB-002)
+  20. `FreelancerControllerTests.testFreelancerOnboardingDraft` (ONB-004)
+  21. `FreelancerControllerTests.testNonFreelancerUserCannotSubmitFreelancerOnboarding`
+  22. `FreelancerControllerTests.testCreateCustomCatalogueItems` (FRL-002, FRL-003, FRL-005)
+  23. `FreelancerControllerTests.testGetAndEditFreelancerProfile` (FRL-006)
+- **Frontend Build**: `npm run build` -> **Compiled cleanly with TypeScript type-checking and Vite production asset bundling in 6.40s (0 errors)**.
+
+
 

@@ -26,7 +26,7 @@ export const Navbar: React.FC = () => {
                 StudioLynk
               </span>
               <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/30 font-medium">
-                Phase 4 Active
+                Phase 5 Active
               </span>
             </div>
             <p className="text-[11px] text-slate-400">Photography Studio & Freelancer Network</p>
@@ -61,6 +61,35 @@ export const Navbar: React.FC = () => {
             </Link>
           </nav>
         )}
+
+        {/* Freelancer Navigation Links when Onboarding is Completed */}
+        {isAuthenticated && user && user.role === 'FREELANCER' && user.onboardingCompleted && (
+          <nav className="hidden md:flex items-center gap-1.5 ml-4">
+            <Link
+              to="/freelancer/dashboard"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                location.pathname === '/freelancer/dashboard'
+                  ? 'bg-slate-800 text-teal-400'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+              }`}
+            >
+              <LayoutDashboard className="w-3.5 h-3.5" />
+              <span>Dashboard</span>
+            </Link>
+
+            <Link
+              to="/freelancer/profile"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                location.pathname === '/freelancer/profile'
+                  ? 'bg-slate-800 text-teal-400'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+              }`}
+            >
+              <UserIcon className="w-3.5 h-3.5" />
+              <span>Creator Profile</span>
+            </Link>
+          </nav>
+        )}
       </div>
 
       <div className="flex items-center gap-4">
@@ -78,7 +107,7 @@ export const Navbar: React.FC = () => {
 
             {!user.onboardingCompleted && (
               <Link
-                to={user.role === 'STUDIO' ? '/onboarding/studio' : '/onboarding'}
+                to={user.role === 'STUDIO' ? '/onboarding/studio' : '/onboarding/freelancer'}
                 className="hidden sm:flex items-center gap-1.5 text-xs text-amber-300 bg-amber-500/10 border border-amber-500/30 px-2.5 py-1.5 rounded-lg hover:bg-amber-500/20 transition-colors"
               >
                 <ShieldAlert className="w-3.5 h-3.5" />

@@ -28,13 +28,13 @@ Status values: `PLANNED`, `IN PROGRESS`, `IMPLEMENTED`, `TESTED`.
 - STU-006 — Studio shall be able to create work/event requirements.
 
 ## Freelancer
-- FRL-001 — Freelancer onboarding shall collect name, photo, email, phone, address, location, experience, bio, skills, services, equipment, and full/half-day charges.
-- FRL-002 — Skills shall support predefined options and custom additions.
-- FRL-003 — Services shall support predefined options and custom additions.
-- FRL-004 — Equipment shall be grouped by categories such as Camera, Lens, Lighting, Software, and Other.
-- FRL-005 — Equipment shall support predefined options and custom additions.
-- FRL-006 — Freelancer shall be able to edit professional profile data.
-- FRL-007 — Freelancer shall not require admin verification.
+- FRL-001 — Freelancer onboarding shall collect name, photo, email, phone, address, location, experience, bio, skills, services, equipment, and full/half-day charges. `[TESTED]`
+- FRL-002 — Skills shall support predefined options and custom additions. `[TESTED]`
+- FRL-003 — Services shall support predefined options and custom additions. `[TESTED]`
+- FRL-004 — Equipment shall be grouped by categories such as Camera, Lens, Lighting, Software, and Other. `[TESTED]`
+- FRL-005 — Equipment shall support predefined options and custom additions. `[TESTED]`
+- FRL-006 — Freelancer shall be able to edit professional profile data. `[TESTED]`
+- FRL-007 — Freelancer shall not require admin verification. `[TESTED]`
 
 ## Portfolio
 - POR-001 — Each freelancer shall maintain one portfolio.

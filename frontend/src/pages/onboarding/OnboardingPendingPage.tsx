@@ -12,9 +12,13 @@ export const OnboardingPendingPage: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // If studio, automatically route to studio onboarding form
+    // Automatically route to role-specific onboarding wizard
     if (user?.role === 'STUDIO') {
       navigate('/onboarding/studio', { replace: true });
+      return;
+    }
+    if (user?.role === 'FREELANCER') {
+      navigate('/onboarding/freelancer', { replace: true });
       return;
     }
 

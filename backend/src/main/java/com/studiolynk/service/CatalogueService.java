@@ -13,4 +13,9 @@ public interface CatalogueService {
     List<EquipmentCategory> getAllEquipmentCategories();
     List<Equipment> getAllEquipment();
     List<Equipment> getEquipmentByCategory(Long categoryId);
+
+    // Custom catalogue additions (FRL-002, FRL-003, FRL-005)
+    Skill createCustomSkill(String name, Long userId);
+    ServiceEntity createCustomService(String name, Long userId);
+    Equipment createCustomEquipment(Long categoryId, String name, Long userId);
 }

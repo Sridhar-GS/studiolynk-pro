@@ -101,3 +101,88 @@ export interface StudioUpdatePayload {
   logoUrl?: string;
   socialLinks?: StudioSocialLink[];
 }
+
+// -----------------------------------------------------------------------------
+// Catalogue & Freelancer Types (Phase 5)
+// -----------------------------------------------------------------------------
+export interface Skill {
+  id: number;
+  name: string;
+  custom?: boolean;
+}
+
+export interface ServiceItem {
+  id: number;
+  name: string;
+  custom?: boolean;
+}
+
+export interface EquipmentCategory {
+  id: number;
+  name: string;
+  description?: string;
+}
+
+export interface EquipmentItem {
+  id: number;
+  categoryId?: number;
+  categoryName?: string;
+  name: string;
+  custom?: boolean;
+}
+
+export interface FreelancerProfile {
+  id: number;
+  userId: number;
+  email: string;
+  fullName: string;
+  profilePhotoUrl?: string;
+  phone: string;
+  address: string;
+  latitude?: number;
+  longitude?: number;
+  experienceYears: number;
+  bio?: string;
+  fullDayRate?: number;
+  halfDayRate?: number;
+  onboardingCompleted: boolean;
+  completionPercentage: number;
+  skills: Skill[];
+  services: ServiceItem[];
+  equipment: EquipmentItem[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface FreelancerOnboardingPayload {
+  fullName: string;
+  phone: string;
+  address: string;
+  latitude?: number;
+  longitude?: number;
+  experienceYears?: number;
+  bio?: string;
+  profilePhotoUrl?: string;
+  fullDayRate?: number;
+  halfDayRate?: number;
+  skillIds?: number[];
+  serviceIds?: number[];
+  equipmentIds?: number[];
+}
+
+export interface FreelancerUpdatePayload {
+  fullName: string;
+  phone: string;
+  address: string;
+  latitude?: number;
+  longitude?: number;
+  experienceYears?: number;
+  bio?: string;
+  profilePhotoUrl?: string;
+  fullDayRate?: number;
+  halfDayRate?: number;
+  skillIds?: number[];
+  serviceIds?: number[];
+  equipmentIds?: number[];
+}
+

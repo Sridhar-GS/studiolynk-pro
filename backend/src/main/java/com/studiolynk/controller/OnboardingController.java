@@ -2,12 +2,15 @@ package com.studiolynk.controller;
 
 import com.studiolynk.exception.ResourceNotFoundException;
 import com.studiolynk.model.dto.ApiResponse;
+import com.studiolynk.model.dto.FreelancerOnboardingRequestDto;
+import com.studiolynk.model.dto.FreelancerProfileDto;
 import com.studiolynk.model.dto.OnboardingStatusDto;
 import com.studiolynk.model.dto.StudioOnboardingRequestDto;
 import com.studiolynk.model.dto.StudioProfileDto;
 import com.studiolynk.model.entity.User;
 import com.studiolynk.model.enums.UserRole;
 import com.studiolynk.repository.UserRepository;
+import com.studiolynk.service.FreelancerService;
 import com.studiolynk.service.StudioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,10 +35,12 @@ public class OnboardingController {
 
     private final UserRepository userRepository;
     private final StudioService studioService;
+    private final FreelancerService freelancerService;
 
-    public OnboardingController(UserRepository userRepository, StudioService studioService) {
+    public OnboardingController(UserRepository userRepository, StudioService studioService, FreelancerService freelancerService) {
         this.userRepository = userRepository;
         this.studioService = studioService;
+        this.freelancerService = freelancerService;
     }
 
     @GetMapping("/status")
@@ -84,5 +89,25 @@ public class OnboardingController {
 
         StudioProfileDto profile = studioService.saveOrUpdateOnboarding(userDetails.getUsername(), request, false);
         return ResponseEntity.ok(ApiResponse.ok("Studio onboarding draft saved successfully.", profile));
+    }
+
+    @PostMapping("/freelancer")
+    @Operation(summary = "Submit final freelancer onboarding and activate platform access (ONB-002, ONB-003, FRL-007)")
+    public ResponseEntity<ApiResponse<FreelancerProfileDto>> completeFreelancerOnboarding(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @Valid @RequestBody FreelancerOnboardingRequestDto request) {
+
+        FreelancerProfileDto profile = freelancerService.saveOrUpdateOnboarding(userDetails.getUsername(), request, true);
+        return ResponseEntity.ok(ApiResponse.ok("Freelancer onboarding completed successfully. Platform unlocked.", profile));
+    }
+
+    @PutMapping("/freelancer")
+    @Operation(summary = "Save freelancer onboarding draft without completing (ONB-004)")
+    public ResponseEntity<ApiResponse<FreelancerProfileDto>> saveFreelancerOnboardingDraft(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @Valid @RequestBody FreelancerOnboardingRequestDto request) {
+
+        FreelancerProfileDto profile = freelancerService.saveOrUpdateOnboarding(userDetails.getUsername(), request, false);
+        return ResponseEntity.ok(ApiResponse.ok("Freelancer onboarding draft saved successfully.", profile));
     }
 }

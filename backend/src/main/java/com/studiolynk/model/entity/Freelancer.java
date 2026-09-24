@@ -57,6 +57,30 @@ public class Freelancer extends BaseEntity {
     @Column(name = "half_day_rate", nullable = false, precision = 10, scale = 2)
     private BigDecimal halfDayRate = BigDecimal.ZERO;
 
+    @jakarta.persistence.ManyToMany
+    @jakarta.persistence.JoinTable(
+        name = "freelancer_skills",
+        joinColumns = @JoinColumn(name = "freelancer_id"),
+        inverseJoinColumns = @JoinColumn(name = "skill_id")
+    )
+    private java.util.Set<Skill> skills = new java.util.HashSet<>();
+
+    @jakarta.persistence.ManyToMany
+    @jakarta.persistence.JoinTable(
+        name = "freelancer_services",
+        joinColumns = @JoinColumn(name = "freelancer_id"),
+        inverseJoinColumns = @JoinColumn(name = "service_id")
+    )
+    private java.util.Set<ServiceEntity> services = new java.util.HashSet<>();
+
+    @jakarta.persistence.ManyToMany
+    @jakarta.persistence.JoinTable(
+        name = "freelancer_equipment",
+        joinColumns = @JoinColumn(name = "freelancer_id"),
+        inverseJoinColumns = @JoinColumn(name = "equipment_id")
+    )
+    private java.util.Set<Equipment> equipment = new java.util.HashSet<>();
+
     public Freelancer() {
     }
 
@@ -161,5 +185,29 @@ public class Freelancer extends BaseEntity {
 
     public void setHalfDayRate(BigDecimal halfDayRate) {
         this.halfDayRate = halfDayRate;
+    }
+
+    public java.util.Set<Skill> getSkills() {
+        return skills;
+    }
+
+    public void setSkills(java.util.Set<Skill> skills) {
+        this.skills = skills;
+    }
+
+    public java.util.Set<ServiceEntity> getServices() {
+        return services;
+    }
+
+    public void setServices(java.util.Set<ServiceEntity> services) {
+        this.services = services;
+    }
+
+    public java.util.Set<Equipment> getEquipment() {
+        return equipment;
+    }
+
+    public void setEquipment(java.util.Set<Equipment> equipment) {
+        this.equipment = equipment;
     }
 }
