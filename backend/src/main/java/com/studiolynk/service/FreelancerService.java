@@ -19,4 +19,8 @@ public interface FreelancerService {
     FreelancerProfileDto getFreelancerProfileByEmail(String userEmail);
     FreelancerProfileDto getFreelancerProfileById(Long freelancerId);
     FreelancerProfileDto updateFreelancerProfile(String userEmail, FreelancerUpdateRequestDto dto);
+
+    // Phase 8: Freelancer Discovery & Search (DIS-001 - DIS-006)
+    com.studiolynk.model.dto.FreelancerSearchResponseDto searchFreelancers(com.studiolynk.model.dto.FreelancerSearchFilterDto filters);
+    com.studiolynk.model.dto.FreelancerCardDto getFreelancerCardById(Long freelancerId, java.time.LocalDate date, java.time.LocalTime startTime, java.time.LocalTime endTime);
 }

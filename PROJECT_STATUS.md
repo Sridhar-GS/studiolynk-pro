@@ -1,7 +1,7 @@
 # StudioLynk Project Status
 
 ## Current phase
-Phase 7 completed. Awaiting approval to begin Phase 8 (Freelancer Discovery).
+Phase 8 completed. Awaiting approval to begin Phase 9 (Work Requirements).
 
 ## Overall status
 - [x] Product requirements clarified
@@ -18,6 +18,7 @@ Phase 7 completed. Awaiting approval to begin Phase 8 (Freelancer Discovery).
 - [x] Freelancer onboarding/profile (Phase 5)
 - [x] Portfolio and AWS S3 storage (Phase 6)
 - [x] Availability calendar & shoot slot filtering (Phase 7)
+- [x] Freelancer Discovery & Multi-Parameter Search (Phase 8)
 
 ## Completed modules
 - **Phase 0 — Architecture Review**: Complete specification audit, component boundaries, and risk assessment.
@@ -28,16 +29,17 @@ Phase 7 completed. Awaiting approval to begin Phase 8 (Freelancer Discovery).
 - **Phase 5 — Freelancer Onboarding & Profile**: Freelancer profile entities and relationships with `@ManyToMany` joins (`freelancer_skills`, `freelancer_services`, `freelancer_equipment`), catalogue master data endpoints and dynamic user-created custom skills (FRL-002), custom services (FRL-003), and custom equipment gear grouped by category (FRL-004, FRL-005), onboarding submission (FRL-001) and draft persistence (ONB-004), instant platform unlocking without admin verification (FRL-007, ONB-002, ONB-003), authenticated profile retrieval (`GET /api/freelancers/me`) and editing (`PUT /api/freelancers/me`) (FRL-006), deterministic profile completion percentage calculator (ONB-005), interactive React onboarding wizard, rich profile view/edit interface, and Freelancer dashboard with 23/23 passing JUnit tests and zero TypeScript build errors.
 - **Phase 6 — Portfolio and AWS S3 Storage**: JPA entity model for `Portfolio`, `PortfolioCategory`, and `PortfolioImage` mapped to MySQL tables, pluggable `StorageService` architecture supporting production AWS SDK v2 S3 storage (`software.amazon.awssdk:s3:2.25.16`) and local filesystem dev/test fallback, category CRUD (POR-002, POR-003, POR-005), image upload with MIME & size validation (POR-004, POR-008), drag/drop image reordering by sort order (POR-006), public portfolio viewing (POR-007), profile/logo image uploads (`POST /api/upload/image`), interactive React portfolio management page with multi-image dropzone and full-screen lightbox, updated Navbar and Dashboard integration, 28/28 passing JUnit tests, and clean Vite build.
 - **Phase 7 — Availability Calendar & Shoot Filtering**: Rolling 10-day scheduling window (`today` to `today + 9 days`) (AVL-001), daily status tracking with `AVAILABLE`, `BUSY`, and `NOT_SET` (AVL-002), required working shoot hours validation (start time before end time) for open dates (AVL-003), studio shoot search filtering enforcing availability and interval containment (AVL-004), strict exclusion of Busy and Not Set days from search results (AVL-005), beyond 10-day window explicit `UNKNOWN / NOT_SET` designation (AVL-006), candidate filtering foundation for hard filtering before AI ranking (AVL-007), booking conflict detection logic (AVL-008, AVL-009), comprehensive REST APIs (`/api/freelancers/me/availability`, `/api/freelancers/{id}/availability`, `/api/freelancers/availability/check`), rich interactive React calendar page with status pills, preset hours chips, and quick-fill toolbars, live profile preview widget, 34/34 passing JUnit tests (0 failures, 0 errors), and zero-error Vite build.
+- **Phase 8 — Freelancer Discovery & Multi-Parameter Search**: Studio normal freelancer discovery search (DIS-001), AI requirement-based matching card & score readiness (DIS-002, DIS-006), multi-parameter search filters (DIS-003) across keyword, service, skill, equipment gear, location text, Haversine spherical coordinate distance in km, shoot date & start/end times, day type (`FULL_DAY` vs `HALF_DAY`), max budget, and min experience years. Incomplete onboarding candidates strictly excluded. Dynamic rolling 10-day availability filter integration (AVL-004, AVL-005) strictly excluding busy/not-set candidates within 10 days, and surfacing candidates beyond 10 days with "Availability Unknown" status and explanatory notice (AVL-006). Multi-faceted sorting by relevance/distance, distance, rating, experience, and price. Search result cards (DIS-004, DIS-005) displaying profile photo, full name, location/distance, rating/reviews, experience, skill/service chips, equipment highlights, full/half-day rates, live availability hours badge, and AI match score badge. Profile & Portfolio showcase modal with real-time portfolio photos and rolling 10-day calendar views. Studio dashboard and top navigation integration with "Find Creators" link, 40/40 passing JUnit tests (0 failures, 0 errors), and clean production Vite build.
 
 ## In progress
-None. Phase 7 completed.
+None. Phase 8 completed.
 
 ## Pending
-Phases 8 through 19.
+Phases 9 through 19.
 
 ## Known issues
 None.
 
 ## Next action
-Wait for explicit approval to begin Phase 8 (Freelancer Discovery).
+Wait for explicit approval to begin Phase 9 (Work Requirements).
 

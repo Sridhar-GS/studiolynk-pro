@@ -1,5 +1,13 @@
 import api from './api';
-import { ApiResponse, FreelancerOnboardingPayload, FreelancerProfile, FreelancerUpdatePayload } from '../types';
+import {
+  ApiResponse,
+  FreelancerCard,
+  FreelancerOnboardingPayload,
+  FreelancerProfile,
+  FreelancerSearchFilter,
+  FreelancerSearchResponse,
+  FreelancerUpdatePayload,
+} from '../types';
 
 export const freelancerService = {
   async getProfile(): Promise<FreelancerProfile> {
@@ -26,4 +34,20 @@ export const freelancerService = {
     const res = await api.put<ApiResponse<FreelancerProfile>>('/freelancers/me', payload);
     return res.data.data;
   },
+
+  // Phase 8: Discovery (DIS-001 - DIS-006)
+  async searchFreelancers(filters?: FreelancerSearchFilter): Promise<FreelancerSearchResponse> {
+    const res = await api.get<ApiResponse<FreelancerSearchResponse>>('/freelancers/search', {
+      params: filters,
+    });
+    return res.data.data;
+  },
+
+  async getFreelancerCard(id: number, date?: string, startTime?: string, endTime?: string): Promise<FreelancerCard> {
+    const res = await api.get<ApiResponse<FreelancerCard>>(`/freelancers/${id}/card`, {
+      params: { date, startTime, endTime },
+    });
+    return res.data.data;
+  },
 };
+

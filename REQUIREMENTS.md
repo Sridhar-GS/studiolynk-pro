@@ -59,12 +59,12 @@ Status values: `PLANNED`, `IN PROGRESS`, `IMPLEMENTED`, `TESTED`.
 - AVL-009 — Confirmed work shall make the relevant freelancer time unavailable/busy. `[IMPLEMENTED]`
 
 ## Studio discovery
-- DIS-001 — Studio shall have normal freelancer search.
-- DIS-002 — Studio shall have AI requirement-based matching.
-- DIS-003 — Search filters shall include service, skill, location, date, time, full/half day, budget, experience, and equipment.
-- DIS-004 — Search results shall be displayed as individual freelancer cards.
-- DIS-005 — Freelancer cards shall show profile, location, rating, experience, skills/services, relevant availability, and pricing.
-- DIS-006 — AI results shall display a match score such as `92.4% Match`.
+- DIS-001 — Studio shall have normal freelancer search. `[TESTED]`
+- DIS-002 — Studio shall have AI requirement-based matching. `[IMPLEMENTED]`
+- DIS-003 — Search filters shall include service, skill, location, date, time, full/half day, budget, experience, and equipment. `[TESTED]`
+- DIS-004 — Search results shall be displayed as individual freelancer cards. `[TESTED]`
+- DIS-005 — Freelancer cards shall show profile, location, rating, experience, skills/services, relevant availability, and pricing. `[TESTED]`
+- DIS-006 — AI results shall display a match score such as `92.4% Match`. `[TESTED]`
 
 ## Work requirements
 - WRK-001 — Studio shall create detailed work/event requirements.

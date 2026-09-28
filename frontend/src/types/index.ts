@@ -308,5 +308,66 @@ export interface AvailabilityCheckResponse {
   reason: string;
 }
 
+// -----------------------------------------------------------------------------
+// Freelancer Discovery Types (Phase 8 - DIS-001 to DIS-006)
+// -----------------------------------------------------------------------------
+export interface FreelancerCard {
+  id: number;
+  userId: number;
+  fullName: string;
+  profilePhotoUrl?: string;
+  phone?: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
+  distanceKm?: number;
+  formattedDistance?: string;
+  experienceYears?: number;
+  bio?: string;
+  fullDayRate?: number;
+  halfDayRate?: number;
+  averageRating: number;
+  reviewCount: number;
+  skills: Skill[];
+  services: ServiceItem[];
+  equipment: EquipmentItem[];
+  primaryRole?: string;
+  availabilityStatus?: AvailabilityStatus;
+  availableHours?: string;
+  withinWindow?: boolean;
+  availabilityNotice?: string;
+  aiMatchScore?: number;
+  onboardingCompleted: boolean;
+}
+
+export interface FreelancerSearchFilter {
+  keyword?: string;
+  serviceId?: number;
+  serviceName?: string;
+  skillId?: number;
+  skillName?: string;
+  equipmentId?: number;
+  equipmentName?: string;
+  location?: string;
+  latitude?: number;
+  longitude?: number;
+  maxDistanceKm?: number;
+  date?: string; // YYYY-MM-DD
+  startTime?: string; // HH:mm
+  endTime?: string; // HH:mm
+  dayType?: 'FULL_DAY' | 'HALF_DAY';
+  maxBudget?: number;
+  minExperience?: number;
+  sortBy?: 'relevance' | 'distance' | 'rating' | 'experience' | 'price_asc' | 'price_desc';
+}
+
+export interface FreelancerSearchResponse {
+  totalResults: number;
+  searchedDate?: string;
+  searchedTime?: string;
+  searchedLocation?: string;
+  freelancers: FreelancerCard[];
+}
+
 
 

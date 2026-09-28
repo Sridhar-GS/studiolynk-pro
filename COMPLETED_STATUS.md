@@ -504,3 +504,74 @@
      - `testResetMyAvailability_success`
      - `testGetFreelancerAvailability_byId`
 - **Frontend Build**: `npm run build` -> **Compiled cleanly with TypeScript type-checking and Vite production asset bundling in 6.57s (0 errors)**.
+
+---
+
+## Phase 8 — Freelancer Discovery & Multi-Parameter Search
+**Completed Date:** 2026-09-28  
+**Status:** COMPLETED & TESTED
+
+### Implemented Modules & Capabilities
+1. **Data Transfer Objects (DTOs)**:
+   - `FreelancerSearchFilterDto`: Comprehensive multi-parameter filter model supporting `keyword` (full text across name, bio, address, skills, services, gear), `serviceId` / `serviceName`, `skillId` / `skillName`, `equipmentId` / `equipmentName`, `location` (text string), `latitude` & `longitude` (for Haversine distance), `maxDistanceKm`, `date`, `startTime`, `endTime`, `dayType` (`FULL_DAY` vs `HALF_DAY`), `maxBudget`, `minExperience`, and `sortBy` (`relevance`, `distance`, `rating`, `experience`, `price_asc`, `price_desc`).
+   - `FreelancerCardDto`: Rich presentation model for discovery results (DIS-004, DIS-005) including `id`, `userId`, `fullName`, `profilePhotoUrl`, `phone`, `address`, `latitude`, `longitude`, `distanceKm`, `formattedDistance`, `experienceYears`, `bio`, `fullDayRate`, `halfDayRate`, `averageRating`, `reviewCount`, `skills`, `services`, `equipment`, `primaryRole`, `availabilityStatus`, `availableHours`, `withinWindow`, `availabilityNotice`, `aiMatchScore` (DIS-006), and `onboardingCompleted`.
+   - `FreelancerSearchResponseDto`: Search result envelope containing `totalResults`, `searchedDate`, `searchedTime`, `searchedLocation`, and list of `freelancers`.
+
+2. **Backend Service & Algorithm Implementation**:
+   - `FreelancerService` & `FreelancerServiceImpl`:
+     - **Onboarding Gate (DIS-001)**: Strictly filters out freelancers whose onboarding is incomplete (`f.getUser().isOnboardingCompleted() == true`), ensuring incomplete drafts are never exposed to studios.
+     - **Multi-Parameter Search Engine (DIS-003)**:
+       - Multi-field keyword search across name, bio, address, skills, services, and equipment.
+       - Exact or name-based filtering on services, skills, and equipment.
+       - Minimum experience years filter.
+       - Day-type sensitive budget filter (evaluates `halfDayRate` for `HALF_DAY` and `fullDayRate` for `FULL_DAY`).
+       - Case-insensitive location text filtering.
+     - **Haversine Great-Circle Distance Algorithm**: Calculates exact spherical distance in kilometers using Earth radius $R = 6371.0\text{ km}$ based on studio latitude/longitude and freelancer coordinates. Filters by `maxDistanceKm` radius and formats distance string.
+     - **Rolling 10-Day Availability Hard Filtering (AVL-004, AVL-005, AVL-006)**:
+       - Seamlessly integrated with `AvailabilityService.checkAvailability()`.
+       - For dates within the 10-day window: candidates marked `BUSY`, `NOT_SET`, or with non-covering hours are strictly excluded from search results (`AVL-004`, `AVL-005`).
+       - For dates beyond the 10-day window: candidates remain visible with `withinWindow = false`, `availabilityStatus = NOT_SET`, and explanatory notice: *"Beyond 10-day scheduling window. Availability unknown."* (`AVL-006`).
+     - **Multi-Attribute Sorting Engine**: Sorts results deterministically by `relevance` (distance when coordinates provided, experience otherwise), `distance` (nearest first), `rating` (highest first), `experience` (most experienced first), `price_asc` (lowest full day rate), and `price_desc` (highest full day rate).
+     - **Single Freelancer Card Retrieval**: Implemented `getFreelancerCardById(freelancerId, date, startTime, endTime)` providing full card metadata and live availability evaluation for individual candidate review.
+
+3. **REST Endpoints**:
+   - `GET /api/freelancers/search`: Query parameter-based multi-parameter freelancer search (DIS-001, DIS-003).
+   - `POST /api/freelancers/search`: Request body-based search supporting complex programmatic queries.
+   - `GET /api/freelancers/{id}/card`: Single freelancer discovery card with live availability inspection (DIS-004, DIS-005).
+
+4. **React Frontend Studio Discovery Interface**:
+   - `types/index.ts`: Added `FreelancerCard`, `FreelancerSearchFilter`, and `FreelancerSearchResponse`.
+   - `services/freelancerService.ts`: Added `searchFreelancers(filters)` and `getFreelancerCard(id, date, startTime, endTime)`.
+   - `StudioDiscoveryPage.tsx`: Premium, full-featured discovery interface with:
+     - Top search panel with keyword search, shoot date picker, time slot selector, and quick city preset chips (Chennai, Coimbatore, Madurai, Bangalore, Kochi).
+     - "My GPS" browser geolocation button for real-time Haversine distance from studio's current device position.
+     - Advanced expandable filter drawer with services, skills, equipment, day-type switcher (`Full Day` vs `Half Day`), budget input, min experience dropdown, max distance radius, and sorting selector.
+     - Rolling 10-day availability banner dynamically adapting to selected date (green for within-window verified available candidates; amber for beyond 10-day unknown availability notice).
+     - Results view mode switcher (`Grid` vs `List`).
+     - Creator Cards (DIS-004, DIS-005) with avatar, full name, primary role, star rating & review count, location & Haversine distance in km, full & half day pricing, skills & services badges, gear highlights, live availability badge (`Available 09:00 - 18:00` or `Date > 10 Days`), and AI match score badge (`94% Match`) (DIS-006).
+     - "View Profile" interactive modal showcasing:
+       - Portfolio showcase tab loading live categories and images from `/api/portfolio/freelancer/{id}`.
+       - 10-day availability schedule tab loading live daily status from `/api/freelancers/{id}/availability`.
+       - Equipment & skills breakdown tab with camera, lens, and lighting gear.
+     - "Send Request" modal allowing studio to specify shoot details, dates, and message with instant submission confirmation.
+   - `StudioDashboardPage.tsx`: Activated Card 1 ("Discover Freelancers") linking to `/studio/discovery`, added Phase 8 Active banner.
+   - `Navbar.tsx`: Added "Find Creators" link with Search icon in Studio navigation, updated platform badge to "Phase 8 Active".
+   - `App.tsx`: Registered protected route `/studio/discovery` for `STUDIO` and `ADMIN` roles.
+
+### Verification Summary
+- **Backend Test Suite**: `mvn test` -> **40 of 40 tests PASSED (0 failures, 0 errors, 0 skipped)** in 34.9s:
+  1. `StudioLynkApplicationTests` (5 tests)
+  2. `AuthControllerTests` (9 tests)
+  3. `StudioControllerTests` (4 tests)
+  4. `FreelancerControllerTests` (5 tests)
+  5. `PortfolioControllerTests` (5 tests)
+  6. `FreelancerAvailabilityControllerTests` (6 tests)
+  7. `FreelancerDiscoveryControllerTests` (6 tests):
+     - `testBasicDiscoverySearch` (DIS-001, DIS-004, DIS-005)
+     - `testMultiParameterFilters` (DIS-003: keyword, service, skill, minExperience, maxBudget)
+     - `testHaversineDistanceAndSorting` (DIS-003: Haversine distance calculation, max distance radius, distance sorting)
+     - `testAvailabilityFilteringInDiscovery` (AVL-004, AVL-005, AVL-006, DIS-003: 10-day window inclusion/exclusion & beyond window notice)
+     - `testGetFreelancerCardById` (DIS-004, DIS-005: individual card with live availability evaluation)
+     - `testIncompleteOnboardingExcluded` (DIS-001: onboarding gate enforcement)
+- **Frontend Build**: `npm run build` -> **Compiled cleanly with TypeScript type-checking and Vite production asset bundling in 6.56s (0 errors)**.
+

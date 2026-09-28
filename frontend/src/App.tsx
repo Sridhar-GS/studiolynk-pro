@@ -11,6 +11,7 @@ import { OnboardingPendingPage } from './pages/onboarding/OnboardingPendingPage'
 import { StudioOnboardingPage } from './pages/studio/StudioOnboardingPage';
 import { StudioDashboardPage } from './pages/studio/StudioDashboardPage';
 import { StudioProfilePage } from './pages/studio/StudioProfilePage';
+import { StudioDiscoveryPage } from './pages/studio/StudioDiscoveryPage';
 import { FreelancerOnboardingPage } from './pages/freelancer/FreelancerOnboardingPage';
 import { FreelancerDashboardPage } from './pages/freelancer/FreelancerDashboardPage';
 import { FreelancerProfilePage } from './pages/freelancer/FreelancerProfilePage';
@@ -58,6 +59,15 @@ export const App: React.FC = () => {
               element={
                 <ProtectedRoute requireOnboardingCompleted={true} allowedRoles={['STUDIO', 'ADMIN']}>
                   <StudioProfilePage />
+                </ProtectedRoute>
+              }
+            />
+            {/* Phase 8: Studio Discovery Route (DIS-001 - DIS-006) */}
+            <Route
+              path="/studio/discovery"
+              element={
+                <ProtectedRoute requireOnboardingCompleted={true} allowedRoles={['STUDIO', 'ADMIN']}>
+                  <StudioDiscoveryPage />
                 </ProtectedRoute>
               }
             />
