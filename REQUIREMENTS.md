@@ -96,10 +96,10 @@ Status values: `PLANNED`, `IN PROGRESS`, `IMPLEMENTED`, `TESTED`.
 - MSG-006 — No external email notifications are required for messaging. `[TESTED]`
 
 ## Notifications
-- NOT-001 — Notifications shall be in-app.
-- NOT-002 — Notifications shall include new requests, acceptance/rejection, confirmation, messages, work lifecycle events, and rating reminders.
-- NOT-003 — Notifications shall have read/unread state.
-- NOT-004 — Users shall be able to mark all notifications as read.
+- NOT-001 — Notifications shall be in-app. `[TESTED]`
+- NOT-002 — Notifications shall include new requests, acceptance/rejection, confirmation, messages, work lifecycle events, and rating reminders. `[TESTED]`
+- NOT-003 — Notifications shall have read/unread state. `[TESTED]`
+- NOT-004 — Users shall be able to mark all notifications as read. `[TESTED]`
 
 ## Ratings
 - RAT-001 — Studio may rate freelancers after completed work.

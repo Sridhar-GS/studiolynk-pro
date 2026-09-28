@@ -24,6 +24,7 @@ import { FreelancerAvailabilityPage } from './pages/freelancer/FreelancerAvailab
 import { FreelancerRequestsPage } from './pages/freelancer/FreelancerRequestsPage';
 import { FreelancerRequestDetailPage } from './pages/freelancer/FreelancerRequestDetailPage';
 import { MessagesPage } from './pages/messaging/MessagesPage';
+import { NotificationsPage } from './pages/notifications/NotificationsPage';
 
 export const App: React.FC = () => {
   return (
@@ -186,6 +187,15 @@ export const App: React.FC = () => {
               element={
                 <ProtectedRoute requireOnboardingCompleted={true} allowedRoles={['STUDIO', 'FREELANCER', 'ADMIN']}>
                   <MessagesPage />
+                </ProtectedRoute>
+              }
+            />
+            {/* Phase 12: In-App Notifications (NOT-001 - NOT-004) */}
+            <Route
+              path="/notifications"
+              element={
+                <ProtectedRoute requireOnboardingCompleted={true} allowedRoles={['STUDIO', 'FREELANCER', 'ADMIN']}>
+                  <NotificationsPage />
                 </ProtectedRoute>
               }
             />

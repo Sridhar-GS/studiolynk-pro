@@ -10,6 +10,7 @@ import com.studiolynk.model.entity.Message;
 import com.studiolynk.model.entity.Studio;
 import com.studiolynk.model.entity.User;
 import com.studiolynk.model.entity.WorkRequirement;
+import com.studiolynk.model.enums.NotificationType;
 import com.studiolynk.model.enums.UserRole;
 import com.studiolynk.repository.ConversationRepository;
 import com.studiolynk.repository.FreelancerRepository;
@@ -19,6 +20,7 @@ import com.studiolynk.repository.UserRepository;
 import com.studiolynk.repository.WorkRequestRepository;
 import com.studiolynk.repository.WorkRequirementRepository;
 import com.studiolynk.service.ConversationService;
+import com.studiolynk.service.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -44,6 +46,7 @@ public class ConversationServiceImpl implements ConversationService {
     private final FreelancerRepository freelancerRepository;
     private final UserRepository userRepository;
     private final SimpMessagingTemplate simpMessagingTemplate;
+    private final NotificationService notificationService;
 
     public ConversationServiceImpl(
             ConversationRepository conversationRepository,
@@ -53,7 +56,8 @@ public class ConversationServiceImpl implements ConversationService {
             StudioRepository studioRepository,
             FreelancerRepository freelancerRepository,
             UserRepository userRepository,
-            SimpMessagingTemplate simpMessagingTemplate) {
+            SimpMessagingTemplate simpMessagingTemplate,
+            NotificationService notificationService) {
         this.conversationRepository = conversationRepository;
         this.messageRepository = messageRepository;
         this.workRequirementRepository = workRequirementRepository;
@@ -62,6 +66,7 @@ public class ConversationServiceImpl implements ConversationService {
         this.freelancerRepository = freelancerRepository;
         this.userRepository = userRepository;
         this.simpMessagingTemplate = simpMessagingTemplate;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -202,6 +207,27 @@ public class ConversationServiceImpl implements ConversationService {
         }
 
         log.info("User [{}] sent message [{}] in conversation [{}]", caller.getEmail(), saved.getId(), conversationId);
+
+        // In-app notification to counterparty (NOT-002)
+        try {
+            boolean isStudioSender = caller.getId().equals(conversation.getStudio().getUser().getId());
+            User recipient = isStudioSender ? conversation.getFreelancer().getUser() : conversation.getStudio().getUser();
+            String senderName = isStudioSender ? conversation.getStudio().getStudioName() : conversation.getFreelancer().getFullName();
+            String snippet = content.trim().length() > 60 ? content.trim().substring(0, 57) + "..." : content.trim();
+
+            if (recipient != null) {
+                notificationService.createNotification(
+                        recipient,
+                        NotificationType.NEW_MESSAGE,
+                        "New Message from " + senderName,
+                        "Regarding \"" + conversation.getRequirement().getEventName() + "\": \"" + snippet + "\"",
+                        conversation.getId()
+                );
+            }
+        } catch (Exception e) {
+            log.warn("Failed to create message notification: {}", e.getMessage());
+        }
+
         return dto;
     }
 

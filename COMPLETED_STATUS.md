@@ -856,5 +856,67 @@
     8. `testConfidentialClientDetailsMaskedDuringNegotiation`: REQ-002, MSG-005 client privacy preservation.
 - **Frontend Build**: `npm run build` -> **Compiled cleanly with TypeScript type-checking and Vite production asset bundling in 7.46s (0 errors)**.
 
+---
+
+## Phase 12 — In-App Notifications & Activity Center
+**Completed Date:** 2026-09-28  
+**Status:** COMPLETED & TESTED
+
+### Implemented Modules & Capabilities
+1. **In-App Notification Engine & JPA Architecture (NOT-001, NOT-003)**:
+   - Database schema: leveraged existing normalized `notifications` table from Flyway baseline schema (`id`, `user_id`, `type`, `title`, `message`, `is_read`, `related_entity_type`, `related_entity_id`, `created_at`).
+   - JPA entity: `Notification.java` with `@ManyToOne` association to `User`, automatic timestamp auditing, and `@Enumerated(EnumType.STRING)` mapping.
+   - Spring Data JPA repository: `NotificationRepository.java` featuring indexed user inbox queries (`findByUserIdOrderByCreatedAtDescIdDesc`, `findByUserIdAndIsReadFalseOrderByCreatedAtDescIdDesc`), unread counts (`countByUserIdAndIsReadFalse`), bulk mark all read (`markAllAsReadByUserId`), and atomic mark single read (`markAsReadByIdAndUserId`).
+   - DTO abstraction: `NotificationDto.java` with explicit `@JsonProperty("isRead")` on fields/getters to ensure consistent JSON serialization across clients, and dynamic computed `linkUrl` mapping to frontend detail pages based on notification type and related entities.
+
+2. **Full Lifecycle Notification Event Triggers (NOT-002)**:
+   - **New Work Request (`REQUEST_RECEIVED`)**: Dispatched to creator upon direct studio work request.
+   - **Request Accepted (`REQUEST_ACCEPTED`)**: Dispatched to studio owner when creator accepts.
+   - **Request Rejected (`REQUEST_REJECTED`)**: Dispatched to studio owner when creator declines.
+   - **Studio Confirmation (`STUDIO_CONFIRMATION`)**: Dispatched to creator when studio confirms booking and unlocks client details.
+   - **New Chat Message (`NEW_MESSAGE`)**: Dispatched to the counterparty in requirement negotiation threads.
+   - **Work Started (`WORK_STARTED`)**: Dispatched to assigned creator when requirement transitions to `IN_PROGRESS`.
+   - **Work Completed (`WORK_COMPLETED`)**: Dispatched to creator when requirement status moves to `COMPLETED`.
+   - **Work Cancelled (`WORK_CANCELLED`)**: Dispatched to the affected counterparty when a confirmed booking or requirement is cancelled.
+   - **Rating Reminder (`RATING_REMINDER`)**: Dispatched to both studio and creator upon work completion to prompt mutual reviews.
+
+3. **Real-Time Push & Read/Unread State Management (NOT-003, NOT-004)**:
+   - WebSocket/STOMP template integration: `SimpMessagingTemplate` broadcasts JSON payload directly to `/topic/notifications.{userId}` on every notification trigger.
+   - Zero external email dependency (NOT-001): in-app only, protecting user privacy and eliminating SMTP spam/delivery friction.
+   - Individual read marking: `PATCH /api/notifications/{id}/read` updates state and returns updated notification.
+   - Bulk mark-all-as-read: `PATCH /api/notifications/read-all` clears all unread badges across the user inbox.
+   - Unread counter endpoint: `GET /api/notifications/unread-count` returns live unread count.
+
+4. **React Frontend Notification Center & Navbar Integration**:
+   - `types/index.ts`: Added `NotificationType`, `AppNotification`, and `UnreadNotificationCount` TypeScript contracts.
+   - `notificationService.ts`: REST client for list, unread count, read single, and read all endpoints.
+   - `NotificationsPage.tsx` (`/notifications`):
+     - Filter tabs: All Notifications vs Unread Only.
+     - Contextual icon badges and color coding matching event type (e.g. green for confirmed/accepted, rose for rejected/cancelled, violet for messages, amber for rating reminders).
+     - Direct jump navigation to related requirements, requests, or chats via `linkUrl`.
+     - Single-click "Mark as read" and bulk "Mark all read" controls.
+     - Relative timestamps ("just now", "10m ago", "2h ago", "1d ago") and full datetime tooltips.
+   - `Navbar.tsx`:
+     - Interactive Bell icon button with red badge counter for unread notifications.
+     - Flyout dropdown displaying the 5 most recent notifications with unread indicators, mark-all-read shortcut, and direct link to the full notifications center.
+     - Polling and route-change refresh keeping badge counts in sync.
+     - Updated header badge to "Phase 12 Active".
+   - `App.tsx`: Protected route registration for `/notifications`.
+
+### Verification Summary
+- **Backend Test Suite**: `mvn test` -> **72 of 72 tests PASSED (0 failures, 0 errors, 0 skipped)** in 53.4s:
+  - 9 new dedicated Phase 12 integration tests in `NotificationControllerTests`:
+    1. `testGetNotificationsRequiresAuth`: Unauthenticated requests rejected with 401.
+    2. `testEmptyNotificationsListForNewUser`: Clean inbox retrieval with zero errors.
+    3. `testNotificationCreatedOnWorkRequest`: NOT-002 `REQUEST_RECEIVED` notification created and delivered to creator.
+    4. `testUnreadNotificationCount`: NOT-003 unread count retrieval.
+    5. `testMarkSingleNotificationAsRead`: NOT-004 individual notification read patch.
+    6. `testMarkAllNotificationsAsRead`: NOT-004 bulk mark-all-as-read endpoint.
+    7. `testCannotMarkOtherUserNotifications`: Security authorization gate preventing cross-user mutation.
+    8. `testNotificationCreatedOnNewMessage`: NOT-002 `NEW_MESSAGE` notification dispatched to counterparty.
+    9. `testNotificationOnRequirementStatusChange`: NOT-002 `WORK_STARTED`, `WORK_COMPLETED`, and `RATING_REMINDER` notifications dispatched on lifecycle transitions.
+- **Frontend Build**: `npm run build` -> **Compiled cleanly with TypeScript type-checking and Vite production asset bundling in 7.54s (0 errors)**.
+
+
 
 

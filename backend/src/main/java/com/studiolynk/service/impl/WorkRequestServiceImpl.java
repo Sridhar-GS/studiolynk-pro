@@ -17,6 +17,7 @@ import com.studiolynk.model.entity.User;
 import com.studiolynk.model.entity.WorkRequest;
 import com.studiolynk.model.entity.WorkRequirement;
 import com.studiolynk.model.enums.DayType;
+import com.studiolynk.model.enums.NotificationType;
 import com.studiolynk.model.enums.RequestStatus;
 import com.studiolynk.model.enums.RequirementStatus;
 import com.studiolynk.repository.FreelancerRepository;
@@ -24,6 +25,7 @@ import com.studiolynk.repository.StudioRepository;
 import com.studiolynk.repository.UserRepository;
 import com.studiolynk.repository.WorkRequestRepository;
 import com.studiolynk.repository.WorkRequirementRepository;
+import com.studiolynk.service.NotificationService;
 import com.studiolynk.service.WorkRequestService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,19 +49,22 @@ public class WorkRequestServiceImpl implements WorkRequestService {
     private final StudioRepository studioRepository;
     private final FreelancerRepository freelancerRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     public WorkRequestServiceImpl(
             WorkRequestRepository workRequestRepository,
             WorkRequirementRepository workRequirementRepository,
             StudioRepository studioRepository,
             FreelancerRepository freelancerRepository,
-            UserRepository userRepository
+            UserRepository userRepository,
+            NotificationService notificationService
     ) {
         this.workRequestRepository = workRequestRepository;
         this.workRequirementRepository = workRequirementRepository;
         this.studioRepository = studioRepository;
         this.freelancerRepository = freelancerRepository;
         this.userRepository = userRepository;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -115,6 +120,20 @@ public class WorkRequestServiceImpl implements WorkRequestService {
 
         log.info("Studio [{}] sent work request [{}] to freelancer [{}] for requirement [{}]",
                 studio.getStudioName(), saved.getId(), freelancer.getFullName(), requirement.getEventName());
+
+        // Notify Freelancer of incoming shoot request (NOT-002)
+        try {
+            notificationService.createNotification(
+                    freelancer.getUser(),
+                    NotificationType.REQUEST_RECEIVED,
+                    "New Shoot Request: " + requirement.getEventName(),
+                    "Studio \"" + studio.getStudioName() + "\" invited you for \"" + requirement.getEventName() +
+                            "\" on " + requirement.getEventDate() + " (Budget: ₹" + price.toPlainString() + ").",
+                    saved.getId()
+            );
+        } catch (Exception e) {
+            log.warn("Failed to create notification for request creation [{}]: {}", saved.getId(), e.getMessage());
+        }
 
         return mapToResponseDto(saved, studioEmail);
     }
@@ -205,6 +224,20 @@ public class WorkRequestServiceImpl implements WorkRequestService {
 
         log.info("Freelancer [{}] accepted work request [{}]", freelancer.getFullName(), saved.getId());
 
+        // Notify Studio that Freelancer accepted request (NOT-002)
+        try {
+            notificationService.createNotification(
+                    requirement.getStudio().getUser(),
+                    NotificationType.REQUEST_ACCEPTED,
+                    "Request Accepted: " + requirement.getEventName(),
+                    "Creator \"" + freelancer.getFullName() + "\" accepted your request for \"" + requirement.getEventName() +
+                            "\" at rate ₹" + (saved.getAgreedPrice() != null ? saved.getAgreedPrice().toPlainString() : requirement.getBudget().toPlainString()) + ".",
+                    saved.getId()
+            );
+        } catch (Exception e) {
+            log.warn("Failed to create notification for request acceptance [{}]: {}", saved.getId(), e.getMessage());
+        }
+
         // Note: REQ-006: Private contact info is STILL masked because studio has not confirmed yet!
         return mapToResponseDto(saved, freelancerEmail);
     }
@@ -229,6 +262,20 @@ public class WorkRequestServiceImpl implements WorkRequestService {
         WorkRequest saved = workRequestRepository.save(request);
 
         log.info("Freelancer [{}] rejected work request [{}]", freelancer.getFullName(), saved.getId());
+
+        // Notify Studio that Freelancer declined request (NOT-002)
+        try {
+            notificationService.createNotification(
+                    request.getRequirement().getStudio().getUser(),
+                    NotificationType.REQUEST_REJECTED,
+                    "Request Declined: " + request.getRequirement().getEventName(),
+                    "Creator \"" + freelancer.getFullName() + "\" declined your request for \"" + request.getRequirement().getEventName() + "\".",
+                    saved.getId()
+            );
+        } catch (Exception e) {
+            log.warn("Failed to create notification for request rejection [{}]: {}", saved.getId(), e.getMessage());
+        }
+
         return mapToResponseDto(saved, freelancerEmail);
     }
 
@@ -280,6 +327,20 @@ public class WorkRequestServiceImpl implements WorkRequestService {
         log.info("Studio [{}] confirmed work request [{}] with freelancer [{}]. Closed {} other pending requests.",
                 studio.getStudioName(), saved.getId(), freelancer.getFullName(), closedCount);
 
+        // Notify Freelancer of official Studio confirmation (NOT-002, REQ-006)
+        try {
+            notificationService.createNotification(
+                    freelancer.getUser(),
+                    NotificationType.STUDIO_CONFIRMATION,
+                    "Booking Confirmed: " + requirement.getEventName() + "!",
+                    "Studio \"" + studio.getStudioName() + "\" confirmed your booking for \"" + requirement.getEventName() +
+                            "\" on " + requirement.getEventDate() + ". Direct client contact info is now unlocked!",
+                    saved.getId()
+            );
+        } catch (Exception e) {
+            log.warn("Failed to create notification for confirmation [{}]: {}", saved.getId(), e.getMessage());
+        }
+
         // Now that status is CONFIRMED, private client contact details will be revealed (REQ-006)
         return mapToResponseDto(saved, studioEmail);
     }
@@ -315,6 +376,29 @@ public class WorkRequestServiceImpl implements WorkRequestService {
         }
 
         log.info("Work request [{}] cancelled by user [{}]. Reason: {}", requestId, userEmail, dto.getReason());
+
+        // Notify counterparty of cancellation (NOT-002, REQ-007)
+        try {
+            User caller = userRepository.findByEmail(userEmail).orElse(null);
+            if (caller != null) {
+                boolean isStudioCaller = request.getRequirement().getStudio().getUser().getId().equals(caller.getId());
+                User target = isStudioCaller ? request.getFreelancer().getUser() : request.getRequirement().getStudio().getUser();
+                String actor = isStudioCaller
+                        ? "Studio \"" + request.getRequirement().getStudio().getStudioName() + "\""
+                        : "Creator \"" + request.getFreelancer().getFullName() + "\"";
+
+                notificationService.createNotification(
+                        target,
+                        NotificationType.WORK_CANCELLED,
+                        "Booking Cancelled: " + request.getRequirement().getEventName(),
+                        actor + " cancelled the booking for \"" + request.getRequirement().getEventName() + "\". Reason: \"" + dto.getReason().trim() + "\".",
+                        saved.getId()
+                );
+            }
+        } catch (Exception e) {
+            log.warn("Failed to create notification for request cancellation [{}]: {}", saved.getId(), e.getMessage());
+        }
+
         return mapToResponseDto(saved, userEmail);
     }
 

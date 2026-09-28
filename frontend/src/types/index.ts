@@ -577,4 +577,33 @@ export interface Conversation {
   createdAt: string;
 }
 
+// Phase 12: In-App Notifications (NOT-001 - NOT-004)
+export type NotificationType =
+  | 'REQUEST_RECEIVED'
+  | 'REQUEST_ACCEPTED'
+  | 'REQUEST_REJECTED'
+  | 'STUDIO_CONFIRMATION'
+  | 'NEW_MESSAGE'
+  | 'WORK_STARTED'
+  | 'WORK_COMPLETED'
+  | 'WORK_CANCELLED'
+  | 'RATING_REMINDER';
+
+export interface AppNotification {
+  id: number;
+  userId: number;
+  type: NotificationType;
+  title: string;
+  message: string;
+  relatedEntityId?: number;
+  isRead: boolean;
+  createdAt: string;
+  linkUrl: string;
+}
+
+export interface UnreadNotificationCount {
+  count: number;
+}
+
+
 

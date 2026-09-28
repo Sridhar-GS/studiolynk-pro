@@ -15,6 +15,7 @@ import com.studiolynk.model.entity.Studio;
 import com.studiolynk.model.entity.User;
 import com.studiolynk.model.entity.WorkRequirement;
 import com.studiolynk.model.enums.DayType;
+import com.studiolynk.model.enums.NotificationType;
 import com.studiolynk.model.enums.RequirementStatus;
 import com.studiolynk.model.enums.UserRole;
 import com.studiolynk.repository.EquipmentRepository;
@@ -24,6 +25,7 @@ import com.studiolynk.repository.SkillRepository;
 import com.studiolynk.repository.StudioRepository;
 import com.studiolynk.repository.UserRepository;
 import com.studiolynk.repository.WorkRequirementRepository;
+import com.studiolynk.service.NotificationService;
 import com.studiolynk.service.WorkRequirementService;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -46,6 +48,7 @@ public class WorkRequirementServiceImpl implements WorkRequirementService {
     private final ServiceRepository serviceRepository;
     private final EquipmentRepository equipmentRepository;
     private final FreelancerRepository freelancerRepository;
+    private final NotificationService notificationService;
 
     public WorkRequirementServiceImpl(
             WorkRequirementRepository requirementRepository,
@@ -54,7 +57,8 @@ public class WorkRequirementServiceImpl implements WorkRequirementService {
             SkillRepository skillRepository,
             ServiceRepository serviceRepository,
             EquipmentRepository equipmentRepository,
-            FreelancerRepository freelancerRepository) {
+            FreelancerRepository freelancerRepository,
+            NotificationService notificationService) {
         this.requirementRepository = requirementRepository;
         this.studioRepository = studioRepository;
         this.userRepository = userRepository;
@@ -62,6 +66,7 @@ public class WorkRequirementServiceImpl implements WorkRequirementService {
         this.serviceRepository = serviceRepository;
         this.equipmentRepository = equipmentRepository;
         this.freelancerRepository = freelancerRepository;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -235,6 +240,56 @@ public class WorkRequirementServiceImpl implements WorkRequirementService {
 
         requirement.setStatus(newStatus);
         WorkRequirement saved = requirementRepository.save(requirement);
+
+        // Notify relevant parties of lifecycle events (NOT-002)
+        try {
+            if (newStatus == RequirementStatus.IN_PROGRESS && saved.getConfirmedFreelancer() != null) {
+                notificationService.createNotification(
+                        saved.getConfirmedFreelancer().getUser(),
+                        NotificationType.WORK_STARTED,
+                        "Shoot In Progress: " + saved.getEventName(),
+                        "Shoot \"" + saved.getEventName() + "\" is officially marked In Progress.",
+                        saved.getId()
+                );
+            } else if (newStatus == RequirementStatus.COMPLETED) {
+                if (saved.getConfirmedFreelancer() != null) {
+                    notificationService.createNotification(
+                            saved.getConfirmedFreelancer().getUser(),
+                            NotificationType.WORK_COMPLETED,
+                            "Shoot Completed: " + saved.getEventName(),
+                            "Shoot \"" + saved.getEventName() + "\" is completed! Thank you for your work.",
+                            saved.getId()
+                    );
+                    // Rating reminder for freelancer (NOT-002, RAT-002)
+                    notificationService.createNotification(
+                            saved.getConfirmedFreelancer().getUser(),
+                            NotificationType.RATING_REMINDER,
+                            "Rating Reminder: " + saved.getEventName(),
+                            "Please rate your experience with studio \"" + studio.getStudioName() + "\".",
+                            saved.getId()
+                    );
+                }
+                // Rating reminder for studio (NOT-002, RAT-001)
+                notificationService.createNotification(
+                        studio.getUser(),
+                        NotificationType.RATING_REMINDER,
+                        "Rating Reminder: " + saved.getEventName(),
+                        "Please rate the creator's performance for shoot \"" + saved.getEventName() + "\".",
+                        saved.getId()
+                );
+            } else if (newStatus == RequirementStatus.CANCELLED && saved.getConfirmedFreelancer() != null) {
+                notificationService.createNotification(
+                        saved.getConfirmedFreelancer().getUser(),
+                        NotificationType.WORK_CANCELLED,
+                        "Shoot Cancelled: " + saved.getEventName(),
+                        "Studio cancelled the requirement \"" + saved.getEventName() + "\".",
+                        saved.getId()
+                );
+            }
+        } catch (Exception e) {
+            // Non-blocking notification dispatch
+        }
+
         return mapToResponseDto(saved, true);
     }
 
