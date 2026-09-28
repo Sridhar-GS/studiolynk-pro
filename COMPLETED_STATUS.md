@@ -666,3 +666,105 @@
      - `testFreelancerCannotCreateRequirement`: Role-based security check (403 Forbidden for freelancers).
 - **Frontend Build**: `npm run build` -> **Compiled cleanly with TypeScript type-checking and Vite production asset bundling in 8.91s (0 errors)**.
 
+---
+
+## Phase 10 — Work Requests, Candidate Bidding & Confirmation (REQ-001 - REQ-009, WRK-006 - WRK-008)
+**Completed Date:** 2026-09-28  
+**Status:** COMPLETED & TESTED
+
+### Implemented Modules & Capabilities
+1. **Database Schema & Flyway Migration Engine**:
+   - Created `backend/src/main/resources/db/migration/V2__add_work_request_message.sql`:
+     - Added `message TEXT NULL` column to `work_requests` table to support personalized shoot briefs and negotiation notes.
+     - Preserved all foreign keys, status enums (`PENDING`, `ACCEPTED`, `REJECTED`, `CONFIRMED`, `CANCELLED`), and audit columns.
+     - Hibernate ORM `ddl-auto: validate` passed with complete entity-schema synchronization.
+
+2. **JPA Entity Model & Persistence Layer**:
+   - `WorkRequest.java`: Mapped to `work_requests` table extending `BaseEntity` (inheriting automated `createdAt` and `updatedAt` timestamps).
+     - ManyToOne relationships to `WorkRequirement` and `Freelancer`.
+     - Fields: `status` (`RequestStatus`), `agreedPrice` (`BigDecimal`), `message` (`String`), `cancellationReason` (`String`).
+   - `WorkRequestRepository.java`:
+     - `findByRequirementId`: Retrieve all work requests / candidates dispatched for a requirement.
+     - `findByFreelancerId`: Retrieve all work requests received by a freelancer.
+     - `findByFreelancerIdAndStatus`: Query by status (e.g. pending requests).
+     - `existsByRequirementIdAndFreelancerId`: Prevent duplicate dispatching of work requests to the same creator for a requirement.
+     - `findByRequirementIdAndStatus`: Query candidates in a given status (e.g. pending/accepted).
+     - `findByFreelancerIdAndStatusAndEventDate`: Interval conflict detection for double-booking checks.
+
+3. **Data Transfer Objects (DTOs)**:
+   - `CreateWorkRequestDto.java`: Validates requirement ID, freelancer ID, optional offered price, and optional message.
+   - `AcceptRequestDto.java`: Validates proposed/accepted price during freelancer acceptance.
+   - `CancelRequestDto.java`: Strictly validates mandatory cancellation reason (REQ-007).
+   - `WorkRequestResponseDto.java`: Full work request response including shoot details, required skills/services/equipment, gated client contact flags, and privacy masking.
+   - `WorkRequestSummaryDto.java`: Compact card DTO for list feeds with status, price, freelancer details, studio info, and cancellation reason.
+
+4. **Service Layer & Business Rules (WorkRequestServiceImpl)**:
+   - **REQ-001 & WRK-006 (Send Work Request & Multiple Candidates)**: Studio can send work requests to one or more freelancers for an open requirement. Validates requirement ownership, status (`OPEN` or `REQUESTED`), and ensures no duplicate requests.
+   - **REQ-002 & REQ-006 (Gated Client Privacy Architecture)**: When a freelancer views a work request or requirement before confirmation, confidential client contact details (`eventContactName`, `eventContactPhone`) are dynamically stripped (`null`) and flagged as unrevealed. They are revealed *only* when the work request status is `CONFIRMED`.
+   - **REQ-004 (Freelancer Accept / Reject)**:
+     - Freelancer can accept a pending request and specify/confirm the agreed price (REQ-008). Requirement status transitions to `ACCEPTED`.
+     - Freelancer can reject a request with an optional reason.
+   - **REQ-005 & WRK-007 (Studio Confirmation)**: Studio confirms one candidate creator for the assignment. Work request status transitions to `CONFIRMED`, and requirement status transitions to `CONFIRMED`.
+   - **WRK-008 (Automatic Closure of Competing Candidates)**: Upon studio confirmation of one creator, all other candidate requests for that requirement with status `PENDING` or `ACCEPTED` are automatically transitioned to `REJECTED` with the cancellation note: *"Studio confirmed another creator for this assignment."*
+   - **REQ-008 (Agreed Price Persistence)**: Stores the final agreed price on the work request record upon acceptance and confirmation.
+   - **REQ-009 (Double Booking Prevention)**: Implemented `checkDoubleBooking(...)` checking for existing `CONFIRMED` assignments for the freelancer on the same date with overlapping time intervals (`!(startTime.isAfter(reqEnd) || endTime.isBefore(reqStart))`). Throws `BadRequestException` if double booking is attempted.
+   - **REQ-007 (Cancellation with Mandatory Reason)**: Both studio and freelancer can cancel a confirmed booking, provided a non-blank cancellation reason is supplied. Requirement reverts to `OPEN`.
+
+5. **REST API Controller (WorkRequestController)**:
+   - `POST /api/requests`: Send a work request (Studio only).
+   - `GET /api/requests/{id}`: Get work request details with dynamic privacy gating.
+   - `PATCH /api/requests/{id}/accept`: Accept request with agreed price (Freelancer only).
+   - `PATCH /api/requests/{id}/reject`: Reject request (Freelancer only).
+   - `PATCH /api/requests/{id}/confirm`: Confirm creator booking and auto-close other candidates (Studio only).
+   - `PATCH /api/requests/{id}/cancel`: Cancel confirmed work with mandatory reason (Studio or Freelancer).
+   - `GET /api/requests/freelancer/me`: List all requests received by authenticated freelancer.
+   - `GET /api/requests/studio/requirement/{requirementId}`: List all candidate requests for a requirement (Studio only).
+   - `GET /api/requests/studio/me`: List all work requests sent by authenticated studio.
+
+6. **React Frontend Work Requests Workspace**:
+   - `types/index.ts`: TypeScript models for `RequestStatus`, `WorkRequest`, `WorkRequestSummary`, and `CreateWorkRequestPayload`.
+   - `services/requestService.ts`: Complete API client with methods for sending, fetching, accepting, rejecting, confirming, and cancelling requests.
+   - `FreelancerRequestsPage.tsx`:
+     - Inbox of all incoming studio requests with status filter tabs (`All`, `Pending`, `Accepted`, `Confirmed`, `Rejected`, `Cancelled`).
+     - Cards showing event details, studio name, shoot schedule, offered price, and quick actions (Review Shoot Details).
+   - `FreelancerRequestDetailPage.tsx`:
+     - Complete shoot specification view with event details, schedule, venue, required skills, services, and gear checklist.
+     - **REQ-002 / REQ-006 Privacy Card**: Confidential client contact information remains locked with a shield banner when unconfirmed; cleanly unlocks with client name and direct phone link upon confirmation.
+     - Action bar: "Accept Assignment" modal with rate confirmation, "Decline Proposal" modal with reason, "Message Studio" link (REQ-003), and "Cancel Booking" action if confirmed.
+   - `StudioRequestsPage.tsx`:
+     - Studio sent requests feed grouped by requirement.
+     - Displays candidate creators, offered/agreed rates, and quick "Confirm Creator" action for accepted candidates.
+   - `StudioRequirementDetailPage.tsx`:
+     - Added Candidate Creators & Proposals section displaying all applicants.
+     - Added "Confirm Creator" action (WRK-007) and "Cancel Assignment" modal (REQ-007).
+   - `StudioDiscoveryPage.tsx`:
+     - Wired "Send Request" modal to load studio's active open requirements, select a requirement, enter an offered price and message, and dispatch via `requestService.createRequest(...)`.
+   - `FreelancerDashboardPage.tsx`:
+     - Activated Card 4 ("Incoming Work Requests") linking to `/freelancer/requests` with Phase 10 Active badge.
+   - `Navbar.tsx`:
+     - Added "Requests" navigation link for Studios (`/studio/requests`) and Freelancers (`/freelancer/requests`), updated badge to "Phase 10 Active".
+   - `App.tsx`:
+     - Registered protected routes for `/studio/requests`, `/freelancer/requests`, and `/freelancer/requests/:id`.
+
+### Verification Summary
+- **Backend Test Suite**: `mvn test` -> **55 of 55 tests PASSED (0 failures, 0 errors, 0 skipped)** in 51.5s:
+  1. `StudioLynkApplicationTests` (5 tests)
+  2. `AuthControllerTests` (9 tests)
+  3. `StudioControllerTests` (4 tests)
+  4. `FreelancerControllerTests` (5 tests)
+  5. `PortfolioControllerTests` (5 tests)
+  6. `FreelancerAvailabilityControllerTests` (6 tests)
+  7. `FreelancerDiscoveryControllerTests` (6 tests)
+  8. `WorkRequirementControllerTests` (7 tests)
+  9. `WorkRequestControllerTests` (8 tests):
+     - `testSendWorkRequestSuccess`: REQ-001, WRK-006 dispatching work requests.
+     - `testFreelancerInitiallyCannotSeePrivateContactInfo`: REQ-002 client name & phone masked before confirmation.
+     - `testFreelancerAcceptAndStudioConfirmFlow`: REQ-004, REQ-005, REQ-006, REQ-008 acceptance, rate negotiation, studio confirmation, and client contact reveal.
+     - `testAutoRejectOtherCandidatesOnConfirmation`: WRK-008 auto-closing competing candidates upon confirmation.
+     - `testPreventDoubleBookingOnOverlappingInterval`: REQ-009 double booking prevention rejecting overlapping confirmed assignments.
+     - `testCancelConfirmedWorkWithMandatoryReason`: REQ-007 cancellation with mandatory reason.
+     - `testCancelWithoutReasonFails`: REQ-007 blank reason rejection.
+     - `testFreelancerRejectRequest`: REQ-004 freelancer decline proposal.
+- **Frontend Build**: `npm run build` -> **Compiled cleanly with TypeScript type-checking and Vite production asset bundling in 7.18s (0 errors)**.
+
+

@@ -72,20 +72,20 @@ Status values: `PLANNED`, `IN PROGRESS`, `IMPLEMENTED`, `TESTED`.
 - WRK-003 — Requirement shall support statuses such as Draft, Open, Requested, Accepted, Confirmed, In Progress, Completed, and Cancelled. `[TESTED]`
 - WRK-004 — Studio may search without creating a requirement. `[TESTED]`
 - WRK-005 — Studio may use a requirement to obtain AI-ranked freelancers. `[IMPLEMENTED]`
-- WRK-006 — Multiple freelancers may receive requests for one requirement. `[IMPLEMENTED]`
-- WRK-007 — Studio ultimately confirms one freelancer for the prototype workflow. `[IMPLEMENTED]`
-- WRK-008 — When one freelancer is confirmed, other pending requests for that requirement shall be closed/rejected. `[IMPLEMENTED]`
+- WRK-006 — Multiple freelancers may receive requests for one requirement. `[TESTED]`
+- WRK-007 — Studio ultimately confirms one freelancer for the prototype workflow. `[TESTED]`
+- WRK-008 — When one freelancer is confirmed, other pending requests for that requirement shall be closed/rejected. `[TESTED]`
 
 ## Work requests and privacy
-- REQ-001 — Studio can send a work request to a freelancer.
+- REQ-001 — Studio can send a work request to a freelancer. `[TESTED]`
 - REQ-002 — Freelancer initially sees event/work details but not private event-person contact details. `[TESTED]`
-- REQ-003 — Freelancer can message the studio before acceptance.
-- REQ-004 — Freelancer can accept or reject a request.
-- REQ-005 — Studio confirms the final freelancer.
+- REQ-003 — Freelancer can message the studio before acceptance. `[IMPLEMENTED]`
+- REQ-004 — Freelancer can accept or reject a request. `[TESTED]`
+- REQ-005 — Studio confirms the final freelancer. `[TESTED]`
 - REQ-006 — Private event-person contact information is revealed only after Studio confirmation. `[TESTED]`
-- REQ-007 — Both parties may cancel confirmed work with a reason.
-- REQ-008 — The final agreed price shall be stored on the work record after negotiation/confirmation.
-- REQ-009 — Freelancer double booking shall be prevented.
+- REQ-007 — Both parties may cancel confirmed work with a reason. `[TESTED]`
+- REQ-008 — The final agreed price shall be stored on the work record after negotiation/confirmation. `[TESTED]`
+- REQ-009 — Freelancer double booking shall be prevented. `[TESTED]`
 
 ## Messaging
 - MSG-001 — Messaging shall be requirement-specific.

@@ -23,6 +23,8 @@ import { freelancerService } from '../../services/freelancerService';
 import { catalogueService } from '../../services/catalogueService';
 import { portfolioService } from '../../services/portfolioService';
 import { availabilityService } from '../../services/availabilityService';
+import { requirementService } from '../../services/requirementService';
+import { requestService } from '../../services/requestService';
 import {
   FreelancerCard,
   FreelancerSearchFilter,
@@ -30,7 +32,8 @@ import {
   ServiceItem,
   EquipmentItem,
   Portfolio,
-  AvailabilityWindowResponse
+  AvailabilityWindowResponse,
+  WorkRequirementSummary
 } from '../../types';
 
 // City location presets in South India
@@ -85,11 +88,16 @@ export const StudioDiscoveryPage: React.FC = () => {
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewTab, setPreviewTab] = useState<'portfolio' | 'availability' | 'gear'>('portfolio');
 
-  // Contact / Request Modal
+  // Contact / Request Modal (Phase 10: REQ-001, WRK-006)
   const [bookingFreelancer, setBookingFreelancer] = useState<FreelancerCard | null>(null);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [bookingMessage, setBookingMessage] = useState('');
   const [bookingSending, setBookingSending] = useState(false);
+  const [openRequirements, setOpenRequirements] = useState<WorkRequirementSummary[]>([]);
+  const [selectedRequirementId, setSelectedRequirementId] = useState<number | ''>('');
+  const [bookingOfferedPrice, setBookingOfferedPrice] = useState<number | ''>('');
+  const [bookingError, setBookingError] = useState<string | null>(null);
+  const [loadingRequirements, setLoadingRequirements] = useState(false);
 
   // 1. Initial Catalogue Load
   useEffect(() => {
@@ -246,19 +254,67 @@ export const StudioDiscoveryPage: React.FC = () => {
     return searchDate >= today && searchDate <= tenDaysLater;
   }, [date]);
 
-  // Handle Book Freelancer CTA
-  const handleSendBookingRequest = (e: React.FormEvent) => {
+  // Load Open Requirements when Booking Modal Opens
+  const handleOpenBookingModal = async (candidate: FreelancerCard) => {
+    setBookingFreelancer(candidate);
+    setBookingError(null);
+    setBookingSuccess(false);
+    setBookingMessage('');
+    setLoadingRequirements(true);
+    try {
+      const reqs = await requirementService.getMyRequirements('OPEN');
+      setOpenRequirements(reqs || []);
+      if (reqs && reqs.length > 0) {
+        // Match with current filter date if available
+        const matched = date ? reqs.find((r: WorkRequirementSummary) => r.eventDate === date) : null;
+        const initialReq = matched || reqs[0];
+        setSelectedRequirementId(initialReq.id);
+        setBookingOfferedPrice(initialReq.budget || candidate.fullDayRate || 10000);
+      } else {
+        setSelectedRequirementId('');
+        setBookingOfferedPrice(candidate.fullDayRate || 10000);
+      }
+    } catch (err) {
+      console.error('Failed to load studio requirements:', err);
+    } finally {
+      setLoadingRequirements(false);
+    }
+  };
+
+  // Handle Book Freelancer CTA (Phase 10: REQ-001, WRK-006)
+  const handleSendBookingRequest = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!selectedRequirementId) {
+      setBookingError('Please select a shoot requirement for this work request.');
+      return;
+    }
+    if (!bookingFreelancer) return;
+
     setBookingSending(true);
-    setTimeout(() => {
-      setBookingSending(false);
+    setBookingError(null);
+    try {
+      await requestService.createRequest({
+        requirementId: Number(selectedRequirementId),
+        freelancerId: bookingFreelancer.id,
+        message: bookingMessage.trim() || undefined,
+        offeredPrice: bookingOfferedPrice ? Number(bookingOfferedPrice) : undefined
+      });
       setBookingSuccess(true);
       setTimeout(() => {
         setBookingSuccess(false);
         setBookingFreelancer(null);
         setBookingMessage('');
+        setSelectedRequirementId('');
+        setBookingOfferedPrice('');
       }, 2000);
-    }, 600);
+    } catch (err: any) {
+      console.error('Failed to create work request:', err);
+      setBookingError(
+        err.response?.data?.message || 'Failed to dispatch work request. The creator might already be booked or requested.'
+      );
+    } finally {
+      setBookingSending(false);
+    }
   };
 
   return (
@@ -821,7 +877,7 @@ export const StudioDiscoveryPage: React.FC = () => {
                       </button>
 
                       <button
-                        onClick={() => setBookingFreelancer(freelancer)}
+                        onClick={() => handleOpenBookingModal(freelancer)}
                         className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 text-xs font-bold shadow-md shadow-teal-500/10 transition-colors"
                       >
                         <Send className="w-3.5 h-3.5" />
@@ -1078,7 +1134,9 @@ export const StudioDiscoveryPage: React.FC = () => {
                   onClick={() => {
                     const candidate = previewFreelancer;
                     setPreviewFreelancer(null);
-                    setBookingFreelancer(candidate);
+                    if (candidate) {
+                      handleOpenBookingModal(candidate);
+                    }
                   }}
                   className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs shadow-md shadow-teal-500/20"
                 >
@@ -1095,9 +1153,17 @@ export const StudioDiscoveryPage: React.FC = () => {
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200">
             <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-lg p-6 shadow-2xl">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-white">
-                  Send Booking Request to {bookingFreelancer.fullName}
-                </h3>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400">
+                    <Send className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-white">
+                      Dispatch Work Request
+                    </h3>
+                    <p className="text-[11px] text-slate-400">Invite {bookingFreelancer.fullName} to your shoot (REQ-001)</p>
+                  </div>
+                </div>
                 <button
                   onClick={() => setBookingFreelancer(null)}
                   className="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white"
@@ -1111,62 +1177,119 @@ export const StudioDiscoveryPage: React.FC = () => {
                   <div className="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto">
                     <Check className="w-6 h-6" />
                   </div>
-                  <h4 className="text-base font-bold text-white">Request Dispatched!</h4>
+                  <h4 className="text-base font-bold text-white">Work Request Dispatched!</h4>
                   <p className="text-xs text-slate-400">
-                    Your request was recorded and forwarded to {bookingFreelancer.fullName}. You can coordinate details via WebSocket messages in Phase 11.
+                    Your request was recorded and sent to {bookingFreelancer.fullName}. They can review shoot details, accept or reject the proposal (REQ-004), and you will confirm the final creator (WRK-007).
                   </p>
                 </div>
               ) : (
                 <form onSubmit={handleSendBookingRequest} className="space-y-4">
-                  <div>
-                    <label className="block text-xs font-medium text-slate-300 mb-1">
-                      Event / Shoot Date
-                    </label>
-                    <input
-                      type="date"
-                      defaultValue={date || new Date().toISOString().split('T')[0]}
-                      required
-                      className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-teal-500"
-                    />
-                  </div>
+                  {bookingError && (
+                    <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-start gap-2.5 text-rose-300 text-xs">
+                      <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                      <span>{bookingError}</span>
+                    </div>
+                  )}
 
-                  <div>
-                    <label className="block text-xs font-medium text-slate-300 mb-1">
-                      Shoot Details & Equipment Needs
-                    </label>
-                    <textarea
-                      rows={3}
-                      value={bookingMessage}
-                      onChange={(e) => setBookingMessage(e.target.value)}
-                      placeholder="e.g. Wedding candid coverage in Chennai from 9 AM to 6 PM. Looking for Sony FX3 or A7IV camera setup."
-                      required
-                      className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-teal-500"
-                    />
-                  </div>
+                  {loadingRequirements ? (
+                    <div className="py-6 flex flex-col items-center justify-center gap-2">
+                      <div className="w-6 h-6 border-2 border-teal-400 border-t-transparent rounded-full animate-spin" />
+                      <p className="text-xs text-slate-400">Loading your active requirements...</p>
+                    </div>
+                  ) : openRequirements.length === 0 ? (
+                    <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl space-y-2 text-center">
+                      <AlertCircle className="w-6 h-6 text-amber-400 mx-auto" />
+                      <h5 className="text-xs font-bold text-amber-300">No Open Shoot Requirements</h5>
+                      <p className="text-[11px] text-slate-400">
+                        You need an OPEN shoot requirement to send booking requests to creators.
+                      </p>
+                      <a
+                        href="/studio/requirements/new"
+                        className="inline-block mt-2 px-3 py-1.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs rounded-xl transition"
+                      >
+                        Create Shoot Requirement
+                      </a>
+                    </div>
+                  ) : (
+                    <>
+                      <div>
+                        <label className="block text-xs font-medium text-slate-300 mb-1">
+                          Select Shoot Requirement *
+                        </label>
+                        <select
+                          value={selectedRequirementId}
+                          onChange={(e) => {
+                            const reqId = Number(e.target.value);
+                            setSelectedRequirementId(reqId);
+                            const matched = openRequirements.find((r) => r.id === reqId);
+                            if (matched && matched.budget) {
+                              setBookingOfferedPrice(matched.budget);
+                            }
+                          }}
+                          required
+                          className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-teal-500"
+                        >
+                          {openRequirements.map((req) => (
+                            <option key={req.id} value={req.id}>
+                              {req.eventName} ({req.eventDate} &bull; ₹{req.budget?.toLocaleString()})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
 
-                  <div className="flex items-center justify-between pt-2">
-                    <button
-                      type="button"
-                      onClick={() => setBookingFreelancer(null)}
-                      className="text-xs text-slate-400 hover:text-white"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={bookingSending}
-                      className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs shadow-md shadow-teal-500/20 disabled:opacity-50"
-                    >
-                      {bookingSending ? (
-                        <span>Sending...</span>
-                      ) : (
-                        <>
-                          <Send className="w-3.5 h-3.5" />
-                          <span>Dispatch Request</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
+                      <div>
+                        <label className="block text-xs font-medium text-slate-300 mb-1">
+                          Offered Rate / Budget (₹) *
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={bookingOfferedPrice}
+                          onChange={(e) => setBookingOfferedPrice(e.target.value === '' ? '' : Number(e.target.value))}
+                          placeholder="e.g. 15000"
+                          required
+                          className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-teal-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-medium text-slate-300 mb-1">
+                          Message &amp; Creative Needs (Optional)
+                        </label>
+                        <textarea
+                          rows={3}
+                          value={bookingMessage}
+                          onChange={(e) => setBookingMessage(e.target.value)}
+                          placeholder="e.g. Need coverage for reception ceremonies. Candidate should bring 2 camera bodies and prime lenses."
+                          className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-teal-500"
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between pt-2">
+                        <button
+                          type="button"
+                          onClick={() => setBookingFreelancer(null)}
+                          className="text-xs text-slate-400 hover:text-white"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={bookingSending || !selectedRequirementId}
+                          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs shadow-md shadow-teal-500/20 disabled:opacity-50 transition"
+                        >
+                          {bookingSending ? (
+                            <span>Dispatching...</span>
+                          ) : (
+                            <>
+                              <Send className="w-3.5 h-3.5" />
+                              <span>Dispatch Request</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </form>
               )}
             </div>

@@ -457,3 +457,87 @@ export interface WorkRequirementPayload {
   requiredServiceIds?: number[];
   requiredEquipmentIds?: number[];
 }
+
+// -----------------------------------------------------------------------------
+// Work Requests Domain Types (Phase 10 - REQ-001 to REQ-009, WRK-006 to WRK-008)
+// -----------------------------------------------------------------------------
+export type RequestStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'CONFIRMED' | 'CANCELLED';
+
+export interface WorkRequest {
+  id: number;
+  requirementId: number;
+  freelancerId: number;
+  freelancerName: string;
+  freelancerPhotoUrl?: string;
+  freelancerPhone?: string;
+  status: RequestStatus;
+  agreedPrice?: number;
+  message?: string;
+  cancellationReason?: string;
+
+  studioId: number;
+  studioName: string;
+  studioLogoUrl?: string;
+  studioPhone?: string;
+
+  eventName: string;
+  eventType: string;
+  eventDate: string;
+  startTime: string;
+  endTime: string;
+  formattedTime?: string;
+  location: string;
+  dayType: 'FULL_DAY' | 'HALF_DAY';
+  budget: number;
+  description?: string;
+
+  eventContactName?: string;
+  eventContactPhone?: string;
+  hasPrivateContactDetails: boolean;
+  privateDetailsRevealed: boolean;
+
+  requiredSkills: Skill[];
+  requiredServices: ServiceItem[];
+  requiredEquipment: EquipmentItem[];
+
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface WorkRequestSummary {
+  id: number;
+  requirementId: number;
+  eventName: string;
+  eventType: string;
+  eventDate: string;
+  startTime: string;
+  endTime: string;
+  formattedTime?: string;
+  location: string;
+  dayType: 'FULL_DAY' | 'HALF_DAY';
+  budget: number;
+
+  freelancerId: number;
+  freelancerName: string;
+  freelancerPhotoUrl?: string;
+  freelancerCity?: string;
+  freelancerPrimarySkill?: string;
+
+  studioId: number;
+  studioName: string;
+  studioLogoUrl?: string;
+
+  status: RequestStatus;
+  agreedPrice?: number;
+  message?: string;
+  cancellationReason?: string;
+  createdAt: string;
+}
+
+export interface CreateWorkRequestPayload {
+  requirementId: number;
+  freelancerId: number;
+  offeredPrice?: number;
+  message?: string;
+}
+

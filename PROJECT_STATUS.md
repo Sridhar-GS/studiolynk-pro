@@ -1,7 +1,7 @@
 # StudioLynk Project Status
 
 ## Current phase
-Phase 9 completed. Awaiting approval to begin Phase 10 (Work Requests).
+Phase 10 completed. Awaiting approval to begin Phase 11 (WebSocket Messaging).
 
 ## Overall status
 - [x] Product requirements clarified
@@ -20,6 +20,7 @@ Phase 9 completed. Awaiting approval to begin Phase 10 (Work Requests).
 - [x] Availability calendar & shoot slot filtering (Phase 7)
 - [x] Freelancer Discovery & Multi-Parameter Search (Phase 8)
 - [x] Work Requirements & Shoot Specifications (Phase 9)
+- [x] Work Requests & Booking Confirmation (Phase 10)
 
 ## Completed modules
 - **Phase 0 — Architecture Review**: Complete specification audit, component boundaries, and risk assessment.
@@ -32,15 +33,16 @@ Phase 9 completed. Awaiting approval to begin Phase 10 (Work Requests).
 - **Phase 7 — Availability Calendar & Shoot Filtering**: Rolling 10-day scheduling window (`today` to `today + 9 days`) (AVL-001), daily status tracking with `AVAILABLE`, `BUSY`, and `NOT_SET` (AVL-002), required working shoot hours validation (start time before end time) for open dates (AVL-003), studio shoot search filtering enforcing availability and interval containment (AVL-004), strict exclusion of Busy and Not Set days from search results (AVL-005), beyond 10-day window explicit `UNKNOWN / NOT_SET` designation (AVL-006), candidate filtering foundation for hard filtering before AI ranking (AVL-007), booking conflict detection logic (AVL-008, AVL-009), comprehensive REST APIs (`/api/freelancers/me/availability`, `/api/freelancers/{id}/availability`, `/api/freelancers/availability/check`), rich interactive React calendar page with status pills, preset hours chips, and quick-fill toolbars, live profile preview widget, 34/34 passing JUnit tests (0 failures, 0 errors), and zero-error Vite build.
 - **Phase 8 — Freelancer Discovery & Multi-Parameter Search**: Studio normal freelancer discovery search (DIS-001), AI requirement-based matching card & score readiness (DIS-002, DIS-006), multi-parameter search filters (DIS-003) across keyword, service, skill, equipment gear, location text, Haversine spherical coordinate distance in km, shoot date & start/end times, day type (`FULL_DAY` vs `HALF_DAY`), max budget, and min experience years. Incomplete onboarding candidates strictly excluded. Dynamic rolling 10-day availability filter integration (AVL-004, AVL-005) strictly excluding busy/not-set candidates within 10 days, and surfacing candidates beyond 10 days with "Availability Unknown" status and explanatory notice (AVL-006). Multi-faceted sorting by relevance/distance, distance, rating, experience, and price. Search result cards (DIS-004, DIS-005) displaying profile photo, full name, location/distance, rating/reviews, experience, skill/service chips, equipment highlights, full/half-day rates, live availability hours badge, and AI match score badge. Profile & Portfolio showcase modal with real-time portfolio photos and rolling 10-day calendar views. Studio dashboard and top navigation integration with "Find Creators" link, 40/40 passing JUnit tests (0 failures, 0 errors), and clean production Vite build.
 - **Phase 9 — Work Requirements & Shoot Specifications**: Studio detailed work/event requirements creation & management (WRK-001, WRK-002) with event name, category type, shoot date, start/end call times with strict chronological ordering validation, venue location, day type (`FULL_DAY` vs `HALF_DAY`), budget amount, creative brief description, and catalogue criteria selectors for required skills, required services, and equipment gear. Requirement lifecycle support (WRK-003) across `DRAFT`, `OPEN`, `REQUESTED`, `ACCEPTED`, `CONFIRMED`, `IN_PROGRESS`, `COMPLETED`, and `CANCELLED`. Public/browsing open requirements feed (WRK-004). Direct AI Freelancer Discovery link pre-populating date, time, dayType, and budget parameters (WRK-005). Single confirmed freelancer assignment model foundation (WRK-006 - WRK-008). Strict privacy protection architecture (REQ-002, REQ-006) masking private client contact name and direct phone number from all unconfirmed creators and public listings while keeping them visible to the owning studio. Full React interface with requirements list, metrics overview, multi-section creation/edit wizard, and detail view with status controls and match button. 47/47 passing JUnit integration tests (0 failures, 0 errors) and 0-error Vite frontend build.
+- **Phase 10 — Work Requests & Booking Confirmation**: Direct work request dispatching from AI Discovery or Requirement Details (REQ-001, WRK-006). Strict privacy protection (REQ-002, REQ-006) initially hiding private client contact name & phone number from freelancers. Freelancer incoming request feed, shoot specification inspection, and accept/reject actions (REQ-004). Studio candidate bidding evaluation and confirmation of one chosen creator (REQ-005, WRK-007). Automatic closure/rejection of all other competing requests once one creator is confirmed (WRK-008). Unlocking confidential client contacts exclusively for confirmed creator (REQ-006). Mandatory reason requirement for confirmed work cancellation by either party (REQ-007). Final agreed price record persistence (REQ-008). Double booking prevention on overlapping confirmed shoot intervals (REQ-009). Database schema migration `V2__add_work_request_message.sql`. Full React frontend views (`StudioRequestsPage`, `FreelancerRequestsPage`, `FreelancerRequestDetailPage`, updated `StudioRequirementDetailPage`, `StudioDiscoveryPage`, `FreelancerDashboardPage`, and `Navbar`), 55/55 passing backend tests (8 new dedicated Phase 10 integration tests), and zero-error Vite production build.
 
 ## In progress
-None. Phase 9 completed.
+None. Phase 10 completed.
 
 ## Pending
-Phases 10 through 19.
+Phases 11 through 19.
 
 ## Known issues
 None.
 
 ## Next action
-Wait for explicit approval to begin Phase 10 (Work Requests).
+Wait for explicit approval to begin Phase 11 (WebSocket Messaging).

@@ -15,11 +15,14 @@ import { StudioDiscoveryPage } from './pages/studio/StudioDiscoveryPage';
 import { StudioRequirementsPage } from './pages/studio/StudioRequirementsPage';
 import { StudioCreateRequirementPage } from './pages/studio/StudioCreateRequirementPage';
 import { StudioRequirementDetailPage } from './pages/studio/StudioRequirementDetailPage';
+import { StudioRequestsPage } from './pages/studio/StudioRequestsPage';
 import { FreelancerOnboardingPage } from './pages/freelancer/FreelancerOnboardingPage';
 import { FreelancerDashboardPage } from './pages/freelancer/FreelancerDashboardPage';
 import { FreelancerProfilePage } from './pages/freelancer/FreelancerProfilePage';
 import { FreelancerPortfolioPage } from './pages/freelancer/FreelancerPortfolioPage';
 import { FreelancerAvailabilityPage } from './pages/freelancer/FreelancerAvailabilityPage';
+import { FreelancerRequestsPage } from './pages/freelancer/FreelancerRequestsPage';
+import { FreelancerRequestDetailPage } from './pages/freelancer/FreelancerRequestDetailPage';
 
 export const App: React.FC = () => {
   return (
@@ -107,6 +110,15 @@ export const App: React.FC = () => {
                 </ProtectedRoute>
               }
             />
+            {/* Phase 10: Studio Work Requests Route (WRK-006 - WRK-008, REQ-001 - REQ-009) */}
+            <Route
+              path="/studio/requests"
+              element={
+                <ProtectedRoute requireOnboardingCompleted={true} allowedRoles={['STUDIO', 'ADMIN']}>
+                  <StudioRequestsPage />
+                </ProtectedRoute>
+              }
+            />
             {/* Phase 5: Freelancer Onboarding & Profile Routes */}
             <Route
               path="/onboarding/freelancer"
@@ -147,6 +159,23 @@ export const App: React.FC = () => {
               element={
                 <ProtectedRoute requireOnboardingCompleted={true} allowedRoles={['FREELANCER', 'ADMIN']}>
                   <FreelancerAvailabilityPage />
+                </ProtectedRoute>
+              }
+            />
+            {/* Phase 10: Freelancer Work Requests Routes (REQ-001 - REQ-009) */}
+            <Route
+              path="/freelancer/requests"
+              element={
+                <ProtectedRoute requireOnboardingCompleted={true} allowedRoles={['FREELANCER', 'ADMIN']}>
+                  <FreelancerRequestsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/freelancer/requests/:id"
+              element={
+                <ProtectedRoute requireOnboardingCompleted={true} allowedRoles={['FREELANCER', 'ADMIN']}>
+                  <FreelancerRequestDetailPage />
                 </ProtectedRoute>
               }
             />

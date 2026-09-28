@@ -199,23 +199,29 @@ export const FreelancerDashboardPage: React.FC = () => {
             </Link>
           </div>
 
-          {/* Card 4: Studio Discovery & Bookings (Phase 7 & 9) */}
+          {/* Card 4: Studio Work Requests & Bookings (Phase 10 Active) */}
           <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 space-y-4 flex flex-col justify-between">
             <div className="space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+              <div className="w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400">
                 <Briefcase className="w-5 h-5" />
               </div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base font-bold text-white">Studio Inquiries &amp; Bookings</h2>
-                <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-semibold">
-                  Phase 9
+                <h2 className="text-base font-bold text-white">Incoming Work Requests</h2>
+                <span className="px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 text-[10px] font-semibold border border-teal-500/30">
+                  Phase 10 Active
                 </span>
               </div>
               <p className="text-xs text-slate-400 leading-relaxed">
-                Receive direct booking requests and chat with studio owners in real-time over WebSocket/STOMP.
+                Review shoot requirements dispatched by studios (REQ-002), negotiate rates (REQ-008), accept or decline assignments (REQ-004), and unlock private client contacts once confirmed (REQ-006).
               </p>
             </div>
-            <span className="text-xs text-slate-500 pt-2">Unlocks in Phase 9</span>
+            <Link
+              to="/freelancer/requests"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-teal-400 hover:text-teal-300 pt-2"
+            >
+              <span>View Incoming Requests</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
         </div>
       </div>
