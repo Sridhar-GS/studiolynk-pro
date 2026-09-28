@@ -244,4 +244,69 @@ export interface UploadResponse {
   fileSize?: number;
 }
 
+// -----------------------------------------------------------------------------
+// Availability Domain Types (Phase 7 - AVL-001 to AVL-009)
+// -----------------------------------------------------------------------------
+export type AvailabilityStatus = 'AVAILABLE' | 'BUSY' | 'NOT_SET';
+
+export interface AvailabilitySlot {
+  id?: number | null;
+  date: string; // YYYY-MM-DD
+  dayOfWeek: string; // Mon, Tue, etc.
+  dayOfMonth: number;
+  month: string; // Sep, Oct, etc.
+  status: AvailabilityStatus;
+  startTime?: string | null; // HH:mm
+  endTime?: string | null; // HH:mm
+  formattedTime?: string | null;
+  isWithinWindow?: boolean;
+  isAvailable?: boolean;
+  withinWindow?: boolean;
+  available?: boolean;
+}
+
+export interface AvailabilityWindowResponse {
+  freelancerId: number;
+  freelancerName: string;
+  windowStartDate: string;
+  windowEndDate: string;
+  totalDays: number;
+  availableDaysCount: number;
+  busyDaysCount: number;
+  notSetDaysCount: number;
+  slots: AvailabilitySlot[];
+}
+
+export interface UpdateAvailabilityItem {
+  date: string;
+  status: AvailabilityStatus;
+  startTime?: string | null;
+  endTime?: string | null;
+}
+
+export interface UpdateAvailabilityPayload {
+  availability: UpdateAvailabilityItem[];
+}
+
+export interface AvailabilityCheckRequest {
+  freelancerId?: number;
+  date: string;
+  startTime?: string;
+  endTime?: string;
+}
+
+export interface AvailabilityCheckResponse {
+  freelancerId: number;
+  date: string;
+  requestedStartTime?: string;
+  requestedEndTime?: string;
+  withinWindow: boolean;
+  status: AvailabilityStatus;
+  availableStartTime?: string;
+  availableEndTime?: string;
+  match: boolean;
+  reason: string;
+}
+
+
 

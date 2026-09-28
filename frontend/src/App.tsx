@@ -15,6 +15,7 @@ import { FreelancerOnboardingPage } from './pages/freelancer/FreelancerOnboardin
 import { FreelancerDashboardPage } from './pages/freelancer/FreelancerDashboardPage';
 import { FreelancerProfilePage } from './pages/freelancer/FreelancerProfilePage';
 import { FreelancerPortfolioPage } from './pages/freelancer/FreelancerPortfolioPage';
+import { FreelancerAvailabilityPage } from './pages/freelancer/FreelancerAvailabilityPage';
 
 export const App: React.FC = () => {
   return (
@@ -91,6 +92,15 @@ export const App: React.FC = () => {
               element={
                 <ProtectedRoute requireOnboardingCompleted={true} allowedRoles={['FREELANCER', 'ADMIN']}>
                   <FreelancerPortfolioPage />
+                </ProtectedRoute>
+              }
+            />
+            {/* Phase 7: 10-Day Availability Route */}
+            <Route
+              path="/freelancer/availability"
+              element={
+                <ProtectedRoute requireOnboardingCompleted={true} allowedRoles={['FREELANCER', 'ADMIN']}>
+                  <FreelancerAvailabilityPage />
                 </ProtectedRoute>
               }
             />

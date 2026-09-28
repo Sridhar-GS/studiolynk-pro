@@ -18,10 +18,12 @@ import {
 import { Link } from 'react-router-dom';
 import { catalogueService } from '../../services/catalogueService';
 import { freelancerService } from '../../services/freelancerService';
-import { EquipmentCategory, EquipmentItem, FreelancerProfile, FreelancerUpdatePayload, ServiceItem, Skill } from '../../types';
+import { availabilityService } from '../../services/availabilityService';
+import { AvailabilityWindowResponse, EquipmentCategory, EquipmentItem, FreelancerProfile, FreelancerUpdatePayload, ServiceItem, Skill } from '../../types';
 
 export const FreelancerProfilePage: React.FC = () => {
   const [profile, setProfile] = useState<FreelancerProfile | null>(null);
+  const [availabilityWindow, setAvailabilityWindow] = useState<AvailabilityWindowResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -81,6 +83,14 @@ export const FreelancerProfilePage: React.FC = () => {
       setSelectedSkillIds(data.skills ? data.skills.map((s) => s.id) : []);
       setSelectedServiceIds(data.services ? data.services.map((s) => s.id) : []);
       setSelectedEquipmentIds(data.equipment ? data.equipment.map((e) => e.id) : []);
+
+      // Fetch rolling 10-day availability
+      try {
+        const avail = await availabilityService.getMyAvailability();
+        setAvailabilityWindow(avail);
+      } catch (availErr) {
+        console.warn('Failed to load availability window:', availErr);
+      }
     } catch (err: any) {
       console.error('Failed to load profile:', err);
       setStatusMessage({ type: 'error', text: 'Failed to load freelancer profile.' });
@@ -453,15 +463,63 @@ export const FreelancerProfilePage: React.FC = () => {
             {/* Right 1 Col: Quick Actions & Availability Preview */}
             <div className="space-y-6">
               <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 space-y-4">
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-teal-400" /> Availability &amp; Booking
-                </h3>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Manage your rolling 10-day availability calendar so studios can instantly check your open shoot dates.
-                </p>
-                <div className="bg-slate-950/70 border border-slate-800 p-3.5 rounded-2xl text-xs text-teal-300">
-                  Availability module configured in upcoming Phase 8.
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-teal-400" /> 10-Day Shoot Calendar
+                  </h3>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-teal-500/20 text-teal-300 border border-teal-500/30">
+                    Phase 7 Active
+                  </span>
                 </div>
+
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Rolling 10-day availability. Studios search and confirm shoot bookings based on your open dates.
+                </p>
+
+                {availabilityWindow && (
+                  <div className="space-y-3 pt-1">
+                    <div className="flex items-center gap-2 text-[11px] font-semibold">
+                      <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                        {availabilityWindow.availableDaysCount} Available
+                      </span>
+                      <span className="px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-400 border border-rose-500/30">
+                        {availabilityWindow.busyDaysCount} Busy
+                      </span>
+                      <span className="px-2 py-0.5 rounded-md bg-slate-800 text-slate-400 border border-slate-700">
+                        {availabilityWindow.notSetDaysCount} Not Set
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-5 gap-1.5 pt-1">
+                      {availabilityWindow.slots.slice(0, 10).map((slot) => (
+                        <div
+                          key={slot.date}
+                          title={`${slot.date} (${slot.dayOfWeek}): ${slot.status}${slot.formattedTime ? ' - ' + slot.formattedTime : ''}`}
+                          className={`p-1.5 rounded-xl text-center border transition-all ${
+                            slot.status === 'AVAILABLE'
+                              ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-300'
+                              : slot.status === 'BUSY'
+                              ? 'bg-rose-500/10 border-rose-500/40 text-rose-300'
+                              : 'bg-slate-950/60 border-slate-800 text-slate-500'
+                          }`}
+                        >
+                          <span className="block text-[9px] font-semibold uppercase">{slot.dayOfWeek}</span>
+                          <span className="block text-xs font-bold">{slot.dayOfMonth}</span>
+                          <span className="block text-[8px] truncate mt-0.5">
+                            {slot.status === 'AVAILABLE' ? (slot.formattedTime ? slot.formattedTime.split(' - ')[0] : 'Open') : slot.status === 'BUSY' ? 'Busy' : '—'}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <Link
+                  to="/freelancer/availability"
+                  className="block text-center px-4 py-2.5 rounded-xl bg-teal-500/10 hover:bg-teal-500/20 text-teal-300 border border-teal-500/30 text-xs font-semibold transition-colors"
+                >
+                  Manage 10-Day Availability &amp; Hours
+                </Link>
               </div>
 
               <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 space-y-4">

@@ -440,6 +440,67 @@
   28. `PortfolioControllerTests.testProfileImageUpload`
 - **Frontend Build**: `npm run build` -> **Compiled cleanly with TypeScript type-checking and Vite production asset bundling in 6.07s (0 errors)**.
 
+---
 
+## Phase 7 — Availability Calendar & Shoot Filtering
+**Completed Date:** 2026-09-28  
+**Status:** COMPLETED & TESTED
 
+### Implemented Modules & Capabilities
+1. **Repository & Domain Mapping**:
+   - `FreelancerAvailabilityRepository`: Added queries for finding slots by freelancer ID and date ranges, single date lookups, range deletions, and status existence checks.
+   - Leveraged existing Flyway V1 `freelancer_availability` schema with foreign key cascading and `(freelancer_id, available_date)` unique constraint.
 
+2. **Data Transfer Objects (DTOs)**:
+   - `AvailabilitySlotDto`: Represents single calendar slot in the rolling 10-day window (`date`, `dayOfWeek`, `dayOfMonth`, `month`, `status`, `startTime`, `endTime`, `formattedTime`, `withinWindow`, `available`).
+   - `AvailabilityWindowResponseDto`: Represents the complete 10-day consecutive sequence (`freelancerId`, `freelancerName`, `windowStartDate`, `windowEndDate`, `totalDays`, `availableDaysCount`, `busyDaysCount`, `notSetDaysCount`, `slots`).
+   - `UpdateAvailabilityItemDto` & `UpdateAvailabilityRequestDto`: Validated batch update payloads requiring valid start/end times when marked `AVAILABLE`.
+   - `AvailabilityCheckRequestDto` & `AvailabilityCheckResponseDto`: Detailed shoot query payload and response indicating `match`, `withinWindow`, `status`, shoot hours, and human-readable explanation reason.
+
+3. **Service Layer & Business Rules (AVL-001 - AVL-009)**:
+   - `AvailabilityService` & `AvailabilityServiceImpl`:
+     - **Rolling 10-Day Window (AVL-001)**: Dynamic sequence from `LocalDate.now()` through `LocalDate.now().plusDays(9)`. Synthesizes unconfigured days as `NOT_SET` with null times.
+     - **Status Management (AVL-002, AVL-003)**: Validates start time before end time when `AVAILABLE`. Clears times when marked `BUSY` or `NOT_SET`. Rejects updates to past dates or dates beyond the 10-day window.
+     - **Reset Capability**: Resets all slots within the 10-day window back to `NOT_SET`.
+     - **Studio Shoot Filtering (AVL-004, AVL-005)**: Checks candidate availability for requested dates and time intervals. Rejects `BUSY` and `NOT_SET` candidates. Verifies that freelancer available hours cover requested shoot interval.
+     - **Beyond 10-Day Window (AVL-006)**: Accurately flags queries beyond 10 days with `withinWindow = false`, `status = NOT_SET`, and explanatory note that availability is unknown.
+     - **Hard Filtering & Conflict Foundation (AVL-007, AVL-008, AVL-009)**: `filterAvailableFreelancerIds()` filters candidate freelancer IDs for Phase 8 Discovery and Phase 15 ML ranking; `hasConflict()` checks interval overlaps for work booking confirmation.
+
+4. **REST Endpoints**:
+   - `GET /api/freelancers/me/availability`: Current freelancer's rolling 10-day availability.
+   - `PUT /api/freelancers/me/availability`: Update availability slots with status and hours.
+   - `POST /api/freelancers/me/availability/reset`: Reset 10-day window to `NOT_SET`.
+   - `GET /api/freelancers/{id}/availability`: Public/studio viewing of any freelancer's 10-day availability window.
+   - `POST /api/freelancers/availability/check`: Shoot slot check via request body.
+   - `GET /api/freelancers/availability/check`: Shoot slot check via query parameters (`date`, `startTime`, `endTime`).
+
+5. **React Frontend Pages & Navigation**:
+   - `types/index.ts`: Added `AvailabilityStatus`, `AvailabilitySlot`, `AvailabilityWindowResponse`, `UpdateAvailabilityItem`, `UpdateAvailabilityPayload`, `AvailabilityCheckRequest`, `AvailabilityCheckResponse`.
+   - `services/availabilityService.ts`: Reusable API client for all availability operations.
+   - `FreelancerAvailabilityPage.tsx`: Interactive 10-day calendar workspace with:
+     - Header displaying active rolling window date range.
+     - Informational rules callout explaining Available, Busy, and Beyond 10-Day behavior.
+     - Live statistics summary bar (Available, Busy, Not Set counts).
+     - Bulk quick-action buttons ("Quick: All Available", "Weekdays Open, Weekends Busy", "Reset to Not Set").
+     - 10 day cards with relative day tags ("Today", "Tomorrow", "Day 3"...), status toggles (`Available`, `Busy`, `Not Set`), time pickers, and quick preset hours chips ("Full Day 09:00 - 18:00", "Morning 09:00 - 13:00", "Afternoon 14:00 - 19:00", "Night 17:00 - 22:00").
+     - Sticky floating save bar with dirty state tracking.
+   - `FreelancerProfilePage.tsx`: Integrated live 10-day calendar preview widget and link to manage availability.
+   - `FreelancerDashboardPage.tsx`: Activated Card 3 ("10-Day Availability Calendar") with direct link to `/freelancer/availability`.
+   - `Navbar.tsx`: Added "Availability" link with Calendar icon for authenticated Freelancers and updated badge to "Phase 7 Active".
+   - `App.tsx`: Added protected route `/freelancer/availability`.
+
+### Verification Summary
+- **Backend Test Suite**: `mvn test` -> **34 of 34 tests PASSED (0 failures, 0 errors, 0 skipped)** in 34.9s:
+  1. `StudioLynkApplicationTests` (5 tests)
+  2. `AuthControllerTests` (9 tests)
+  3. `StudioControllerTests` (4 tests)
+  4. `FreelancerControllerTests` (5 tests)
+  5. `PortfolioControllerTests` (5 tests)
+  6. `FreelancerAvailabilityControllerTests` (6 tests):
+     - `testGetMyAvailability_returns10DayWindowDefaultNotSet` (AVL-001)
+     - `testUpdateMyAvailability_success` (AVL-002, AVL-003)
+     - `testUpdateMyAvailability_validationErrors` (AVL-003)
+     - `testCheckAvailability_matchingRules` (AVL-004, AVL-005, AVL-006)
+     - `testResetMyAvailability_success`
+     - `testGetFreelancerAvailability_byId`
+- **Frontend Build**: `npm run build` -> **Compiled cleanly with TypeScript type-checking and Vite production asset bundling in 6.57s (0 errors)**.

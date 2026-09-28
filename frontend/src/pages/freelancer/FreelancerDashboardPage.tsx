@@ -174,23 +174,29 @@ export const FreelancerDashboardPage: React.FC = () => {
             </Link>
           </div>
 
-          {/* Card 3: 10-Day Availability (Phase 8) */}
+          {/* Card 3: 10-Day Availability (Phase 7 Active) */}
           <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 space-y-4 flex flex-col justify-between">
             <div className="space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+              <div className="w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400">
                 <Calendar className="w-5 h-5" />
               </div>
               <div className="flex items-center gap-2">
                 <h2 className="text-base font-bold text-white">10-Day Availability Calendar</h2>
-                <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-semibold">
-                  Phase 8
+                <span className="px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 text-[10px] font-semibold border border-teal-500/30">
+                  Phase 7 Active
                 </span>
               </div>
               <p className="text-xs text-slate-400 leading-relaxed">
-                Keep your shoot calendar updated. Studios filter available talent across the next 10 consecutive days.
+                Keep your shoot calendar updated. Studios search and confirm bookings based on your open dates and working hours.
               </p>
             </div>
-            <span className="text-xs text-slate-500 pt-2">Unlocks in Phase 8</span>
+            <Link
+              to="/freelancer/availability"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-teal-400 hover:text-teal-300 pt-2"
+            >
+              <span>Manage Availability &amp; Hours</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
 
           {/* Card 4: Studio Discovery & Bookings (Phase 7 & 9) */}

@@ -48,15 +48,15 @@ Status values: `PLANNED`, `IN PROGRESS`, `IMPLEMENTED`, `TESTED`.
 - POR-009 — Portfolio relevance for ML shall use selected category plus portfolio metadata/text, not computer vision.
 
 ## Availability
-- AVL-001 — Freelancer availability shall use a rolling 10-day window.
-- AVL-002 — Each day shall be Available, Busy, or Not Set.
-- AVL-003 — Available days shall have start and end time.
-- AVL-004 — Studio search within the 10-day window shall show only Available freelancers matching the requested time.
-- AVL-005 — Busy and Not Set days shall not appear as available.
-- AVL-006 — Dates beyond the 10-day window may list matching freelancers but shall clearly indicate availability is not set/unknown.
-- AVL-007 — Availability shall be used as a hard filter before AI ranking.
-- AVL-008 — Confirmed work shall prevent conflicting bookings.
-- AVL-009 — Confirmed work shall make the relevant freelancer time unavailable/busy.
+- AVL-001 — Freelancer availability shall use a rolling 10-day window. `[TESTED]`
+- AVL-002 — Each day shall be Available, Busy, or Not Set. `[TESTED]`
+- AVL-003 — Available days shall have start and end time. `[TESTED]`
+- AVL-004 — Studio search within the 10-day window shall show only Available freelancers matching the requested time. `[TESTED]`
+- AVL-005 — Busy and Not Set days shall not appear as available. `[TESTED]`
+- AVL-006 — Dates beyond the 10-day window may list matching freelancers but shall clearly indicate availability is not set/unknown. `[TESTED]`
+- AVL-007 — Availability shall be used as a hard filter before AI ranking. `[IMPLEMENTED]`
+- AVL-008 — Confirmed work shall prevent conflicting bookings. `[IMPLEMENTED]`
+- AVL-009 — Confirmed work shall make the relevant freelancer time unavailable/busy. `[IMPLEMENTED]`
 
 ## Studio discovery
 - DIS-001 — Studio shall have normal freelancer search.
