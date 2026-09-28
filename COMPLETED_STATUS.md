@@ -575,3 +575,94 @@
      - `testIncompleteOnboardingExcluded` (DIS-001: onboarding gate enforcement)
 - **Frontend Build**: `npm run build` -> **Compiled cleanly with TypeScript type-checking and Vite production asset bundling in 6.56s (0 errors)**.
 
+---
+
+## Phase 9 — Work Requirements & Shoot Specifications
+**Completed Date:** 2026-09-28  
+**Status:** COMPLETED & TESTED
+
+### Implemented Modules & Capabilities
+1. **JPA Domain Entities & Database Mappings**:
+   - `WorkRequirement` (`work_requirements` table): Extends `BaseEntity` with auditing timestamps, `@ManyToOne` to `Studio`, `@ManyToOne` to `Freelancer` (for confirmed creator), and `@ManyToMany` mappings:
+     - `skills` mapped via MySQL join table `work_requirement_skills` (`work_requirement_id`, `skill_id`).
+     - `services` mapped via MySQL join table `work_requirement_services` (`work_requirement_id`, `service_id`).
+     - `equipment` mapped via MySQL join table `work_requirement_equipment` (`work_requirement_id`, `equipment_id`).
+   - Fields: `eventName`, `eventType`, `eventDate`, `startTime`, `endTime`, `location`, `latitude`, `longitude`, `dayType` (`FULL_DAY`, `HALF_DAY`), `budget`, `description`, `status` (`RequirementStatus`), protected `eventContactName`, and protected `eventContactPhone`.
+   - Created `WorkRequirementRepository` with queries for studio requirements, open requirements, and count by studio and status.
+
+2. **Data Transfer Objects (DTOs)**:
+   - `WorkRequirementRequestDto`: Validates event name, event type, shoot date, start/end times with strict chronological ordering (`startTime.isBefore(endTime)`), venue location, budget non-negativity, criteria selection ID lists, and private client contact info.
+   - `WorkRequirementResponseDto`: Full requirement presentation model featuring privacy control flags (`hasPrivateContactDetails`, `privateDetailsRevealed`), formatted times, resolved skills, services, gear lists, and studio details.
+   - `WorkRequirementSummaryDto`: Lightweight summary DTO for listings, cards, and dashboards with aggregate criteria counts (`skillsCount`, `servicesCount`, `equipmentCount`).
+   - `RequirementStatusUpdateDto`: Validated status transition payload.
+
+3. **Service Layer Architecture & Business Logic (WRK-001 - WRK-008, REQ-002, REQ-006)**:
+   - `WorkRequirementService` and `WorkRequirementServiceImpl`:
+     - **Requirement Creation (WRK-001, WRK-002)**: Studio-restricted endpoint resolving `Studio` from authenticated user context, persisting skill/service/equipment associations, validating chronological shoot times, and initializing status (`OPEN` or `DRAFT`).
+     - **Requirement Updating**: Ownership-guarded update capability allowing studio to modify event specifications, criteria checklists, and contact info before confirmation.
+     - **Strict Client Contact Privacy Protection (REQ-002, REQ-006)**:
+       - If caller is the owning studio: reveals full client contact details (`eventContactName`, `eventContactPhone`, `privateDetailsRevealed = true`).
+       - If caller is the confirmed freelancer: reveals client contact details for shoot day coordination.
+       - If caller is an unconfirmed creator or public viewer: strictly masks contact info (`eventContactName = null`, `eventContactPhone = null`, `privateDetailsRevealed = false`), while `hasPrivateContactDetails` indicates whether private info is on file.
+     - **Requirement Lifecycle Management (WRK-003)**: Validated state transitions across `DRAFT`, `OPEN`, `REQUESTED`, `ACCEPTED`, `CONFIRMED`, `IN_PROGRESS`, `COMPLETED`, and `CANCELLED`.
+     - **Discovery & AI Matching Pre-Population Link (WRK-005)**: Direct parameterization linking requirement dates, times, day type, and budget into `/studio/discovery`.
+     - **Single Confirmed Freelancer Architecture Foundation (WRK-006, WRK-007, WRK-008)**: Database and service structure ready for work request generation and single confirmed assignment.
+     - **Open Requirements Public Feed (WRK-004)**: Filtered feed for open shoots available for general viewing.
+     - **Requirement Deletion**: Secure deletion guarded by ownership and non-active status checks.
+
+4. **Security & Exception Handling**:
+   - `SecurityConfig`: Permitted public access to `GET /api/requirements/open`.
+   - `GlobalExceptionHandler`: Added explicit handler for `AccessDeniedException` mapping to HTTP 403 Forbidden.
+
+5. **REST Endpoints**:
+   - `POST /api/requirements`: Create work requirement (WRK-001, WRK-002).
+   - `GET /api/requirements/{id}`: Get requirement details with dynamic privacy filtering (REQ-002, REQ-006).
+   - `PUT /api/requirements/{id}`: Update requirement details.
+   - `DELETE /api/requirements/{id}`: Delete requirement.
+   - `GET /api/requirements/studio/me`: List all requirements for authenticated studio.
+   - `PATCH /api/requirements/{id}/status`: Update lifecycle status (WRK-003).
+   - `GET /api/requirements/open`: Public/freelancer open requirements feed (WRK-004).
+
+6. **React Frontend Studio Requirements Workspace**:
+   - `types/index.ts`: TypeScript interfaces for `RequirementStatus`, `WorkRequirement`, `WorkRequirementSummary`, and `WorkRequirementPayload`.
+   - `services/requirementService.ts`: Reusable API client for all requirement CRUD, status transitions, and queries.
+   - `StudioRequirementsPage.tsx`: Complete requirements management interface featuring:
+     - Header banner with Phase 9 badge and "Post New Requirement" button.
+     - 4 real-time metrics cards: Total Requirements, Open Shoots, Confirmed/Active, and Committed Budget.
+     - Status tabs filter (`All`, `Open`, `Drafts`, `Confirmed`, `Completed`, `Cancelled`) and real-time text search.
+     - Requirement cards with status badges, event specifications, criteria counts (skills, services, equipment), budget, direct AI Discovery creator link (WRK-005), and details navigation.
+   - `StudioCreateRequirementPage.tsx`: Comprehensive multi-section creation and editing wizard:
+     - Shoot fundamentals: event title, category, shoot date, call time, wrap time, coverage type (`Full Day` vs `Half Day`), venue address, budget in INR, creative brief.
+     - Criteria checklists: interactive skill chips, service chips, equipment gear chips with custom item addition.
+     - Confidential Client Contact section (REQ-002, REQ-006) with privacy security guarantee banner.
+     - "Save as Draft" and "Publish Shoot Requirement" submission actions.
+   - `StudioRequirementDetailPage.tsx`: Rich requirement details workspace featuring:
+     - Status timeline badge and lifecycle transition buttons (Publish, Revert to Draft, Mark Complete, Cancel).
+     - Event specification grid (Date, Schedule & Coverage, Budget, Venue).
+     - Technical specifications breakdown (Required Skills, Services & Deliverables, Gear Checklist).
+     - Confidential client contact card with Gated REQ-002 indicator and direct phone link.
+     - Prominent "Find Matching Creators (AI Discovery)" action pre-populating discovery query parameters (WRK-005).
+     - Delete confirmation modal.
+   - `StudioDashboardPage.tsx`: Activated Card 2 ("Work Requirements") linking to `/studio/requirements`, added Recent Work Requirements list, and Phase 9 Active banner.
+   - `Navbar.tsx`: Added "Requirements" navigation link with Briefcase icon for Studios, updated badge to "Phase 9 Active".
+   - `App.tsx`: Registered protected routes for `/studio/requirements`, `/studio/requirements/new`, `/studio/requirements/:id`, and `/studio/requirements/:id/edit`.
+
+### Verification Summary
+- **Backend Test Suite**: `mvn test` -> **47 of 47 tests PASSED (0 failures, 0 errors, 0 skipped)** in 38.7s:
+  1. `StudioLynkApplicationTests` (5 tests)
+  2. `AuthControllerTests` (9 tests)
+  3. `StudioControllerTests` (4 tests)
+  4. `FreelancerControllerTests` (5 tests)
+  5. `PortfolioControllerTests` (5 tests)
+  6. `FreelancerAvailabilityControllerTests` (6 tests)
+  7. `FreelancerDiscoveryControllerTests` (6 tests)
+  8. `WorkRequirementControllerTests` (7 tests):
+     - `testCreateWorkRequirementSuccess`: WRK-001, WRK-002 creation and field persistence.
+     - `testPrivateContactInfoMaskedForUnconfirmedUser`: REQ-002 privacy gating masks contact name and phone from unconfirmed callers.
+     - `testOwnerCanSeePrivateContactInfo`: REQ-002, REQ-006 studio owner sees full client contact details.
+     - `testUpdateRequirementStatusLifecycle`: WRK-003 status transitions (`DRAFT` -> `OPEN` -> `CANCELLED`).
+     - `testUpdateAndGetStudioRequirements`: Edit requirement details and query studio requirements list.
+     - `testInvertedTimeThrowsValidationError`: WRK-002 start time after end time fails validation.
+     - `testFreelancerCannotCreateRequirement`: Role-based security check (403 Forbidden for freelancers).
+- **Frontend Build**: `npm run build` -> **Compiled cleanly with TypeScript type-checking and Vite production asset bundling in 8.91s (0 errors)**.
+

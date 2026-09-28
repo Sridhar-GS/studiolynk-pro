@@ -12,6 +12,9 @@ import { StudioOnboardingPage } from './pages/studio/StudioOnboardingPage';
 import { StudioDashboardPage } from './pages/studio/StudioDashboardPage';
 import { StudioProfilePage } from './pages/studio/StudioProfilePage';
 import { StudioDiscoveryPage } from './pages/studio/StudioDiscoveryPage';
+import { StudioRequirementsPage } from './pages/studio/StudioRequirementsPage';
+import { StudioCreateRequirementPage } from './pages/studio/StudioCreateRequirementPage';
+import { StudioRequirementDetailPage } from './pages/studio/StudioRequirementDetailPage';
 import { FreelancerOnboardingPage } from './pages/freelancer/FreelancerOnboardingPage';
 import { FreelancerDashboardPage } from './pages/freelancer/FreelancerDashboardPage';
 import { FreelancerProfilePage } from './pages/freelancer/FreelancerProfilePage';
@@ -68,6 +71,39 @@ export const App: React.FC = () => {
               element={
                 <ProtectedRoute requireOnboardingCompleted={true} allowedRoles={['STUDIO', 'ADMIN']}>
                   <StudioDiscoveryPage />
+                </ProtectedRoute>
+              }
+            />
+            {/* Phase 9: Studio Work Requirements Routes (WRK-001 - WRK-008) */}
+            <Route
+              path="/studio/requirements"
+              element={
+                <ProtectedRoute requireOnboardingCompleted={true} allowedRoles={['STUDIO', 'ADMIN']}>
+                  <StudioRequirementsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/studio/requirements/new"
+              element={
+                <ProtectedRoute requireOnboardingCompleted={true} allowedRoles={['STUDIO', 'ADMIN']}>
+                  <StudioCreateRequirementPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/studio/requirements/:id"
+              element={
+                <ProtectedRoute requireOnboardingCompleted={true} allowedRoles={['STUDIO', 'ADMIN']}>
+                  <StudioRequirementDetailPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/studio/requirements/:id/edit"
+              element={
+                <ProtectedRoute requireOnboardingCompleted={true} allowedRoles={['STUDIO', 'ADMIN']}>
+                  <StudioCreateRequirementPage />
                 </ProtectedRoute>
               }
             />

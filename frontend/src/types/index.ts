@@ -369,5 +369,91 @@ export interface FreelancerSearchResponse {
   freelancers: FreelancerCard[];
 }
 
+// -----------------------------------------------------------------------------
+// Work Requirements Domain Types (Phase 9 - WRK-001 to WRK-008)
+// -----------------------------------------------------------------------------
+export type RequirementStatus =
+  | 'DRAFT'
+  | 'OPEN'
+  | 'REQUESTED'
+  | 'ACCEPTED'
+  | 'CONFIRMED'
+  | 'IN_PROGRESS'
+  | 'COMPLETED'
+  | 'CANCELLED';
 
+export interface WorkRequirement {
+  id: number;
+  studioId: number;
+  studioName: string;
+  studioLogoUrl?: string;
+  studioPhone?: string;
+  eventName: string;
+  eventType: string;
+  eventDate: string; // YYYY-MM-DD
+  startTime: string; // HH:mm
+  endTime: string; // HH:mm
+  formattedTime?: string;
+  location: string;
+  latitude?: number;
+  longitude?: number;
+  dayType: 'FULL_DAY' | 'HALF_DAY';
+  budget: number;
+  description?: string;
+  status: RequirementStatus;
+  eventContactName?: string;
+  eventContactPhone?: string;
+  hasPrivateContactDetails: boolean;
+  privateDetailsRevealed: boolean;
+  confirmedFreelancerId?: number;
+  confirmedFreelancerName?: string;
+  confirmedFreelancerPhotoUrl?: string;
+  requiredSkills: Skill[];
+  requiredServices: ServiceItem[];
+  requiredEquipment: EquipmentItem[];
+  activeRequestsCount?: number;
+  createdAt: string;
+  updatedAt?: string;
+}
 
+export interface WorkRequirementSummary {
+  id: number;
+  studioId: number;
+  studioName: string;
+  studioLogoUrl?: string;
+  eventName: string;
+  eventType: string;
+  eventDate: string;
+  startTime: string;
+  endTime: string;
+  formattedTime?: string;
+  location: string;
+  dayType: 'FULL_DAY' | 'HALF_DAY';
+  budget: number;
+  status: RequirementStatus;
+  skillsCount: number;
+  servicesCount: number;
+  equipmentCount: number;
+  confirmedFreelancerId?: number;
+  confirmedFreelancerName?: string;
+}
+
+export interface WorkRequirementPayload {
+  eventName: string;
+  eventType: string;
+  eventDate: string;
+  startTime: string;
+  endTime: string;
+  location: string;
+  latitude?: number;
+  longitude?: number;
+  dayType?: 'FULL_DAY' | 'HALF_DAY';
+  budget: number;
+  description?: string;
+  status?: RequirementStatus;
+  eventContactName?: string;
+  eventContactPhone?: string;
+  requiredSkillIds?: number[];
+  requiredServiceIds?: number[];
+  requiredEquipmentIds?: number[];
+}
