@@ -289,6 +289,15 @@ export const FreelancerRequestsPage: React.FC = () => {
                     )}
 
                     <Link
+                      to={`/messages?requirementId=${req.requirementId}`}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-teal-300 text-xs font-semibold border border-teal-500/30 transition"
+                      title="Open Live Chat with Studio"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5" />
+                      <span>Chat</span>
+                    </Link>
+
+                    <Link
                       to={`/freelancer/requests/${req.id}`}
                       className="inline-flex items-center gap-1 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition"
                     >

@@ -12,7 +12,8 @@ import {
   Edit3,
   Award,
   Wrench,
-  DollarSign
+  DollarSign,
+  MessageSquare
 } from 'lucide-react';
 import { freelancerService } from '../../services/freelancerService';
 import { FreelancerProfile } from '../../types';
@@ -220,6 +221,31 @@ export const FreelancerDashboardPage: React.FC = () => {
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-teal-400 hover:text-teal-300 pt-2"
             >
               <span>View Incoming Requests</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          {/* Card 5: Real-Time Studio Chat & Negotiations (Phase 11 Active) */}
+          <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 space-y-4 flex flex-col justify-between md:col-span-2">
+            <div className="space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400">
+                <MessageSquare className="w-5 h-5" />
+              </div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-base font-bold text-white">Live Studio Chat &amp; Rate Negotiation</h2>
+                <span className="px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 text-[10px] font-semibold border border-teal-500/30">
+                  Phase 11 Active
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Connect directly with photography studios over live WebSocket/STOMP chat (MSG-001 - MSG-006). Clarify creative briefs, negotiate shoot rates, verify gear lists, and coordinate call times before or after accepting.
+              </p>
+            </div>
+            <Link
+              to="/messages"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-teal-400 hover:text-teal-300 pt-2"
+            >
+              <span>Open Studio Conversations</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>

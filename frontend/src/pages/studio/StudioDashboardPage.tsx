@@ -180,22 +180,32 @@ export const StudioDashboardPage: React.FC = () => {
             </span>
           </Link>
 
-          {/* Card 3: Messaging */}
-          <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 hover:border-slate-700 transition flex flex-col justify-between opacity-80">
+          {/* Card 3: Messaging (Phase 11 Active) */}
+          <Link
+            to="/messages"
+            className="bg-slate-900/80 border border-slate-800 hover:border-teal-500/50 rounded-3xl p-6 transition-all duration-200 flex flex-col justify-between group shadow-lg hover:shadow-teal-500/10 cursor-pointer"
+          >
             <div>
-              <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 mb-4">
+              <div className="w-12 h-12 rounded-2xl bg-teal-500/10 border border-teal-500/20 group-hover:border-teal-500/40 flex items-center justify-center text-teal-400 mb-4 transition-colors">
                 <MessageSquare className="w-6 h-6" />
               </div>
-              <h3 className="text-base font-semibold text-white mb-1">Direct Messaging</h3>
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="text-base font-semibold text-white group-hover:text-teal-400 transition-colors">
+                  Direct Messaging
+                </h3>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/30 font-medium">
+                  Phase 11 Active
+                </span>
+              </div>
               <p className="text-xs text-slate-400 mb-4 leading-relaxed">
-                Real-time WebSocket chat with applicants to coordinate call times, gear requirements, and shoot logistics.
+                Real-time WebSocket chat with applicants to coordinate call times, rate negotiations, and shoot logistics.
               </p>
             </div>
-            <span className="text-xs text-purple-400 font-medium flex items-center gap-1">
-              <span>Enabled in Phase 11</span>
+            <span className="text-xs text-teal-400 font-semibold flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+              <span>Open Conversations</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </span>
-          </div>
+          </Link>
         </div>
 
         {/* Recent Work Requirements Section */}

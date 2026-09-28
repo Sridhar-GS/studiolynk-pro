@@ -767,4 +767,94 @@
      - `testFreelancerRejectRequest`: REQ-004 freelancer decline proposal.
 - **Frontend Build**: `npm run build` -> **Compiled cleanly with TypeScript type-checking and Vite production asset bundling in 7.18s (0 errors)**.
 
+---
+
+## Phase 11 — WebSocket Messaging & Real-Time Negotiation (MSG-001 – MSG-006)
+**Completed Date:** 2026-09-28  
+**Status:** COMPLETED & TESTED
+
+### Implemented Modules & Capabilities
+1. **Spring WebSocket & STOMP Protocol Architecture (MSG-002)**:
+   - Added `spring-boot-starter-websocket` to `backend/pom.xml`.
+   - Permitted `/ws/**` endpoint in `SecurityConfig.java` for HTTP WebSocket upgrade handshakes.
+   - Implemented `WebSocketConfig` configuring:
+     - STOMP endpoints at `/ws` with pure WebSocket and SockJS fallback support.
+     - Application destination prefix `/app` (routes to `@MessageMapping` handlers).
+     - User destination prefix `/user` and simple in-memory broker prefixes `/topic` and `/queue`.
+     - Inbound channel interceptor: decodes and validates JWT bearer tokens extracted from the STOMP `CONNECT` frame (`Authorization` or `token` header) using `JwtTokenProvider.validateToken(...)`, setting authenticated `UsernamePasswordAuthenticationToken` on the WebSocket session accessor.
+   - Configured `vite.config.ts` proxy with `ws: true` for development WebSocket proxying to Spring Boot on port 8080.
+
+2. **JPA Data Models & Persistence (MSG-001, MSG-003, MSG-004)**:
+   - `Conversation` entity mapped to `conversations` table:
+     - Relationships to `WorkRequirement`, `Studio`, and `Freelancer`.
+     - Enforces exactly one conversation thread per (requirement, freelancer) pair (`uq_conv_req_fl`).
+     - Includes auditing timestamp `createdAt`.
+   - `Message` entity mapped to `messages` table:
+     - Many-to-one relationship to `Conversation` and `User` (sender).
+     - Pure text-only content validated up to 4000 characters (MSG-003).
+     - Sent timestamp `sentAt` (`LocalDateTime`) and read status `isRead` boolean flag (MSG-004).
+   - `ConversationRepository` & `MessageRepository`:
+     - Query conversation by requirement & freelancer.
+     - Find all conversations involving a studio or freelancer with latest message ordering.
+     - Bulk patch method: `markMessagesAsRead(conversationId, readerId)`.
+     - Fast count query: `countUnreadMessages(conversationId, readerId)`.
+
+3. **Core Messaging Service Layer (ConversationService & ConversationServiceImpl)**:
+   - **Requirement Authorization & Membership Gate (MSG-001)**:
+     - Studios can only participate in conversations attached to requirements they own.
+     - Freelancers can only participate in conversations if they hold a valid work request for that requirement.
+     - Non-participants are strictly blocked with `UnauthorizedException` or `ResourceNotFoundException`.
+   - **Privacy Protection Gate (REQ-002, REQ-006)**:
+     - Message content remains strictly private to the two participants (Studio & Creator).
+     - Confidential client details are never injected into chat before confirmation.
+   - **Real-Time Dispatching (MSG-002)**:
+     - Persists messages via `messageRepository.save(...)`.
+     - Dispatches real-time STOMP payload via `SimpMessagingTemplate` to destination `/topic/conversation.{conversationId}`.
+   - **Read Receipt & Unread Counter Tracking (MSG-004)**:
+     - `markAsRead(conversationId, user)` atomically updates unread messages sent by the opposing counterparty.
+
+4. **REST & STOMP Controllers**:
+   - `ConversationController` (`/api/conversations`):
+     - `GET /api/conversations`: Returns all conversations for authenticated user with unread counts and last message previews.
+     - `GET /api/conversations/{id}`: Returns conversation details.
+     - `GET /api/conversations/requirement/{requirementId}`: Get or create conversation thread for requirement.
+     - `GET /api/conversations/{id}/messages`: Fetch chronological message history (MSG-004).
+     - `POST /api/conversations/{id}/messages`: REST fallback / message dispatch (MSG-003, MSG-004).
+     - `PATCH /api/conversations/{id}/read`: Mark all messages in conversation as read (MSG-004).
+   - `WsChatController`:
+     - `@MessageMapping("/chat.sendMessage")`: Handles incoming STOMP messages, authenticates sender, persists, and publishes to `/topic/conversation.{id}`.
+
+5. **React Frontend Messaging Experience**:
+   - Installed `@stomp/stompjs` (v7) for high-performance WebSocket/STOMP client connection management.
+   - `messagingService.ts`: REST methods for conversation fetching and STOMP client factory with auto-reconnection and heartbeat handling.
+   - `MessagesPage.tsx`:
+     - Dual-pane layout: conversation directory sidebar with search and unread badges, and active chat window with message history.
+     - Live connection status indicator (Connected / Reconnecting) with visual pulse dot.
+     - Read status indicators (single check for sent, double check for read).
+     - Quick negotiation prompt chips for rapid communication (Confirm call time, Negotiate rate, Gear checklist, Travel details) (MSG-005).
+     - Character counter warning (up to 4000 chars) and enter-to-send keyboard shortcuts.
+   - Contextual routing:
+     - `FreelancerRequestDetailPage.tsx`: "Message Studio" button in action bar and Studio card.
+     - `FreelancerRequestsPage.tsx`: "Chat" button on every incoming request card.
+     - `StudioRequirementDetailPage.tsx`: "Chat" action for every candidate creator proposal.
+     - `StudioRequestsPage.tsx`: "Chat" action for every dispatched request card.
+     - `StudioDashboardPage.tsx`: Activated Card 3 ("Direct Messaging") with Phase 11 Active badge.
+     - `FreelancerDashboardPage.tsx`: Added Card 5 ("Live Studio Chat & Rate Negotiation") with Phase 11 Active badge.
+     - `Navbar.tsx`: Added "Messages" navigation link with `MessageSquare` icon for Studios and Freelancers, updated badge to "Phase 11 Active".
+     - `App.tsx`: Registered `/messages` protected route for `['STUDIO', 'FREELANCER', 'ADMIN']`.
+
+### Verification Summary
+- **Backend Test Suite**: `mvn test` -> **63 of 63 tests PASSED (0 failures, 0 errors, 0 skipped)** in 47.6s:
+  - 8 new dedicated Phase 11 integration tests in `ConversationControllerTests`:
+    1. `testCreateAndGetConversationForRequirement`: MSG-001, MSG-005 get-or-create conversation for requirement.
+    2. `testSendMessageSuccess`: MSG-003, MSG-004 message creation, timestamping, unread flag.
+    3. `testStudioCannotMessageUninvitedFreelancer`: MSG-001 requirement authorization gating.
+    4. `testMessageContentValidation`: MSG-003 blank message rejection.
+    5. `testMessageLengthExceededFails`: MSG-003 4000+ character limit enforcement.
+    6. `testMarkMessagesAsRead`: MSG-004 bulk read patch endpoint.
+    7. `testGetUserConversations`: Conversation feed retrieval with unread counts.
+    8. `testConfidentialClientDetailsMaskedDuringNegotiation`: REQ-002, MSG-005 client privacy preservation.
+- **Frontend Build**: `npm run build` -> **Compiled cleanly with TypeScript type-checking and Vite production asset bundling in 7.46s (0 errors)**.
+
+
 

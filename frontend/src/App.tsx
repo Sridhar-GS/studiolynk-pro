@@ -23,6 +23,7 @@ import { FreelancerPortfolioPage } from './pages/freelancer/FreelancerPortfolioP
 import { FreelancerAvailabilityPage } from './pages/freelancer/FreelancerAvailabilityPage';
 import { FreelancerRequestsPage } from './pages/freelancer/FreelancerRequestsPage';
 import { FreelancerRequestDetailPage } from './pages/freelancer/FreelancerRequestDetailPage';
+import { MessagesPage } from './pages/messaging/MessagesPage';
 
 export const App: React.FC = () => {
   return (
@@ -176,6 +177,15 @@ export const App: React.FC = () => {
               element={
                 <ProtectedRoute requireOnboardingCompleted={true} allowedRoles={['FREELANCER', 'ADMIN']}>
                   <FreelancerRequestDetailPage />
+                </ProtectedRoute>
+              }
+            />
+            {/* Phase 11: Real-Time WebSocket Messaging (MSG-001 - MSG-006) */}
+            <Route
+              path="/messages"
+              element={
+                <ProtectedRoute requireOnboardingCompleted={true} allowedRoles={['STUDIO', 'FREELANCER', 'ADMIN']}>
+                  <MessagesPage />
                 </ProtectedRoute>
               }
             />

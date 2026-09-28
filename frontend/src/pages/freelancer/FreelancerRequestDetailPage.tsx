@@ -373,6 +373,15 @@ export const FreelancerRequestDetailPage: React.FC = () => {
           <div className="pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
             <span className="text-slate-400">Action Controls:</span>
             <div className="flex items-center gap-2">
+              <Link
+                to={`/messages?requirementId=${request.requirementId}`}
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-teal-300 rounded-xl font-semibold border border-teal-500/30 transition flex items-center gap-1.5"
+                title="Direct messaging with Studio"
+              >
+                <MessageSquare className="w-3.5 h-3.5" />
+                <span>Message Studio</span>
+              </Link>
+
               {request.status === 'PENDING' && (
                 <>
                   <button
@@ -591,6 +600,13 @@ export const FreelancerRequestDetailPage: React.FC = () => {
                 {request.studioPhone && (
                   <span className="text-xs text-teal-400 block font-semibold">{request.studioPhone}</span>
                 )}
+                <Link
+                  to={`/messages?requirementId=${request.requirementId}`}
+                  className="mt-3 w-full py-2 bg-slate-800 hover:bg-slate-700 text-teal-300 border border-teal-500/30 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition"
+                >
+                  <MessageSquare className="w-3.5 h-3.5" />
+                  <span>Message Studio</span>
+                </Link>
               </div>
             </div>
           </div>

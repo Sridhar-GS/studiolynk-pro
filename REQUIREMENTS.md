@@ -88,12 +88,12 @@ Status values: `PLANNED`, `IN PROGRESS`, `IMPLEMENTED`, `TESTED`.
 - REQ-009 — Freelancer double booking shall be prevented. `[TESTED]`
 
 ## Messaging
-- MSG-001 — Messaging shall be requirement-specific.
-- MSG-002 — Messaging shall use WebSocket/STOMP.
-- MSG-003 — Messages shall be text-only.
-- MSG-004 — Messages shall have timestamps and read/unread state.
-- MSG-005 — Studio and freelancer may negotiate through messages.
-- MSG-006 — No external email notifications are required for messaging.
+- MSG-001 — Messaging shall be requirement-specific. `[TESTED]`
+- MSG-002 — Messaging shall use WebSocket/STOMP. `[TESTED]`
+- MSG-003 — Messages shall be text-only. `[TESTED]`
+- MSG-004 — Messages shall have timestamps and read/unread state. `[TESTED]`
+- MSG-005 — Studio and freelancer may negotiate through messages. `[TESTED]`
+- MSG-006 — No external email notifications are required for messaging. `[TESTED]`
 
 ## Notifications
 - NOT-001 — Notifications shall be in-app.

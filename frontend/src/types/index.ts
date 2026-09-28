@@ -541,3 +541,40 @@ export interface CreateWorkRequestPayload {
   message?: string;
 }
 
+// Phase 11: Requirement-Specific Messaging (MSG-001 - MSG-006)
+export interface ChatMessage {
+  id: number;
+  conversationId: number;
+  senderId: number;
+  senderEmail: string;
+  senderName: string;
+  senderRole: 'STUDIO' | 'FREELANCER' | 'ADMIN';
+  content: string;
+  read: boolean;
+  sentAt: string;
+}
+
+export interface Conversation {
+  id: number;
+  requirementId: number;
+  eventName: string;
+  eventType: string;
+  eventDate: string;
+  requirementStatus: RequirementStatus;
+
+  studioId: number;
+  studioName: string;
+  studioLogoUrl?: string;
+
+  freelancerId: number;
+  freelancerName: string;
+  freelancerPhotoUrl?: string;
+
+  lastMessage?: string;
+  lastMessageAt?: string;
+  lastMessageSenderId?: number;
+  unreadCount: number;
+  createdAt: string;
+}
+
+

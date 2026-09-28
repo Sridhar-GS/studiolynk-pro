@@ -20,7 +20,8 @@ import {
   Layers,
   ChevronRight,
   Send,
-  XCircle
+  XCircle,
+  MessageSquare
 } from 'lucide-react';
 import { requirementService } from '../../services/requirementService';
 import { requestService } from '../../services/requestService';
@@ -731,6 +732,16 @@ export const StudioRequirementDetailPage: React.FC = () => {
                       >
                         {req.status}
                       </span>
+
+                      {/* Studio Action: Message Creator (MSG-001, MSG-005) */}
+                      <Link
+                        to={`/messages?requirementId=${id}&freelancerId=${req.freelancerId}`}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-teal-300 border border-teal-500/30 text-xs font-semibold transition"
+                        title="Chat & Negotiate with Creator"
+                      >
+                        <MessageSquare className="w-3.5 h-3.5" />
+                        <span>Chat</span>
+                      </Link>
 
                       {/* Studio Action: Confirm Creator (WRK-007, REQ-005) */}
                       {req.status === 'ACCEPTED' && (
