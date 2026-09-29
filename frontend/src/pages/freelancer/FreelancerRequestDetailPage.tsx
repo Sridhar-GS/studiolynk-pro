@@ -22,6 +22,7 @@ import {
   MessageSquare
 } from 'lucide-react';
 import { requestService } from '../../services/requestService';
+import { RequirementRatingSection } from '../../components/ratings/RequirementRatingSection';
 import { WorkRequest, RequestStatus } from '../../types';
 
 export const FreelancerRequestDetailPage: React.FC = () => {
@@ -416,6 +417,18 @@ export const FreelancerRequestDetailPage: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Phase 13: Ratings & Reviews for Completed Shoot (RAT-002, RAT-005, RAT-006) */}
+        {request.requirementStatus === 'COMPLETED' && (
+          <RequirementRatingSection
+            requirementId={request.requirementId}
+            requirementTitle={request.eventName}
+            requirementStatus={request.requirementStatus}
+            counterpartyName={request.studioName}
+            counterpartyRole="Studio"
+            onRatingSubmitted={() => fetchRequest()}
+          />
+        )}
 
         {/* Content Columns */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

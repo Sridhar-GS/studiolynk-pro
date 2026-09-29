@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { requirementService } from '../../services/requirementService';
 import { requestService } from '../../services/requestService';
+import { RequirementRatingSection } from '../../components/ratings/RequirementRatingSection';
 import { WorkRequirement, RequirementStatus, WorkRequestSummary } from '../../types';
 
 export const StudioRequirementDetailPage: React.FC = () => {
@@ -620,6 +621,20 @@ export const StudioRequirementDetailPage: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Phase 13: Ratings & Reviews for Completed Shoot (RAT-001 - RAT-006) */}
+        {requirement.status === 'COMPLETED' && (
+          <RequirementRatingSection
+            requirementId={requirement.id}
+            requirementTitle={requirement.eventName}
+            requirementStatus={requirement.status}
+            counterpartyName={
+              requests.find((r) => r.status === 'CONFIRMED')?.freelancerName || 'Confirmed Creator'
+            }
+            counterpartyRole="Freelancer"
+            onRatingSubmitted={() => fetchRequirement()}
+          />
+        )}
 
         {/* Phase 10: Candidate Creators & Bidding Proposals (WRK-006, WRK-007, REQ-005, REQ-008) */}
         <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6">

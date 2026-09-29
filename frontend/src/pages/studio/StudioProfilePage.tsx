@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import api from '../../services/api';
 import { ApiResponse, StudioProfile, StudioSocialLink, StudioUpdatePayload } from '../../types';
+import { PublicReviewsList } from '../../components/ratings/PublicReviewsList';
 import axios from 'axios';
 
 export const StudioProfilePage: React.FC = () => {
@@ -359,6 +360,11 @@ export const StudioProfilePage: React.FC = () => {
               ) : (
                 <p className="text-xs text-slate-400">No identity submission recorded.</p>
               )}
+            </div>
+
+            {/* Phase 13: Public Creator Reviews & Ratings (RAT-003) */}
+            <div className="md:col-span-3 bg-slate-900/80 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-4">
+              <PublicReviewsList targetType="STUDIO" targetId={profile.id} title="Creator Reviews & Ratings" />
             </div>
           </div>
         ) : (

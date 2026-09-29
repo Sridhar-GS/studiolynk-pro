@@ -917,6 +917,71 @@
     9. `testNotificationOnRequirementStatusChange`: NOT-002 `WORK_STARTED`, `WORK_COMPLETED`, and `RATING_REMINDER` notifications dispatched on lifecycle transitions.
 - **Frontend Build**: `npm run build` -> **Compiled cleanly with TypeScript type-checking and Vite production asset bundling in 7.54s (0 errors)**.
 
+---
+
+## Phase 13 — Rating System & Mutual Profile Reviews
+**Completed Date:** 2026-09-29  
+**Status:** COMPLETED & TESTED
+
+### Implemented Modules & Capabilities
+1. **JPA Entity & Repository Architecture (RAT-001, RAT-002, RAT-005, RAT-006)**:
+   - Database schema: leveraged existing normalized `ratings` table from Flyway baseline schema (`id`, `requirement_id`, `from_user_id`, `to_user_id`, `target_type`, `score`, `review_text`, `created_at`, `uq_rating_req_user`).
+   - JPA entity: `Rating.java` with `@ManyToOne` associations to `WorkRequirement`, `fromUser`, `toUser`, `@Enumerated(EnumType.STRING)` mapping to `RatingTargetType`, `@CreationTimestamp` auditing, and unique constraint enforcement on `(requirement_id, from_user_id)`.
+   - Spring Data JPA repository: `RatingRepository.java` featuring indexed query methods:
+     - `existsByRequirementIdAndFromUserId`
+     - `findByRequirementIdAndFromUserId`
+     - `findByToUserIdAndTargetTypeOrderByCreatedAtDesc`
+     - Aggregate JPQL queries calculating `AVG(r.score)` and `COUNT(r)` for profile summaries.
+   - DTO abstraction:
+     - `RatingSubmissionDto.java` enforcing Bean Validation (`@NotNull`, `@Min(1)`, `@Max(5)`, `@Size(max = 2000)`).
+     - `RatingDto.java` containing full review metadata and participant display names.
+     - `RatingSummaryDto.java` providing computed average rating, total count, and reviews list.
+     - `RequirementRatingStatusDto.java` supplying requirement eligibility, user's rating, and counterparty rating.
+
+2. **Core Rating Service & Business Rule Verification**:
+   - **Post-Completion Lifecycle Gating (12-RATING-SPECIFICATION.md)**: Requirements must reach `COMPLETED` status before any rating can be submitted. Attempts on uncompleted work are rejected with `400 Bad Request`.
+   - **Two-Way Mutual Rating (RAT-001, RAT-002)**:
+     - Studios can rate confirmed freelancers (`targetType = FREELANCER`).
+     - Freelancers can rate owning studios (`targetType = STUDIO`).
+   - **Participant Authorization Gating**: Unrelated third parties attempting to rate a requirement are blocked with `403 Forbidden`.
+   - **One Rating Per Direction (RAT-006)**: Duplicate ratings in the same direction on a completed requirement are blocked with `409 Conflict` (`DuplicateResourceException`).
+   - **Real-Time In-App Notification Trigger**: Dispatching `NotificationType.RATING_REMINDER` to counterparty upon rating submission with star score and author details.
+   - **ML Ranking Feature Separation (RAT-004, 18-DECISIONS-AND-CONSTRAINTS.md)**: Ratings are strictly isolated from AI recommendation ranking features.
+
+3. **REST Controller Endpoints**:
+   - `POST /api/requirements/{id}/ratings`: Authenticated submission of 1-5 star score and review text.
+   - `GET /api/requirements/{id}/ratings/status`: Authenticated check for requirement rating state.
+   - `GET /api/freelancers/{id}/ratings`: Public endpoint returning average rating, count, and verified reviews (RAT-003).
+   - `GET /api/studios/{id}/ratings`: Public endpoint returning average rating, count, and verified reviews (RAT-003).
+   - Spring Security: Updated `SecurityConfig.java` to whitelist public rating endpoints.
+
+4. **React Frontend Rating Experience & Integration**:
+   - `types/index.ts`: Added `RatingDto`, `RatingSubmissionDto`, `RatingSummaryDto`, and `RequirementRatingStatusDto`.
+   - `ratingService.ts`: REST client for ratings endpoints.
+   - `RequirementRatingSection.tsx`: Reusable interactive rating component with 1-5 star hover selector, custom star labels, optional review input, character counter, and cards displaying user's submitted rating and counterparty feedback.
+   - `PublicReviewsList.tsx`: Reusable public reviews feed displaying verified rating badge, average score, total reviews, and formatted review cards.
+   - `StudioRequirementDetailPage.tsx`: Integrated `RequirementRatingSection` for completed shoots.
+   - `FreelancerRequestDetailPage.tsx`: Integrated `RequirementRatingSection` for completed shoots.
+   - `FreelancerProfilePage.tsx`: Integrated `PublicReviewsList` for verified client feedback.
+   - `StudioProfilePage.tsx`: Integrated `PublicReviewsList` for verified creator feedback.
+   - `StudioDiscoveryPage.tsx`: Added "Reviews & Ratings" tab to candidate preview modal with `PublicReviewsList`.
+   - `Navbar.tsx`: Updated badge to **"Phase 13 Active"**.
+
+### Verification Summary
+- **Backend Test Suite**: `mvn test` -> **81 of 81 tests PASSED (0 failures, 0 errors, 0 skipped)** in 58.3s:
+  - 9 new dedicated Phase 13 integration tests in `RatingControllerTests`:
+    1. `testCannotRateBeforeWorkIsCompleted`: Lifecycle requirement validation (400 Bad Request).
+    2. `testStudioRatesFreelancerSuccess`: RAT-001 studio rating freelancer with score & review text.
+    3. `testFreelancerRatesStudioSuccess`: RAT-002 freelancer rating studio with score & review text.
+    4. `testCannotRateTwiceInSameDirection`: RAT-006 duplicate submission prevention (409 Conflict).
+    5. `testBothDirectionsPermittedForCompletedWork`: Mutual two-way rating verification.
+    6. `testUnrelatedUserCannotRateRequirement`: Security authorization gate (403 Forbidden).
+    7. `testRatingScoreValidation`: Bean Validation rejection of scores < 1 and > 5.
+    8. `testGetRequirementRatingStatus`: Eligibility and submitted status retrieval.
+    9. `testPublicRatingsEndpointsWithoutAuth`: RAT-003 public unauthenticated endpoint accessibility.
+- **Frontend Build**: `npm run build` -> **Compiled cleanly with TypeScript type-checking and Vite production asset bundling in 8.21s (0 errors)**.
+
+
 
 
 

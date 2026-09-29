@@ -25,6 +25,7 @@ import { portfolioService } from '../../services/portfolioService';
 import { availabilityService } from '../../services/availabilityService';
 import { requirementService } from '../../services/requirementService';
 import { requestService } from '../../services/requestService';
+import { PublicReviewsList } from '../../components/ratings/PublicReviewsList';
 import {
   FreelancerCard,
   FreelancerSearchFilter,
@@ -86,7 +87,7 @@ export const StudioDiscoveryPage: React.FC = () => {
   const [previewPortfolio, setPreviewPortfolio] = useState<Portfolio | null>(null);
   const [previewAvailability, setPreviewAvailability] = useState<AvailabilityWindowResponse | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
-  const [previewTab, setPreviewTab] = useState<'portfolio' | 'availability' | 'gear'>('portfolio');
+  const [previewTab, setPreviewTab] = useState<'portfolio' | 'availability' | 'gear' | 'reviews'>('portfolio');
 
   // Contact / Request Modal (Phase 10: REQ-001, WRK-006)
   const [bookingFreelancer, setBookingFreelancer] = useState<FreelancerCard | null>(null);
@@ -965,6 +966,16 @@ export const StudioDiscoveryPage: React.FC = () => {
                 >
                   Equipment & Skills
                 </button>
+                <button
+                  onClick={() => setPreviewTab('reviews')}
+                  className={`py-3 px-4 text-xs font-semibold border-b-2 transition-colors ${
+                    previewTab === 'reviews'
+                      ? 'border-teal-400 text-teal-400'
+                      : 'border-transparent text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  Reviews &amp; Ratings
+                </button>
               </div>
 
               {/* Modal Body */}
@@ -1118,6 +1129,13 @@ export const StudioDiscoveryPage: React.FC = () => {
                         </div>
                       </div>
                     </div>
+                  </div>
+                )}
+
+                {/* Tab 4: Verified Public Reviews & Ratings (RAT-003) */}
+                {previewTab === 'reviews' && previewFreelancer && (
+                  <div className="py-2">
+                    <PublicReviewsList targetType="FREELANCER" targetId={previewFreelancer.id} compact />
                   </div>
                 )}
               </div>

@@ -2,6 +2,7 @@ package com.studiolynk.model.dto;
 
 import com.studiolynk.model.enums.DayType;
 import com.studiolynk.model.enums.RequestStatus;
+import com.studiolynk.model.enums.RequirementStatus;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -14,6 +15,7 @@ public class WorkRequestResponseDto {
 
     private Long id;
     private Long requirementId;
+    private RequirementStatus requirementStatus;
     private Long freelancerId;
     private String freelancerName;
     private String freelancerPhotoUrl;
@@ -72,6 +74,14 @@ public class WorkRequestResponseDto {
 
     public void setRequirementId(Long requirementId) {
         this.requirementId = requirementId;
+    }
+
+    public RequirementStatus getRequirementStatus() {
+        return requirementStatus;
+    }
+
+    public void setRequirementStatus(RequirementStatus requirementStatus) {
+        this.requirementStatus = requirementStatus;
     }
 
     public Long getFreelancerId() {

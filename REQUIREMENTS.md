@@ -102,12 +102,12 @@ Status values: `PLANNED`, `IN PROGRESS`, `IMPLEMENTED`, `TESTED`.
 - NOT-004 — Users shall be able to mark all notifications as read. `[TESTED]`
 
 ## Ratings
-- RAT-001 — Studio may rate freelancers after completed work.
-- RAT-002 — Freelancer may rate studios after completed work.
-- RAT-003 — Ratings shall be public on profiles.
-- RAT-004 — Ratings shall not be used as an ML ranking feature.
-- RAT-005 — Rating shall include a star score and optional review.
-- RAT-006 — A completed work shall permit one rating per direction.
+- RAT-001 — Studio may rate freelancers after completed work. `[TESTED]`
+- RAT-002 — Freelancer may rate studios after completed work. `[TESTED]`
+- RAT-003 — Ratings shall be public on profiles. `[TESTED]`
+- RAT-004 — Ratings shall not be used as an ML ranking feature. `[TESTED]`
+- RAT-005 — Rating shall include a star score and optional review. `[TESTED]`
+- RAT-006 — A completed work shall permit one rating per direction. `[TESTED]`
 
 ## Admin
 - ADM-001 — Admin shall have a separate admin panel.

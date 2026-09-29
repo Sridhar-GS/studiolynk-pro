@@ -1,7 +1,7 @@
 # StudioLynk Project Status
 
 ## Current phase
-Phase 12 completed. Awaiting approval to begin Phase 13 (Rating System).
+Phase 13 completed. Awaiting approval to begin Phase 14 (Machine Learning Service).
 
 ## Overall status
 - [x] Product requirements clarified
@@ -23,6 +23,7 @@ Phase 12 completed. Awaiting approval to begin Phase 13 (Rating System).
 - [x] Work Requests & Booking Confirmation (Phase 10)
 - [x] WebSocket Messaging & Real-Time Negotiation (Phase 11)
 - [x] In-App Notifications & Activity Center (Phase 12)
+- [x] Rating System & Mutual Profile Reviews (Phase 13)
 
 ## Completed modules
 - **Phase 0 — Architecture Review**: Complete specification audit, component boundaries, and risk assessment.
@@ -38,15 +39,16 @@ Phase 12 completed. Awaiting approval to begin Phase 13 (Rating System).
 - **Phase 10 — Work Requests & Booking Confirmation**: Direct work request dispatching from AI Discovery or Requirement Details (REQ-001, WRK-006). Strict privacy protection (REQ-002, REQ-006) initially hiding private client contact name & phone number from freelancers. Freelancer incoming request feed, shoot specification inspection, and accept/reject actions (REQ-004). Studio candidate bidding evaluation and confirmation of one chosen creator (REQ-005, WRK-007). Automatic closure/rejection of all other competing requests once one creator is confirmed (WRK-008). Unlocking confidential client contacts exclusively for confirmed creator (REQ-006). Mandatory reason requirement for confirmed work cancellation by either party (REQ-007). Final agreed price record persistence (REQ-008). Double booking prevention on overlapping confirmed shoot intervals (REQ-009). Database schema migration `V2__add_work_request_message.sql`. Full React frontend views (`StudioRequestsPage`, `FreelancerRequestsPage`, `FreelancerRequestDetailPage`, updated `StudioRequirementDetailPage`, `StudioDiscoveryPage`, `FreelancerDashboardPage`, and `Navbar`), 55/55 passing backend tests (8 new dedicated Phase 10 integration tests), and zero-error Vite production build.
 - **Phase 11 — WebSocket Messaging & Real-Time Negotiation**: Requirement-specific messaging between Studio and Freelancer (MSG-001), guaranteeing one conversation thread per (requirement, freelancer) pair (`uq_conv_req_fl`). Real-time WebSocket/STOMP bidirectional transport (`/ws`, `/topic/conversation.{id}`, `/app/chat.sendMessage`) backed by Spring WebSocket and JWT handshake/connect channel interception (MSG-002). Pure text-only messages validated up to 4000 characters (MSG-003). Real-time sent timestamps, read/unread status tracking, unread counters, and bulk read patch endpoints (MSG-004). Pre- and post-acceptance shoot rate and logistics negotiation supported without external email overhead (MSG-005, MSG-006). Strict privacy gate: private client contact info remains masked until Studio confirmation. Dual-pane responsive messaging UI (`MessagesPage`) with STOMP live connection status, auto-reconnect, quick negotiation prompt chips, and seamless routing from requirement details and request cards. 63/63 passing backend tests (8 new dedicated Phase 11 integration tests) and 0-error Vite build.
 - **Phase 12 — In-App Notifications & Activity Center**: Full in-app notification engine with zero external email dependency (NOT-001). Real-time notification event coverage (NOT-002) for new requests (`REQUEST_RECEIVED`), request acceptance (`REQUEST_ACCEPTED`), request rejection (`REQUEST_REJECTED`), studio confirmation (`STUDIO_CONFIRMATION`), new incoming messages (`NEW_MESSAGE`), work started (`WORK_STARTED`), work completed (`WORK_COMPLETED`), work cancelled (`WORK_CANCELLED`), and rating reminders (`RATING_REMINDER`). Automatic real-time STOMP push to user channel `/topic/notifications.{userId}` and JPA persistence with read/unread tracking and created timestamps (NOT-003). Individual read marking (`PATCH /api/notifications/{id}/read`) and bulk read-all marking (`PATCH /api/notifications/read-all`) (NOT-004). Rich interactive notifications center (`/notifications`) with filter tabs, contextual status icons, direct link routing, and Navbar bell flyout dropdown with live unread counter badge. 72/72 passing backend tests (9 new dedicated Phase 12 integration tests) and 0-error Vite build.
+- **Phase 13 — Rating System & Mutual Profile Reviews**: Two-way star ratings and reviews for completed shoots (RAT-001, RAT-002, 12-RATING-SPECIFICATION.md). Post-completion lifecycle gating strictly enforcing `COMPLETED` requirement status before ratings unlock. One rating per direction per completed shoot (`uq_rating_req_user`) with duplicate submission prevention returning 409 Conflict (RAT-006). 1 to 5 star scores with Bean Validation constraints and optional written reviews up to 2000 characters (RAT-005). Public profile display with average rating calculation and verified reviews feed (RAT-003). Strict exclusion from ML ranking (RAT-004, 18-DECISIONS-AND-CONSTRAINTS.md). Direct integration into Studio Requirement Details, Freelancer Request Details, Freelancer Profile, Studio Profile, and AI Discovery creator showcase modal with Phase 13 active badge. 81/81 passing backend tests (9 new dedicated Phase 13 integration tests) and 0-error Vite build.
 
 ## In progress
-None. Phase 12 completed.
+None. Phase 13 completed.
 
 ## Pending
-Phases 13 through 19.
+Phases 14 through 19.
 
 ## Known issues
 None.
 
 ## Next action
-Wait for explicit approval to begin Phase 13 (Rating System).
+Wait for explicit approval to begin Phase 14 (Machine Learning Service).

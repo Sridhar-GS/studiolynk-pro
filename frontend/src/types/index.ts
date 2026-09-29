@@ -466,6 +466,7 @@ export type RequestStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'CONFIRMED' | 
 export interface WorkRequest {
   id: number;
   requirementId: number;
+  requirementStatus?: RequirementStatus;
   freelancerId: number;
   freelancerName: string;
   freelancerPhotoUrl?: string;
@@ -603,6 +604,45 @@ export interface AppNotification {
 
 export interface UnreadNotificationCount {
   count: number;
+}
+
+// Phase 13: Rating System (RAT-001 - RAT-006)
+export type RatingTargetType = 'STUDIO' | 'FREELANCER';
+
+export interface RatingDto {
+  id: number;
+  requirementId: number;
+  requirementTitle: string;
+  fromUserId: number;
+  fromUserName: string;
+  fromUserRole: string;
+  toUserId: number;
+  toUserName: string;
+  targetType: RatingTargetType;
+  score: number;
+  reviewText?: string;
+  createdAt: string;
+}
+
+export interface RatingSubmissionDto {
+  score: number;
+  reviewText?: string;
+}
+
+export interface RatingSummaryDto {
+  averageRating: number;
+  totalRatings: number;
+  ratings: RatingDto[];
+}
+
+export interface RequirementRatingStatusDto {
+  requirementId: number;
+  requirementStatus: string;
+  canRate: boolean;
+  alreadyRated: boolean;
+  myRating?: RatingDto;
+  counterpartyRated: boolean;
+  counterpartyRating?: RatingDto;
 }
 
 

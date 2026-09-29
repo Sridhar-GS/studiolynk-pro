@@ -19,6 +19,7 @@ import { Link } from 'react-router-dom';
 import { catalogueService } from '../../services/catalogueService';
 import { freelancerService } from '../../services/freelancerService';
 import { availabilityService } from '../../services/availabilityService';
+import { PublicReviewsList } from '../../components/ratings/PublicReviewsList';
 import { AvailabilityWindowResponse, EquipmentCategory, EquipmentItem, FreelancerProfile, FreelancerUpdatePayload, ServiceItem, Skill } from '../../types';
 
 export const FreelancerProfilePage: React.FC = () => {
@@ -536,6 +537,11 @@ export const FreelancerProfilePage: React.FC = () => {
                   Manage Portfolio &amp; Upload Images
                 </Link>
               </div>
+            </div>
+
+            {/* Phase 13: Verified Public Client Reviews & Ratings (RAT-003) */}
+            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-4">
+              <PublicReviewsList targetType="FREELANCER" targetId={profile.id} />
             </div>
           </div>
         ) : (

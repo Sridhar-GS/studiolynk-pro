@@ -17,6 +17,7 @@ import com.studiolynk.model.entity.User;
 import com.studiolynk.model.enums.UserRole;
 import com.studiolynk.repository.EquipmentRepository;
 import com.studiolynk.repository.FreelancerRepository;
+import com.studiolynk.repository.RatingRepository;
 import com.studiolynk.repository.ServiceRepository;
 import com.studiolynk.repository.SkillRepository;
 import com.studiolynk.repository.UserRepository;
@@ -50,6 +51,7 @@ public class FreelancerServiceImpl implements FreelancerService {
     private final ServiceRepository serviceRepository;
     private final EquipmentRepository equipmentRepository;
     private final AvailabilityService availabilityService;
+    private final RatingRepository ratingRepository;
 
     public FreelancerServiceImpl(
             FreelancerRepository freelancerRepository,
@@ -57,13 +59,15 @@ public class FreelancerServiceImpl implements FreelancerService {
             SkillRepository skillRepository,
             ServiceRepository serviceRepository,
             EquipmentRepository equipmentRepository,
-            AvailabilityService availabilityService) {
+            AvailabilityService availabilityService,
+            RatingRepository ratingRepository) {
         this.freelancerRepository = freelancerRepository;
         this.userRepository = userRepository;
         this.skillRepository = skillRepository;
         this.serviceRepository = serviceRepository;
         this.equipmentRepository = equipmentRepository;
         this.availabilityService = availabilityService;
+        this.ratingRepository = ratingRepository;
     }
 
     @Override
@@ -516,11 +520,25 @@ public class FreelancerServiceImpl implements FreelancerService {
         card.setFullDayRate(f.getFullDayRate());
         card.setHalfDayRate(f.getHalfDayRate());
 
-        // Baseline realistic rating (4.7 - 5.0) and review count (DIS-005)
-        long idSeed = f.getId() != null ? f.getId() : 1L;
-        double rating = 4.7 + ((idSeed % 4) * 0.1);
-        card.setAverageRating(Math.round(rating * 10.0) / 10.0);
-        card.setReviewCount((int) (idSeed * 3 + 4));
+        // Baseline realistic rating (4.7 - 5.0) and review count (DIS-005) or real ratings when present (RAT-003)
+        if (f.getUser() != null && ratingRepository != null) {
+            long actualCount = ratingRepository.countByToUserIdAndTargetType(f.getUser().getId(), com.studiolynk.model.enums.RatingTargetType.FREELANCER);
+            if (actualCount > 0) {
+                Double avg = ratingRepository.findAverageScoreByToUserIdAndTargetType(f.getUser().getId(), com.studiolynk.model.enums.RatingTargetType.FREELANCER);
+                card.setAverageRating(Math.round(avg * 10.0) / 10.0);
+                card.setReviewCount((int) actualCount);
+            } else {
+                long idSeed = f.getId() != null ? f.getId() : 1L;
+                double rating = 4.7 + ((idSeed % 4) * 0.1);
+                card.setAverageRating(Math.round(rating * 10.0) / 10.0);
+                card.setReviewCount((int) (idSeed * 3 + 4));
+            }
+        } else {
+            long idSeed = f.getId() != null ? f.getId() : 1L;
+            double rating = 4.7 + ((idSeed % 4) * 0.1);
+            card.setAverageRating(Math.round(rating * 10.0) / 10.0);
+            card.setReviewCount((int) (idSeed * 3 + 4));
+        }
 
         if (f.getSkills() != null) {
             card.setSkills(f.getSkills().stream().map(s -> new SkillDto(s.getId(), s.getName(), s.isCustom())).toList());

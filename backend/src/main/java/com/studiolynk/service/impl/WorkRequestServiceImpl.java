@@ -477,6 +477,7 @@ public class WorkRequestServiceImpl implements WorkRequestService {
         WorkRequirement req = request.getRequirement();
         if (req != null) {
             dto.setRequirementId(req.getId());
+            dto.setRequirementStatus(req.getStatus());
             dto.setEventName(req.getEventName());
             dto.setEventType(req.getEventType());
             dto.setEventDate(req.getEventDate());

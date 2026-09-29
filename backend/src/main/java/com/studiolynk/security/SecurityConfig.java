@@ -63,6 +63,8 @@ public class SecurityConfig {
                                 "/api/equipment/**",
                                 "/api/portfolio/freelancer/**",
                                 "/api/requirements/open",
+                                "/api/freelancers/*/ratings",
+                                "/api/studios/*/ratings",
                                 "/api/uploads/**",
                                 "/ws/**",
                                 "/v3/api-docs/**",
