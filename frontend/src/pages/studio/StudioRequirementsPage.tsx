@@ -322,7 +322,7 @@ export const StudioRequirementsPage: React.FC = () => {
                     <button
                       onClick={() =>
                         navigate(
-                          `/studio/discovery?date=${req.eventDate}&startTime=${req.startTime}&endTime=${req.endTime}&dayType=${req.dayType}&maxBudget=${req.budget}`
+                          `/studio/discovery?requirementId=${req.id}&date=${req.eventDate}&startTime=${req.startTime}&endTime=${req.endTime}&dayType=${req.dayType}&maxBudget=${req.budget}`
                         )
                       }
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-teal-400 hover:text-teal-300 text-xs font-semibold border border-slate-700 transition"

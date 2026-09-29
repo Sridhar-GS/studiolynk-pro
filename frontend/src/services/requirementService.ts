@@ -52,4 +52,10 @@ export const requirementService = {
     });
     return res.data.data;
   },
+
+  // AI-Ranked matching freelancers for requirement (DIS-002, DIS-006, WRK-005)
+  async getMatchingFreelancers(id: number): Promise<import('../types').FreelancerCard[]> {
+    const res = await api.get<ApiResponse<import('../types').FreelancerCard[]>>(`/requirements/${id}/matching-freelancers`);
+    return res.data.data;
+  },
 };

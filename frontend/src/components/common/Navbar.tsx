@@ -118,7 +118,7 @@ export const Navbar: React.FC = () => {
                 StudioLynk
               </span>
               <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/30 font-medium">
-                Phase 13 Active
+                Phase 15 Active
               </span>
             </div>
             <p className="text-[11px] text-slate-400">Photography Studio & Freelancer Network</p>

@@ -5,7 +5,9 @@ import com.studiolynk.model.dto.RequirementStatusUpdateDto;
 import com.studiolynk.model.dto.WorkRequirementRequestDto;
 import com.studiolynk.model.dto.WorkRequirementResponseDto;
 import com.studiolynk.model.dto.WorkRequirementSummaryDto;
+import com.studiolynk.model.dto.FreelancerCardDto;
 import com.studiolynk.model.enums.RequirementStatus;
+import com.studiolynk.service.AiMatchingService;
 import com.studiolynk.service.WorkRequirementService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -35,9 +37,11 @@ import java.util.List;
 public class WorkRequirementController {
 
     private final WorkRequirementService requirementService;
+    private final AiMatchingService aiMatchingService;
 
-    public WorkRequirementController(WorkRequirementService requirementService) {
+    public WorkRequirementController(WorkRequirementService requirementService, AiMatchingService aiMatchingService) {
         this.requirementService = requirementService;
+        this.aiMatchingService = aiMatchingService;
     }
 
     @PostMapping
@@ -106,5 +110,13 @@ public class WorkRequirementController {
             @RequestParam(required = false) String location) {
         List<WorkRequirementSummaryDto> response = requirementService.getOpenRequirementsForDiscovery(fromDate, location);
         return ResponseEntity.ok(ApiResponse.ok(response));
+    }
+
+    @GetMapping("/{id}/matching-freelancers")
+    @Operation(summary = "Find AI-ranked matching freelancers for a work requirement (DIS-002, DIS-006, WRK-005)")
+    public ResponseEntity<ApiResponse<List<FreelancerCardDto>>> getMatchingFreelancers(
+            @PathVariable Long id) {
+        List<FreelancerCardDto> matchingCards = aiMatchingService.getMatchingFreelancersForRequirement(id);
+        return ResponseEntity.ok(ApiResponse.ok(matchingCards));
     }
 }

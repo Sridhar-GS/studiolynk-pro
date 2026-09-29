@@ -52,6 +52,8 @@ public class FreelancerServiceImpl implements FreelancerService {
     private final EquipmentRepository equipmentRepository;
     private final AvailabilityService availabilityService;
     private final RatingRepository ratingRepository;
+    private final com.studiolynk.repository.WorkRequirementRepository requirementRepository;
+    private final com.studiolynk.service.AiMatchingService aiMatchingService;
 
     public FreelancerServiceImpl(
             FreelancerRepository freelancerRepository,
@@ -60,7 +62,9 @@ public class FreelancerServiceImpl implements FreelancerService {
             ServiceRepository serviceRepository,
             EquipmentRepository equipmentRepository,
             AvailabilityService availabilityService,
-            RatingRepository ratingRepository) {
+            RatingRepository ratingRepository,
+            com.studiolynk.repository.WorkRequirementRepository requirementRepository,
+            com.studiolynk.service.AiMatchingService aiMatchingService) {
         this.freelancerRepository = freelancerRepository;
         this.userRepository = userRepository;
         this.skillRepository = skillRepository;
@@ -68,6 +72,8 @@ public class FreelancerServiceImpl implements FreelancerService {
         this.equipmentRepository = equipmentRepository;
         this.availabilityService = availabilityService;
         this.ratingRepository = ratingRepository;
+        this.requirementRepository = requirementRepository;
+        this.aiMatchingService = aiMatchingService;
     }
 
     @Override
@@ -443,10 +449,19 @@ public class FreelancerServiceImpl implements FreelancerService {
             cardResults.add(card);
         }
 
+        // AI Requirement-based match scoring (DIS-002, DIS-006, WRK-005)
+        if (activeFilters.getRequirementId() != null) {
+            requirementRepository.findById(activeFilters.getRequirementId()).ifPresent(req -> {
+                aiMatchingService.scoreAndRankCandidates(req, cardResults);
+            });
+        }
+
         // Sorting
         Comparator<FreelancerCardDto> comparator;
         String sortBy = activeFilters.getSortBy() != null ? activeFilters.getSortBy().toLowerCase() : "relevance";
         switch (sortBy) {
+            case "match" -> comparator = Comparator.comparing(
+                    (FreelancerCardDto c) -> c.getAiMatchScore() != null ? c.getAiMatchScore() : 0.0).reversed();
             case "distance" -> comparator = Comparator.comparing(
                     c -> c.getDistanceKm() != null ? c.getDistanceKm() : Double.MAX_VALUE);
             case "experience" -> comparator = Comparator.comparing(
@@ -458,8 +473,11 @@ public class FreelancerServiceImpl implements FreelancerService {
             case "rating" -> comparator = Comparator.comparing(
                     (FreelancerCardDto c) -> c.getAverageRating() != null ? c.getAverageRating() : 0.0).reversed();
             default -> {
-                // "relevance"
-                if (activeFilters.getLatitude() != null && activeFilters.getLongitude() != null) {
+                if (activeFilters.getRequirementId() != null) {
+                    // Default to match score ranking when requirement is active (DIS-002)
+                    comparator = Comparator.comparing(
+                            (FreelancerCardDto c) -> c.getAiMatchScore() != null ? c.getAiMatchScore() : 0.0).reversed();
+                } else if (activeFilters.getLatitude() != null && activeFilters.getLongitude() != null) {
                     comparator = Comparator.comparing(
                             c -> c.getDistanceKm() != null ? c.getDistanceKm() : Double.MAX_VALUE);
                 } else {

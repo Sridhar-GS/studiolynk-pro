@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Search,
   SlidersHorizontal,
@@ -18,6 +19,7 @@ import {
   RotateCcw,
   LayoutGrid,
   List as ListIcon,
+  Target,
 } from 'lucide-react';
 import { freelancerService } from '../../services/freelancerService';
 import { catalogueService } from '../../services/catalogueService';
@@ -34,7 +36,8 @@ import {
   EquipmentItem,
   Portfolio,
   AvailabilityWindowResponse,
-  WorkRequirementSummary
+  WorkRequirementSummary,
+  WorkRequirement,
 } from '../../types';
 
 // City location presets in South India
@@ -48,6 +51,16 @@ const CITY_PRESETS = [
 ];
 
 export const StudioDiscoveryPage: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Active AI Requirement-Based Match (Phase 15: DIS-002, DIS-006, WRK-005)
+  const initialReqId = searchParams.get('requirementId');
+  const [activeRequirementId, setActiveRequirementId] = useState<number | undefined>(
+    initialReqId ? Number(initialReqId) : undefined
+  );
+  const [activeRequirement, setActiveRequirement] = useState<WorkRequirement | null>(null);
+  const [studioOpenRequirements, setStudioOpenRequirements] = useState<WorkRequirementSummary[]>([]);
+
   // State: Freelancer Results & Status
   const [freelancers, setFreelancers] = useState<FreelancerCard[]>([]);
   const [totalResults, setTotalResults] = useState(0);
@@ -68,15 +81,17 @@ export const StudioDiscoveryPage: React.FC = () => {
   const [customLat, setCustomLat] = useState<number | undefined>();
   const [customLng, setCustomLng] = useState<number | undefined>();
   const [maxDistanceKm, setMaxDistanceKm] = useState<number | undefined>();
-  const [date, setDate] = useState<string>('');
-  const [startTime, setStartTime] = useState<string>('');
-  const [endTime, setEndTime] = useState<string>('');
-  const [dayType, setDayType] = useState<'FULL_DAY' | 'HALF_DAY'>('FULL_DAY');
-  const [maxBudget, setMaxBudget] = useState<number | undefined>();
+  const [date, setDate] = useState<string>(searchParams.get('date') || '');
+  const [startTime, setStartTime] = useState<string>(searchParams.get('startTime') || '');
+  const [endTime, setEndTime] = useState<string>(searchParams.get('endTime') || '');
+  const [dayType, setDayType] = useState<'FULL_DAY' | 'HALF_DAY'>((searchParams.get('dayType') as any) || 'FULL_DAY');
+  const [maxBudget, setMaxBudget] = useState<number | undefined>(
+    searchParams.get('maxBudget') ? Number(searchParams.get('maxBudget')) : undefined
+  );
   const [minExperience, setMinExperience] = useState<number | undefined>();
   const [sortBy, setSortBy] = useState<
-    'relevance' | 'distance' | 'rating' | 'experience' | 'price_asc' | 'price_desc'
-  >('relevance');
+    'relevance' | 'distance' | 'rating' | 'experience' | 'price_asc' | 'price_desc' | 'match'
+  >(initialReqId ? 'match' : 'relevance');
 
   // View preferences
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -95,29 +110,55 @@ export const StudioDiscoveryPage: React.FC = () => {
   const [bookingMessage, setBookingMessage] = useState('');
   const [bookingSending, setBookingSending] = useState(false);
   const [openRequirements, setOpenRequirements] = useState<WorkRequirementSummary[]>([]);
-  const [selectedRequirementId, setSelectedRequirementId] = useState<number | ''>('');
+  const [selectedRequirementId, setSelectedRequirementId] = useState<number | ''>(
+    initialReqId ? Number(initialReqId) : ''
+  );
   const [bookingOfferedPrice, setBookingOfferedPrice] = useState<number | ''>('');
   const [bookingError, setBookingError] = useState<string | null>(null);
   const [loadingRequirements, setLoadingRequirements] = useState(false);
 
-  // 1. Initial Catalogue Load
+  // 1. Initial Catalogue & Studio Requirements Load
   useEffect(() => {
     const fetchCatalogues = async () => {
       try {
-        const [skillsData, servicesData, equipData] = await Promise.all([
+        const [skillsData, servicesData, equipData, reqsData] = await Promise.all([
           catalogueService.getSkills(),
           catalogueService.getServices(),
           catalogueService.getAllEquipment(),
+          requirementService.getMyRequirements('OPEN').catch(() => []),
         ]);
         setSkills(skillsData || []);
         setServices(servicesData || []);
         setEquipments(equipData || []);
+        setStudioOpenRequirements(reqsData || []);
       } catch (err) {
         console.warn('Could not load catalogue presets:', err);
       }
     };
     fetchCatalogues();
   }, []);
+
+  // 1b. Load Active Requirement Details when activeRequirementId changes
+  useEffect(() => {
+    if (activeRequirementId) {
+      requirementService.getRequirementById(activeRequirementId)
+        .then((req) => {
+          setActiveRequirement(req);
+          if (req.eventDate) setDate(req.eventDate);
+          if (req.startTime) setStartTime(req.startTime);
+          if (req.endTime) setEndTime(req.endTime);
+          if (req.dayType) setDayType(req.dayType);
+          if (req.budget) setMaxBudget(Number(req.budget));
+          setSortBy('match');
+        })
+        .catch((err) => {
+          console.warn('Could not load requirement for AI matching:', err);
+          setActiveRequirement(null);
+        });
+    } else {
+      setActiveRequirement(null);
+    }
+  }, [activeRequirementId]);
 
   // 2. Perform Discovery Search
   const executeSearch = async () => {
@@ -140,6 +181,7 @@ export const StudioDiscoveryPage: React.FC = () => {
         maxBudget: maxBudget,
         minExperience: minExperience,
         sortBy: sortBy,
+        requirementId: activeRequirementId,
       };
 
       const res = await freelancerService.searchFreelancers(filterPayload);
@@ -172,6 +214,7 @@ export const StudioDiscoveryPage: React.FC = () => {
     maxBudget,
     minExperience,
     sortBy,
+    activeRequirementId,
   ]);
 
   // Handle City Preset Change
@@ -321,6 +364,54 @@ export const StudioDiscoveryPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 py-8 px-4 sm:px-6 lg:px-8 selection:bg-teal-500 selection:text-slate-950">
       <div className="max-w-7xl mx-auto space-y-6">
+        {/* Active AI Requirement Match Banner (DIS-002, DIS-006, WRK-005) */}
+        {activeRequirement && (
+          <div className="bg-gradient-to-r from-emerald-950/40 via-teal-950/30 to-slate-900 border border-emerald-500/40 rounded-3xl p-5 sm:p-6 backdrop-blur-md shadow-2xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-start sm:items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/10">
+                <Sparkles className="w-6 h-6 text-emerald-400" />
+              </div>
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                    AI MATCH MODE ACTIVE (DIS-002, DIS-006)
+                  </span>
+                  <span className="text-xs text-slate-400">• ML DecisionTreeRegressor Ranking</span>
+                </div>
+                <h2 className="text-lg sm:text-xl font-bold text-white mt-1">
+                  Matching creators for: {activeRequirement.eventName}
+                </h2>
+                <div className="text-xs text-slate-300 mt-1 flex flex-wrap items-center gap-3">
+                  <span className="flex items-center gap-1 text-slate-400">
+                    <Calendar className="w-3.5 h-3.5 text-teal-400" />
+                    <span>{activeRequirement.eventDate} ({activeRequirement.startTime} - {activeRequirement.endTime})</span>
+                  </span>
+                  <span className="flex items-center gap-1 text-slate-400">
+                    <MapPin className="w-3.5 h-3.5 text-teal-400" />
+                    <span className="truncate max-w-[200px]">{activeRequirement.location}</span>
+                  </span>
+                  <span className="flex items-center gap-1 text-emerald-400 font-semibold">
+                    <span>₹{activeRequirement.budget?.toLocaleString()} ({activeRequirement.dayType === 'FULL_DAY' ? 'Full Day' : 'Half Day'})</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 self-start md:self-center shrink-0">
+              <button
+                onClick={() => {
+                  setActiveRequirementId(undefined);
+                  setActiveRequirement(null);
+                  setSearchParams({});
+                }}
+                className="px-3.5 py-2 rounded-xl bg-slate-800/90 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700 text-xs font-semibold transition"
+              >
+                Clear Requirement
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Top Header & Search Bar */}
         <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-8 backdrop-blur-md shadow-2xl relative overflow-hidden">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-6">
@@ -329,7 +420,7 @@ export const StudioDiscoveryPage: React.FC = () => {
                 <span className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/30">
                   DISCOVERY ENGINE (DIS-001 - DIS-006)
                 </span>
-                <span className="text-xs text-slate-400">Phase 8</span>
+                <span className="text-xs text-emerald-400 font-semibold">Phase 15 AI Ranked</span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
                 Discover Verified Photography & Film Creators
@@ -584,7 +675,8 @@ export const StudioDiscoveryPage: React.FC = () => {
                   onChange={(e: any) => setSortBy(e.target.value)}
                   className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-teal-500"
                 >
-                  <option value="relevance">Relevance & Best Match</option>
+                  <option value="match">✨ AI Match Score (Highest First)</option>
+                  <option value="relevance">Relevance & Distance</option>
                   <option value="distance">Distance (Nearest First)</option>
                   <option value="rating">Rating (Highest First)</option>
                   <option value="experience">Experience (Highest First)</option>
@@ -602,6 +694,50 @@ export const StudioDiscoveryPage: React.FC = () => {
                   <RotateCcw className="w-3.5 h-3.5" />
                   <span>Clear All Filters</span>
                 </button>
+              </div>
+
+              {/* Requirement Match Selector Row */}
+              <div className="col-span-1 sm:col-span-2 lg:col-span-3 pt-4 mt-2 border-t border-slate-800/80">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-800/40 p-3.5 rounded-2xl border border-slate-800">
+                  <div className="flex items-center gap-2.5">
+                    <Target className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <div>
+                      <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                        <span>AI Requirement Matcher</span>
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                          DIS-002 • ML-002
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-400">
+                        Score candidates against shoot requirements using our 6-feature Decision Tree Regressor.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="w-full sm:w-72 shrink-0">
+                    <select
+                      value={activeRequirementId || ''}
+                      onChange={(e) => {
+                        const val = e.target.value ? Number(e.target.value) : undefined;
+                        setActiveRequirementId(val);
+                        if (val) {
+                          setSearchParams({ requirementId: String(val) });
+                        } else {
+                          setSearchParams({});
+                          setActiveRequirement(null);
+                        }
+                      }}
+                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-emerald-500 font-medium"
+                    >
+                      <option value="">Standard Search (No Requirement)</option>
+                      {studioOpenRequirements.map((req) => (
+                        <option key={req.id} value={req.id}>
+                          🎯 {req.eventName} ({req.eventDate})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -724,9 +860,9 @@ export const StudioDiscoveryPage: React.FC = () => {
             }
           >
             {freelancers.map((freelancer) => {
-              // Synthetic AI match score readiness (DIS-002, DIS-006)
-              const scoreSeed = ((freelancer.id * 17) % 15) + 84;
-              const displayScore = `${scoreSeed}% Match`;
+              // Real AI match score from Phase 15 backend (DIS-002, DIS-006)
+              const matchScore = freelancer.aiMatchScore;
+              const displayScore = matchScore != null ? `${matchScore.toFixed(1)}% Match` : null;
 
               return (
                 <div
@@ -772,12 +908,21 @@ export const StudioDiscoveryPage: React.FC = () => {
                       </div>
 
                       {/* AI Match Badge (DIS-006) */}
-                      <div className="shrink-0 text-right">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-teal-500/20 to-blue-500/20 text-teal-300 border border-teal-500/40 text-[11px] font-semibold">
-                          <Sparkles className="w-3 h-3 text-teal-400" />
-                          <span>{displayScore}</span>
-                        </span>
-                      </div>
+                      {displayScore ? (
+                        <div className="shrink-0 text-right">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-teal-500/20 to-blue-500/20 text-teal-300 border border-teal-500/40 text-[11px] font-semibold">
+                            <Sparkles className="w-3 h-3 text-teal-400" />
+                            <span>{displayScore}</span>
+                          </span>
+                        </div>
+                      ) : activeRequirement ? (
+                        <div className="shrink-0 text-right">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700 text-[10px] font-medium">
+                            <Sparkles className="w-2.5 h-2.5 text-slate-400" />
+                            <span>Evaluating</span>
+                          </span>
+                        </div>
+                      ) : null}
                     </div>
 
                     {/* Location & Haversine Distance Badge */}
@@ -911,11 +1056,17 @@ export const StudioDiscoveryPage: React.FC = () => {
                     )}
                   </div>
                   <div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <h2 className="text-xl font-bold text-white">{previewFreelancer.fullName}</h2>
                       <span className="text-xs px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-300 border border-teal-500/30">
                         {previewFreelancer.primaryRole}
                       </span>
+                      {previewFreelancer.aiMatchScore != null && (
+                        <span className="text-xs px-2.5 py-0.5 rounded-full bg-gradient-to-r from-teal-500/20 to-blue-500/20 text-teal-300 border border-teal-500/40 font-semibold flex items-center gap-1">
+                          <Sparkles className="w-3 h-3 text-teal-400" />
+                          {previewFreelancer.aiMatchScore.toFixed(1)}% Match
+                        </span>
+                      )}
                     </div>
                     <p className="text-xs text-slate-400 mt-1 flex items-center gap-2">
                       <MapPin className="w-3.5 h-3.5 text-teal-400" />
@@ -933,6 +1084,23 @@ export const StudioDiscoveryPage: React.FC = () => {
                   <X className="w-5 h-5" />
                 </button>
               </div>
+
+              {/* Active Requirement AI Context (Phase 15: DIS-002, DIS-006) */}
+              {activeRequirement && (
+                <div className="mx-6 mt-4 p-3.5 rounded-2xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2 text-teal-200">
+                    <Sparkles className="w-4 h-4 text-teal-400 shrink-0" />
+                    <span>
+                      Matching against: <strong className="text-white">{activeRequirement.eventName}</strong> ({activeRequirement.eventType})
+                    </span>
+                  </div>
+                  {previewFreelancer.aiMatchScore != null && (
+                    <span className="font-bold text-teal-300 text-sm">
+                      {previewFreelancer.aiMatchScore.toFixed(1)}% Match
+                    </span>
+                  )}
+                </div>
+              )}
 
               {/* Modal Tabs */}
               <div className="flex items-center border-b border-slate-800 px-6 bg-slate-900/60">

@@ -32,9 +32,18 @@ public class FreelancerSearchFilterDto {
     private String dayType; // FULL_DAY or HALF_DAY
     private BigDecimal maxBudget;
     private Integer minExperience;
-    private String sortBy; // relevance, distance, rating, experience, price_asc, price_desc
+    private String sortBy; // relevance, distance, rating, experience, price_asc, price_desc, match
+    private Long requirementId;
 
     public FreelancerSearchFilterDto() {
+    }
+
+    public Long getRequirementId() {
+        return requirementId;
+    }
+
+    public void setRequirementId(Long requirementId) {
+        this.requirementId = requirementId;
     }
 
     public String getKeyword() {

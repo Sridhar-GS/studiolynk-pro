@@ -42,6 +42,13 @@ security:
     secret: ${JWT_SECRET:dGhpc0lzQVZlcnlTZWN1cmVTZWNyZXRLZXlGb3JTdHVkaW9MeW5rSldUMjU2Qml0c0VuY3J5cHRpb25LZXk=}
     expiration-hours: ${JWT_EXPIRATION_HOURS:24}
 
+# Machine Learning Microservice Configuration (Phase 15)
+ml:
+  service:
+    url: ${ML_SERVICE_URL:http://127.0.0.1:8000}
+    connect-timeout-ms: ${ML_CONNECT_TIMEOUT_MS:2000}
+    read-timeout-ms: ${ML_READ_TIMEOUT_MS:3000}
+
 management:
   endpoints:
     web:

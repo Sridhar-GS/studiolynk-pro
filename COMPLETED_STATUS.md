@@ -1066,6 +1066,58 @@
 - **Backend Verification**: `mvn test-compile` -> **BUILD SUCCESS** (168 backend source files, 12 test files).
 - **Frontend Verification**: `npm run build` -> **Compiled cleanly with 0 TypeScript errors in 7.33s**.
 
+---
+
+## Phase 15 — AI Ranking & Discovery Integration
+**Completed Date:** 2026-09-29  
+**Status:** COMPLETED & TESTED
+
+### Implemented Modules & Capabilities
+1. **Spring Boot & FastAPI Integration (`MlServiceClient`)**:
+   - Configured `ml.service.url: http://127.0.0.1:8000`, `connect-timeout-ms: 2000`, `read-timeout-ms: 3000` in `application.yml`.
+   - Built `MlServiceClient` and `MlServiceClientImpl` using Spring 6 `RestClient` with structured DTOs (`CandidateBatchItemDto`, `MatchFeaturesDto`, `BatchMatchRequestDto`, `CandidateScoreResponseDto`, `BatchMatchResponseDto`, `SingleMatchResponseDto`).
+   - Built resilient deterministic domain fallback scoring function (`computeFallbackScore`) to guarantee zero downtime and uninterrupted discovery search if the Python ML microservice is restarting or unreachable.
+
+2. **Domain Feature Extraction & Hard Filtering (`AiMatchingService`)**:
+   - Built `AiMatchingService` and `AiMatchingServiceImpl` coordinating feature extraction, hard filtering, and candidate ranking:
+     - `skill_match` ($[0.0, 1.0]$): Intersection of requirement skills with candidate verified skills.
+     - `portfolio_relevance` ($[0.0, 1.0]$): Structured category and service metadata matching without computer vision (0.95 for eventType match, 0.85 for service match, 0.70 for brief description match, 0.40 for other category work, 0.0 for no portfolio) per ML-013 and POR-009.
+     - `experience` ($[0.0, 1.0]$): Normalized craft maturity $\min(1.0, \text{exp} / 10.0)$.
+     - `budget_compatibility` ($[0.0, 1.0]$): Rate within budget evaluated with non-linear penalties for over-budget rates.
+     - `location_distance` ($[0.0, 1.0]$): Spherical Haversine proximity $\max(0, 1 - \text{dist}/50.0)$.
+     - `availability_time_compatibility` ($[0.0, 1.0]$): 1.0 for verified slot within rolling 10-day window, 0.50 beyond 10-day window.
+   - **Hard Availability Filtering (`ML-012`)**: Candidates who are Busy or Not Set on the shoot date within the rolling 10-day window are strictly excluded prior to ML ranking.
+   - Vectorized batch prediction (`POST /predict-batch`) with candidate cards sorted descending by `aiMatchScore`.
+   - Ratings strictly excluded from all feature extraction and ML ranking (ML-005, RAT-004).
+
+3. **API Layer Enhancements**:
+   - Implemented `GET /api/requirements/{id}/matching-freelancers` on `WorkRequirementController` returning `FreelancerCardDto` list sorted descending by `aiMatchScore` (DIS-002, DIS-006).
+   - Enhanced `GET /api/freelancers/search` with `requirementId` parameter on `FreelancerSearchFilterDto` and `FreelancerServiceImpl` to support direct AI match ranking within discovery search.
+
+4. **React Frontend Integration**:
+   - Enhanced `StudioDiscoveryPage.tsx` with:
+     - Active requirement matcher selector dropdown in the filter bar.
+     - Dynamic AI Match Mode banner highlighting target shoot event and budget.
+     - Real `freelancer.aiMatchScore` badges (`92.4% Match`) replacing static synthetic placeholders.
+     - Active requirement context alert in candidate preview modal.
+   - Enhanced `StudioRequirementDetailPage.tsx` with:
+     - Top AI Recommended Creators preview card section (`WRK-005`, `DIS-002`, `DIS-006`).
+     - Pre-populated discovery URL passing `&requirementId=${requirement.id}`.
+   - Updated `StudioRequirementsPage.tsx`, `StudioDashboardPage.tsx`, and `Navbar.tsx` badge to "Phase 15 Active".
+
+5. **Comprehensive Automated Testing & Verification**:
+   - Authored `AiMatchingIntegrationTests.java` covering 6 dedicated tests:
+     1. `testExtractMatchFeatures_NormalizedRange`: Verifies all 6 features normalized in $[0.0, 1.0]$ with domain logic.
+     2. `testHardAvailabilityFilter_ExcludesBusyCandidate`: Verifies ML-012 hard availability filtering strictly excludes busy candidates.
+     3. `testMatchingFreelancersEndpoint_ReturnsSortedDescending`: Verifies `GET /api/requirements/{id}/matching-freelancers` returns cards sorted descending by `aiMatchScore`.
+     4. `testPortfolioRelevance_StructuredMatching`: Verifies ML-013 & POR-009 structured category text matching without computer vision.
+     5. `testRatingsExcludedFromMlFeatures`: Verifies ML-005 & RAT-004 strict exclusion of ratings from feature extraction.
+     6. `testFallbackResilience_FallbackScoring`: Verifies deterministic fallback scoring when ML microservice is unreachable.
+   - Backend: `mvn test` -> **87 of 87 tests PASSED (0 failures, 0 errors)** across all 13 test suites.
+   - ML Microservice: `pytest` -> **12 of 12 tests PASSED (0 failures, 0 errors)** in 2.23s.
+   - Frontend: `npm run build` -> **0 TypeScript errors, production assets emitted cleanly**.
+
+
 
 
 

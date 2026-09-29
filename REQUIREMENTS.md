@@ -45,7 +45,7 @@ Status values: `PLANNED`, `IN PROGRESS`, `IMPLEMENTED`, `TESTED`.
 - POR-006 — Portfolio images shall support drag-and-drop reordering. `[TESTED]`
 - POR-007 — Portfolio has no public/private toggle. `[TESTED]`
 - POR-008 — Portfolio images shall be stored in AWS S3. `[TESTED]`
-- POR-009 — Portfolio relevance for ML shall use selected category plus portfolio metadata/text, not computer vision.
+- POR-009 — Portfolio relevance for ML shall use selected category plus portfolio metadata/text, not computer vision. `[TESTED]`
 
 ## Availability
 - AVL-001 — Freelancer availability shall use a rolling 10-day window. `[TESTED]`
@@ -60,7 +60,7 @@ Status values: `PLANNED`, `IN PROGRESS`, `IMPLEMENTED`, `TESTED`.
 
 ## Studio discovery
 - DIS-001 — Studio shall have normal freelancer search. `[TESTED]`
-- DIS-002 — Studio shall have AI requirement-based matching. `[IMPLEMENTED]`
+- DIS-002 — Studio shall have AI requirement-based matching. `[TESTED]`
 - DIS-003 — Search filters shall include service, skill, location, date, time, full/half day, budget, experience, and equipment. `[TESTED]`
 - DIS-004 — Search results shall be displayed as individual freelancer cards. `[TESTED]`
 - DIS-005 — Freelancer cards shall show profile, location, rating, experience, skills/services, relevant availability, and pricing. `[TESTED]`
@@ -71,7 +71,7 @@ Status values: `PLANNED`, `IN PROGRESS`, `IMPLEMENTED`, `TESTED`.
 - WRK-002 — Requirement shall include event name/type, date, start/end time, location, required services, required skills, equipment needs, budget, description, and private event-person details where applicable. `[TESTED]`
 - WRK-003 — Requirement shall support statuses such as Draft, Open, Requested, Accepted, Confirmed, In Progress, Completed, and Cancelled. `[TESTED]`
 - WRK-004 — Studio may search without creating a requirement. `[TESTED]`
-- WRK-005 — Studio may use a requirement to obtain AI-ranked freelancers. `[IMPLEMENTED]`
+- WRK-005 — Studio may use a requirement to obtain AI-ranked freelancers. `[TESTED]`
 - WRK-006 — Multiple freelancers may receive requests for one requirement. `[TESTED]`
 - WRK-007 — Studio ultimately confirms one freelancer for the prototype workflow. `[TESTED]`
 - WRK-008 — When one freelancer is confirmed, other pending requests for that requirement shall be closed/rejected. `[TESTED]`
@@ -129,8 +129,8 @@ Status values: `PLANNED`, `IN PROGRESS`, `IMPLEMENTED`, `TESTED`.
 - ML-009 — Tune tree parameters to control overfitting/underfitting. `[TESTED]`
 - ML-010 — FastAPI shall expose a prediction endpoint for Spring Boot. `[TESTED]`
 - ML-011 — ML output shall be a 0–100 match score. `[TESTED]`
-- ML-012 — Hard availability filtering shall occur before ML ranking. `[IMPLEMENTED]`
-- ML-013 — Portfolio relevance shall use structured categories and metadata/text, not computer vision.
+- ML-012 — Hard availability filtering shall occur before ML ranking. `[TESTED]`
+- ML-013 — Portfolio relevance shall use structured categories and metadata/text, not computer vision. `[TESTED]`
 
 ## UI/UX
 - UI-001 — React + TypeScript + Tailwind CSS shall be used.

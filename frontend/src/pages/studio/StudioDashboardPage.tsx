@@ -277,7 +277,7 @@ export const StudioDashboardPage: React.FC = () => {
                     <button
                       onClick={() =>
                         navigate(
-                          `/studio/discovery?date=${req.eventDate}&startTime=${req.startTime}&endTime=${req.endTime}&dayType=${req.dayType}&maxBudget=${req.budget}`
+                          `/studio/discovery?requirementId=${req.id}&date=${req.eventDate}&startTime=${req.startTime}&endTime=${req.endTime}&dayType=${req.dayType}&maxBudget=${req.budget}`
                         )
                       }
                       className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-teal-400 text-xs font-semibold rounded-xl border border-slate-700 flex items-center gap-1"

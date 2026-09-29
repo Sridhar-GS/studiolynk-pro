@@ -1,7 +1,7 @@
 # StudioLynk Project Status
 
 ## Current phase
-Phase 14 completed. Awaiting approval to begin Phase 15 (AI Ranking & Discovery Integration).
+Phase 15 completed. Awaiting approval to begin Phase 16 (Admin Platform).
 
 ## Overall status
 - [x] Product requirements clarified
@@ -25,6 +25,7 @@ Phase 14 completed. Awaiting approval to begin Phase 15 (AI Ranking & Discovery 
 - [x] In-App Notifications & Activity Center (Phase 12)
 - [x] Rating System & Mutual Profile Reviews (Phase 13)
 - [x] Machine Learning Service & Match Scoring Model (Phase 14)
+- [x] AI Ranking & Discovery Integration (Phase 15)
 
 ## Completed modules
 - **Phase 0 — Architecture Review**: Complete specification audit, component boundaries, and risk assessment.
@@ -42,15 +43,16 @@ Phase 14 completed. Awaiting approval to begin Phase 15 (AI Ranking & Discovery 
 - **Phase 12 — In-App Notifications & Activity Center**: Full in-app notification engine with zero external email dependency (NOT-001). Real-time notification event coverage (NOT-002) for new requests (`REQUEST_RECEIVED`), request acceptance (`REQUEST_ACCEPTED`), request rejection (`REQUEST_REJECTED`), studio confirmation (`STUDIO_CONFIRMATION`), new incoming messages (`NEW_MESSAGE`), work started (`WORK_STARTED`), work completed (`WORK_COMPLETED`), work cancelled (`WORK_CANCELLED`), and rating reminders (`RATING_REMINDER`). Automatic real-time STOMP push to user channel `/topic/notifications.{userId}` and JPA persistence with read/unread tracking and created timestamps (NOT-003). Individual read marking (`PATCH /api/notifications/{id}/read`) and bulk read-all marking (`PATCH /api/notifications/read-all`) (NOT-004). Rich interactive notifications center (`/notifications`) with filter tabs, contextual status icons, direct link routing, and Navbar bell flyout dropdown with live unread counter badge. 72/72 passing backend tests (9 new dedicated Phase 12 integration tests) and 0-error Vite build.
 - **Phase 13 — Rating System & Mutual Profile Reviews**: Two-way star ratings and reviews for completed shoots (RAT-001, RAT-002, 12-RATING-SPECIFICATION.md). Post-completion lifecycle gating strictly enforcing `COMPLETED` requirement status before ratings unlock. One rating per direction per completed shoot (`uq_rating_req_user`) with duplicate submission prevention returning 409 Conflict (RAT-006). 1 to 5 star scores with Bean Validation constraints and optional written reviews up to 2000 characters (RAT-005). Public profile display with average rating calculation and verified reviews feed (RAT-003). Strict exclusion from ML ranking (RAT-004, 18-DECISIONS-AND-CONSTRAINTS.md). Direct integration into Studio Requirement Details, Freelancer Request Details, Freelancer Profile, Studio Profile, and AI Discovery creator showcase modal with Phase 13 active badge. 81/81 passing backend tests (9 new dedicated Phase 13 integration tests) and 0-error Vite build.
 - **Phase 14 — Machine Learning Service & Match Scoring Model**: Python, FastAPI, pandas, NumPy, and scikit-learn microservice (ML-001). Decision Tree Regressor model (`sklearn.tree.DecisionTreeRegressor`) strictly adhering to approved constraints (ML-002, 18-DECISIONS-AND-CONSTRAINTS.md). 5,000 synthetic records generated with explicit domain logic, non-linear skill/availability penalties, and realistic distributions (ML-003, ML-006). Exactly 6 normalized features (`skill_match`, `portfolio_relevance`, `experience`, `budget_compatibility`, `location_distance`, `availability_time_compatibility`) with ratings strictly excluded (ML-004, ML-005). 80/20 train/test split and 5-fold cross-validation grid search tuning `max_depth`, `min_samples_split`, and `min_samples_leaf` to prevent overfitting (ML-007, ML-009). Rigorous evaluation metrics computed: Holdout Test MAE = 3.09, RMSE = 3.92, R² = 0.847; 5-Fold CV MAE = 3.17, RMSE = 4.01, R² = 0.843 (ML-008). Model artifact (`decision_tree_model.joblib`) and metadata (`model_metadata.json`) persisted. High-performance FastAPI endpoints (`POST /predict-match`, `POST /predict-batch`, `GET /model-info`, `GET /health`) with strict 0–100 score bounding, Pydantic input validation, camelCase and snake_case aliasing, and comprehensive automated test suite (12/12 passing unit/integration tests) (ML-010, ML-011).
+- **Phase 15 — AI Ranking & Discovery Integration**: Full end-to-end integration between Spring Boot discovery engine and Python FastAPI ML microservice (DIS-002, DIS-006, ML-012, ML-013, POR-009, WRK-005). Built `MlServiceClient` using Spring `RestClient` with timeout controls (2s connect, 3s read) and resilient deterministic domain fallback scoring. Implemented `AiMatchingService` with feature extractor computing exactly 6 normalized features in [0.0, 1.0] (`skill_match`, `portfolio_relevance` using structured categories and text matching without computer vision, `experience`, `budget_compatibility` with non-linear discount penalties, `location_distance` using Haversine spherical distance, `availability_time_compatibility`). Strict hard availability filtering (ML-012) pre-excluding Busy/Not Set candidates on shoot date within rolling 10-day window before ML ranking. High-performance vectorized batch prediction via `POST /predict-batch` with candidates sorted descending by `aiMatchScore`. Exposed `GET /api/requirements/{id}/matching-freelancers` and added `requirementId` parameter to `/api/freelancers/search`. Enhanced React frontend: active requirement matcher selector, dynamic AI Match Mode banner, real `freelancer.aiMatchScore` badges (`92.4% Match`), candidate preview modal evaluation context, Top AI Recommended Creators preview section on Requirement Details page, and updated Navbar with Phase 15 Active badge. 87/87 passing backend tests (6 new dedicated Phase 15 integration tests), 12/12 passing Python ML tests, and clean zero-error production Vite build.
 
 ## In progress
-None. Phase 14 completed.
+None. Phase 15 completed.
 
 ## Pending
-Phases 15 through 19.
+Phases 16 through 19.
 
 ## Known issues
 None.
 
 ## Next action
-Wait for explicit approval to begin Phase 15 (AI Ranking & Discovery Integration).
+Wait for explicit approval to begin Phase 16 (Admin Platform).

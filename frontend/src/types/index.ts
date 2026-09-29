@@ -358,7 +358,8 @@ export interface FreelancerSearchFilter {
   dayType?: 'FULL_DAY' | 'HALF_DAY';
   maxBudget?: number;
   minExperience?: number;
-  sortBy?: 'relevance' | 'distance' | 'rating' | 'experience' | 'price_asc' | 'price_desc';
+  sortBy?: 'relevance' | 'distance' | 'rating' | 'experience' | 'price_asc' | 'price_desc' | 'match';
+  requirementId?: number;
 }
 
 export interface FreelancerSearchResponse {
