@@ -981,6 +981,92 @@
     9. `testPublicRatingsEndpointsWithoutAuth`: RAT-003 public unauthenticated endpoint accessibility.
 - **Frontend Build**: `npm run build` -> **Compiled cleanly with TypeScript type-checking and Vite production asset bundling in 8.21s (0 errors)**.
 
+---
+
+## Phase 14 — Machine Learning Service & Match Scoring Model (ML-001 – ML-011)
+**Completed Date:** 2026-09-29  
+**Status:** COMPLETED & TESTED
+
+### Implemented Modules & Capabilities
+1. **Machine Learning Architecture & Technology Stack (ML-001, ML-002, 18-DECISIONS-AND-CONSTRAINTS.md)**:
+   - Dedicated Python microservice running Python 3.12, FastAPI 0.115, pandas 2.2.3, NumPy 2.1.2, and scikit-learn 1.5.2.
+   - Core model strictly implemented using `sklearn.tree.DecisionTreeRegressor` (substitutions such as Random Forest or LLM are strictly rejected per specification).
+
+2. **Synthetic Dataset Generation with Documented Business Logic (ML-003, ML-004, ML-005, ML-006)**:
+   - Script: `ml-service/app/dataset.py`.
+   - Generated exactly 5,000 synthetic records (`N = 5000`) with deterministic random state (`random_state=42`).
+   - Exactly 6 normalized features ($[0.0, 1.0]$):
+     1. `skill_match` (0.30 weight — primary technical prerequisite)
+     2. `portfolio_relevance` (0.25 weight — visual style & category alignment)
+     3. `experience` (0.05 weight — craft maturity)
+     4. `budget_compatibility` (0.15 weight — commercial viability)
+     5. `location_distance` (0.10 weight — geographic proximity)
+     6. `availability_time_compatibility` (0.15 weight — operational schedule reliability)
+   - Realistic business rules and non-linear penalties:
+     - Technical execution penalty: If `skill_match < 0.25`, steep penalty factor applied.
+     - Schedule clash penalty: If `availability_time_compatibility < 0.15`, severe score reduction.
+     - Creative synergy bonus: If both `skill_match >= 0.85` and `portfolio_relevance >= 0.85`, +3.0 score bonus.
+     - Budget friction: If `budget_compatibility < 0.20`, 10% commercial penalty.
+     - Controlled Gaussian perturbation ($\mu=0, \sigma=1.5$) modeling subtle studio preferences.
+   - Target match score strictly bounded between 0.0 and 100.0 (ML-011).
+   - Ratings strictly excluded from all training features (ML-005, RAT-004).
+   - Saved to `ml-service/data/synthetic_training_data.csv`.
+
+3. **Model Training & Hyperparameter Tuning Pipeline (ML-007, ML-008, ML-009)**:
+   - Script: `ml-service/app/train.py`.
+   - 80/20 train/test split (4,000 training, 1,000 test holdout).
+   - 5-fold cross validation with `GridSearchCV` tuning tree regularization parameters:
+     - `max_depth`: [4, 6, 8, 10, 12, None]
+     - `min_samples_split`: [2, 5, 10, 20]
+     - `min_samples_leaf`: [1, 2, 5, 10]
+   - Optimal regularized hyperparameters selected:
+     - `min_samples_leaf: 5`
+     - `min_samples_split: 2`
+     - `max_depth: None`
+   - Evaluation Metrics:
+     - Training: MAE = 1.56, RMSE = 2.03, $R^2 = 0.960$
+     - 5-Fold Cross Validation: MAE = 3.17, RMSE = 4.01, $R^2 = 0.843$
+     - Holdout Test (20%): MAE = 3.09, RMSE = 3.92, $R^2 = 0.847$
+   - Feature Importances:
+     - `skill_match`: 0.4488
+     - `portfolio_relevance`: 0.2841
+     - `budget_compatibility`: 0.1137
+     - `location_distance`: 0.0756
+     - `availability_time_compatibility`: 0.0684
+     - `experience`: 0.0094
+   - Model artifact serialized to `ml-service/app/models/decision_tree_model.joblib`.
+   - Comprehensive metadata saved to `ml-service/app/models/model_metadata.json`.
+
+4. **Inference Engine & Microservice Endpoints (ML-010, ML-011)**:
+   - `ml-service/app/schemas.py`: Pydantic models with schema validation, range checks ($[0.0, 1.0]$), and dual snake_case / camelCase support.
+   - `ml-service/app/predictor.py`: Singleton model manager with automated loading, input DataFrame formatting, and clipped score prediction.
+   - `ml-service/app/main.py`:
+     - `POST /predict-match`: Computes match score (0.0 to 100.0) for a single creator candidate.
+     - `POST /predict-batch`: Batch vectorized prediction endpoint for ranking candidate lists from Spring Boot.
+     - `GET /model-info`: Returns model architecture, hyperparameters, and evaluation metrics.
+     - `GET /health`: Operational status and model loaded flag.
+
+5. **Automated Test Suite**:
+   - `ml-service/tests/test_ml_service.py` with 12 comprehensive unit and integration tests across data generation, model artifact loading, domain monotonicity, validation error handling, and single/batch API endpoints.
+
+### Verification Summary
+- **ML Test Suite**: `pytest` -> **12 of 12 tests PASSED (0 failures, 0 errors)** in 2.19s:
+  1. `test_dataset_shape_and_features`: Verifies 5,000 records, 6 features, target score, and absence of ratings.
+  2. `test_feature_and_target_bounds`: Verifies feature bounds $[0, 1]$ and target score bounds $[0, 100]$.
+  3. `test_domain_weighting_monotonicity`: Verifies skill match correlation and domain rules.
+  4. `test_model_artifact_type`: Verifies model is `DecisionTreeRegressor`.
+  5. `test_model_metadata_metrics`: Verifies MAE, RMSE, and $R^2 \ge 0.70$.
+  6. `test_feature_importances_exclude_ratings`: Verifies 6 features and exclusion of ratings.
+  7. `test_health_check`: Verifies `status: UP` and `model_loaded: true`.
+  8. `test_predict_match_snake_case`: Verifies single candidate prediction with snake_case fields.
+  9. `test_predict_match_camel_case`: Verifies single candidate prediction with camelCase fields.
+  10. `test_predict_match_validation_bounds_error`: Verifies HTTP 422 for out-of-range inputs ($> 1.0$, $< 0.0$).
+  11. `test_predict_batch_endpoint`: Verifies batch candidate ranking and score relative ordering.
+  12. `test_model_info_endpoint`: Verifies model metadata retrieval.
+- **Backend Verification**: `mvn test-compile` -> **BUILD SUCCESS** (168 backend source files, 12 test files).
+- **Frontend Verification**: `npm run build` -> **Compiled cleanly with 0 TypeScript errors in 7.33s**.
+
+
 
 
 

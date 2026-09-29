@@ -118,18 +118,18 @@ Status values: `PLANNED`, `IN PROGRESS`, `IMPLEMENTED`, `TESTED`.
 - ADM-006 — No admin approval is required for Studios or Freelancers to enter the platform.
 
 ## AI/ML
-- ML-001 — ML service shall use Python, FastAPI, pandas, NumPy, and scikit-learn.
-- ML-002 — Model shall be a Decision Tree Regressor.
-- ML-003 — Dataset shall contain approximately 5,000 logically generated synthetic records.
-- ML-004 — Features shall include skill match, portfolio relevance, experience, budget compatibility, location distance, and availability/time compatibility.
-- ML-005 — Ratings shall not be used as an ML feature.
-- ML-006 — Training data shall be generated using explicit logical rules, not arbitrary random labels.
-- ML-007 — Use train/test split and cross-validation.
-- ML-008 — Evaluate with MAE, RMSE, and R².
-- ML-009 — Tune tree parameters to control overfitting/underfitting.
-- ML-010 — FastAPI shall expose a prediction endpoint for Spring Boot.
-- ML-011 — ML output shall be a 0–100 match score.
-- ML-012 — Hard availability filtering shall occur before ML ranking.
+- ML-001 — ML service shall use Python, FastAPI, pandas, NumPy, and scikit-learn. `[TESTED]`
+- ML-002 — Model shall be a Decision Tree Regressor. `[TESTED]`
+- ML-003 — Dataset shall contain approximately 5,000 logically generated synthetic records. `[TESTED]`
+- ML-004 — Features shall include skill match, portfolio relevance, experience, budget compatibility, location distance, and availability/time compatibility. `[TESTED]`
+- ML-005 — Ratings shall not be used as an ML feature. `[TESTED]`
+- ML-006 — Training data shall be generated using explicit logical rules, not arbitrary random labels. `[TESTED]`
+- ML-007 — Use train/test split and cross-validation. `[TESTED]`
+- ML-008 — Evaluate with MAE, RMSE, and R². `[TESTED]`
+- ML-009 — Tune tree parameters to control overfitting/underfitting. `[TESTED]`
+- ML-010 — FastAPI shall expose a prediction endpoint for Spring Boot. `[TESTED]`
+- ML-011 — ML output shall be a 0–100 match score. `[TESTED]`
+- ML-012 — Hard availability filtering shall occur before ML ranking. `[IMPLEMENTED]`
 - ML-013 — Portfolio relevance shall use structured categories and metadata/text, not computer vision.
 
 ## UI/UX

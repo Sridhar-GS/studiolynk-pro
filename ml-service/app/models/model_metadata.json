@@ -1,0 +1,58 @@
+{
+  "model_type": "sklearn.tree.DecisionTreeRegressor",
+  "model_version": "1.0.0",
+  "trained_at": "2026-09-29T03:50:14.223483Z",
+  "dataset": {
+    "total_records": 5000,
+    "train_records": 4000,
+    "test_records": 1000,
+    "train_split": 0.8,
+    "test_split": 0.2,
+    "cv_folds": 5,
+    "random_state": 42,
+    "source_file": "synthetic_training_data.csv"
+  },
+  "features": {
+    "feature_names": [
+      "skill_match",
+      "portfolio_relevance",
+      "experience",
+      "budget_compatibility",
+      "location_distance",
+      "availability_time_compatibility"
+    ],
+    "feature_count": 6,
+    "ratings_included": false,
+    "feature_importances": {
+      "skill_match": 0.4488,
+      "portfolio_relevance": 0.2841,
+      "experience": 0.0094,
+      "budget_compatibility": 0.1137,
+      "location_distance": 0.0756,
+      "availability_time_compatibility": 0.0684
+    }
+  },
+  "hyperparameters": {
+    "max_depth": null,
+    "min_samples_split": 2,
+    "min_samples_leaf": 5,
+    "random_state": 42
+  },
+  "metrics": {
+    "train": {
+      "mae": 1.5581,
+      "rmse": 2.0322,
+      "r2": 0.9599
+    },
+    "cross_validation_5fold": {
+      "mae": 3.1675,
+      "rmse": 4.0137,
+      "r2": 0.8431
+    },
+    "test_holdout": {
+      "mae": 3.0927,
+      "rmse": 3.9245,
+      "r2": 0.8475
+    }
+  }
+}
