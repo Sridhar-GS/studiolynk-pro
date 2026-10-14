@@ -1218,6 +1218,43 @@
 6. **Automated Verification**:
    - Frontend verification: `npm run build` compiled cleanly with 0 TypeScript errors in 8.19s.
 
+---
+
+## Phase 18 — Full Testing and Deployment
+**Completed Date:** 2026-10-14  
+**Status:** COMPLETED & VERIFIED
+
+### Implemented Modules & Capabilities
+1. **Nginx Reverse Proxy & HTTP Entry Point (AWS-007, AWS-008)**:
+   - Installed Nginx 1.24 on AWS EC2 Ubuntu 24.04 LTS.
+   - Configured and activated `/etc/nginx/sites-available/studiolynk` (symlinked to `/etc/nginx/sites-enabled/studiolynk` and removed default site):
+     - `/`: Frontend SPA static files served from `/home/ubuntu/studiolynk/frontend/dist` with `try_files $uri $uri/ /index.html` fallback.
+     - `/assets/`: Long-term immutable caching (`max-age=31536000`).
+     - `/api/`: Proxied internally to Spring Boot (`http://127.0.0.1:8080/api/`).
+     - `/ws`: WebSocket/STOMP bidirectional upgrade proxy with `$connection_upgrade`.
+     - `/ml/`: Proxied internally to FastAPI ML microservice (`http://127.0.0.1:8000/`).
+     - `/swagger-ui/` and `/v3/api-docs`: Proxied to SpringDoc OpenAPI documentation.
+   - Validated Nginx configuration syntax: `nginx -t` -> `syntax is ok`, `test is successful`.
+   - Verified HTTP responses on `http://127.0.0.1/` returning status HTTP 200 with index.html and assets.
+
+2. **Python FastAPI ML Microservice Deployment**:
+   - Created systemd unit `/etc/systemd/system/studiolynk-ml.service` running Uvicorn on `127.0.0.1:8000` with automatic restart.
+   - Enabled and started `studiolynk-ml.service` (Active: active (running)).
+   - Verified direct probe: `GET http://127.0.0.1:8000/health` -> `{"status":"UP","service":"studiolynk-ml-service","version":"1.0.0","model_loaded":true}`.
+   - Verified reverse-proxied probe: `GET http://127.0.0.1/ml/health` -> `{"status":"UP","service":"studiolynk-ml-service","version":"1.0.0","model_loaded":true}`.
+   - Automated testing: `pytest tests/test_ml_service.py` -> **12 of 12 tests PASSED** in 3.69s.
+
+3. **Private Database Isolation & Security Review (AWS-003, AWS-009, AWS-010)**:
+   - Verified MySQL 8.0 daemon is bound strictly to `127.0.0.1:3306`, completely shielded from public exposure (`ss -tulpn`).
+   - Verified all 27 tables exist in `studiolynk` schema.
+   - Verified dual-mode AWS S3 storage service architecture (`StorageConfig.java`) with local storage fallback (`./uploads`).
+   - Confirmed no secrets or credentials committed to source control.
+
+4. **Documentation & Architecture Guide**:
+   - Updated root `README.md` with complete architecture diagram, tech stack, port allocation, operational management commands, and seeded admin credentials (`admin@studiolynk.com` / `Admin@2026!`).
+   - Marked all AWS requirements (`AWS-001` through `AWS-010`) and deployment documentation (`DOC-002`, `DOC-003`, `DOC-007`) as `[TESTED]` in `REQUIREMENTS.md`.
+
+
 
 
 

@@ -1,0 +1,13 @@
+[Unit]
+Description=StudioLynk FastAPI ML Service
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/studiolynk/ml-service
+ExecStart=/home/ubuntu/studiolynk/ml-service/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
