@@ -15,11 +15,13 @@ import {
   Phone,
   User,
   Calendar,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Upload
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 import { ApiResponse, StudioProfile, StudioSocialLink } from '../../types';
+import { portfolioService } from '../../services/portfolioService';
 import axios from 'axios';
 
 const CITY_PRESETS = [
@@ -61,6 +63,27 @@ export const StudioOnboardingPage: React.FC = () => {
   const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setUploadingLogo(true);
+      setError(null);
+      const res = await portfolioService.uploadGeneralImage(file);
+      setLogoUrl(res.imageUrl);
+      setSuccessMsg('Logo uploaded to AWS S3 successfully.');
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err) && err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else {
+        setError('Failed to upload logo to AWS S3.');
+      }
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
 
   // Load existing profile / draft if available (ONB-004)
   useEffect(() => {
@@ -368,20 +391,43 @@ export const StudioOnboardingPage: React.FC = () => {
 
               <div className="sm:col-span-2">
                 <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                  Studio Logo / Photo URL (Optional)
+                  Studio Logo / Photo (Optional)
                 </label>
-                <div className="relative rounded-xl">
-                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
-                    <ImageIcon className="h-4 w-4" />
+                <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center">
+                  <div className="relative flex-1 rounded-xl">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
+                      <ImageIcon className="h-4 w-4" />
+                    </div>
+                    <input
+                      type="url"
+                      value={logoUrl}
+                      onChange={(e) => setLogoUrl(e.target.value)}
+                      placeholder="https://... or upload photo"
+                      className="w-full rounded-xl bg-slate-950 border border-slate-700/80 pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-teal-500"
+                    />
                   </div>
-                  <input
-                    type="url"
-                    value={logoUrl}
-                    onChange={(e) => setLogoUrl(e.target.value)}
-                    placeholder="https://images.unsplash.com/... or S3 URL"
-                    className="w-full rounded-xl bg-slate-950 border border-slate-700/80 pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-teal-500"
-                  />
+                  <label className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-medium transition cursor-pointer select-none ${
+                    uploadingLogo
+                      ? 'bg-slate-800 text-slate-400 cursor-not-allowed border border-slate-700'
+                      : 'bg-teal-500/10 hover:bg-teal-500/20 text-teal-400 border border-teal-500/30'
+                  }`}>
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>{uploadingLogo ? 'Uploading to S3...' : 'Upload Image'}</span>
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="hidden"
+                      disabled={uploadingLogo}
+                      onChange={handleLogoUpload}
+                    />
+                  </label>
                 </div>
+                {logoUrl && (
+                  <div className="mt-2.5 flex items-center gap-2.5 bg-slate-950/60 border border-slate-800 rounded-xl p-2">
+                    <img src={logoUrl} alt="Logo Preview" className="w-9 h-9 rounded-lg object-cover border border-slate-700 bg-slate-900" />
+                    <span className="text-xs text-slate-400 truncate max-w-xs font-mono">{logoUrl}</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>

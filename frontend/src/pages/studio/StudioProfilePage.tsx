@@ -14,11 +14,13 @@ import {
   ExternalLink,
   Plus,
   Trash2,
-  Sparkles
+  Sparkles,
+  Upload
 } from 'lucide-react';
 import api from '../../services/api';
 import { ApiResponse, StudioProfile, StudioSocialLink, StudioUpdatePayload } from '../../types';
 import { PublicReviewsList } from '../../components/ratings/PublicReviewsList';
+import { portfolioService } from '../../services/portfolioService';
 import axios from 'axios';
 
 export const StudioProfilePage: React.FC = () => {
@@ -38,6 +40,7 @@ export const StudioProfilePage: React.FC = () => {
   const [editSocialLinks, setEditSocialLinks] = useState<StudioSocialLink[]>([]);
 
   const [saving, setSaving] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
@@ -126,6 +129,26 @@ export const StudioProfilePage: React.FC = () => {
       }
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setUploadingLogo(true);
+      setError(null);
+      const res = await portfolioService.uploadGeneralImage(file);
+      setEditLogoUrl(res.imageUrl);
+      setSuccessMsg('Studio logo uploaded to AWS S3 successfully.');
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err) && err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else {
+        setError('Failed to upload logo to AWS S3.');
+      }
+    } finally {
+      setUploadingLogo(false);
     }
   };
 
@@ -423,13 +446,37 @@ export const StudioProfilePage: React.FC = () => {
               </div>
 
               <div className="sm:col-span-2">
-                <label className="block text-xs font-medium text-slate-300 mb-1.5">Logo URL</label>
-                <input
-                  type="url"
-                  value={editLogoUrl}
-                  onChange={(e) => setEditLogoUrl(e.target.value)}
-                  className="w-full rounded-xl bg-slate-950 border border-slate-700/80 px-3.5 py-2 text-sm text-white focus:outline-none focus:border-teal-500"
-                />
+                <label className="block text-xs font-medium text-slate-300 mb-1.5">Studio Logo</label>
+                <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center">
+                  <input
+                    type="url"
+                    placeholder="https://... or upload image"
+                    value={editLogoUrl}
+                    onChange={(e) => setEditLogoUrl(e.target.value)}
+                    className="flex-1 rounded-xl bg-slate-950 border border-slate-700/80 px-3.5 py-2 text-sm text-white focus:outline-none focus:border-teal-500"
+                  />
+                  <label className={`inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-medium transition cursor-pointer select-none ${
+                    uploadingLogo
+                      ? 'bg-slate-800 text-slate-400 cursor-not-allowed border border-slate-700'
+                      : 'bg-teal-500/10 hover:bg-teal-500/20 text-teal-400 border border-teal-500/30'
+                  }`}>
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>{uploadingLogo ? 'Uploading to S3...' : 'Upload Image'}</span>
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="hidden"
+                      disabled={uploadingLogo}
+                      onChange={handleLogoUpload}
+                    />
+                  </label>
+                </div>
+                {editLogoUrl && (
+                  <div className="mt-2.5 flex items-center gap-2.5 bg-slate-950/60 border border-slate-800 rounded-xl p-2">
+                    <img src={editLogoUrl} alt="Logo Preview" className="w-9 h-9 rounded-lg object-cover border border-slate-700 bg-slate-900" />
+                    <span className="text-xs text-slate-400 truncate max-w-xs font-mono">{editLogoUrl}</span>
+                  </div>
+                )}
               </div>
 
               <div className="sm:col-span-2">

@@ -13,13 +13,15 @@ import {
   Plus,
   Sparkles,
   ArrowLeft,
-  Calendar
+  Calendar,
+  Upload
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { catalogueService } from '../../services/catalogueService';
 import { freelancerService } from '../../services/freelancerService';
 import { availabilityService } from '../../services/availabilityService';
 import { PublicReviewsList } from '../../components/ratings/PublicReviewsList';
+import { portfolioService } from '../../services/portfolioService';
 import { AvailabilityWindowResponse, EquipmentCategory, EquipmentItem, FreelancerProfile, FreelancerUpdatePayload, ServiceItem, Skill } from '../../types';
 
 export const FreelancerProfilePage: React.FC = () => {
@@ -41,6 +43,24 @@ export const FreelancerProfilePage: React.FC = () => {
   const [profilePhotoUrl, setProfilePhotoUrl] = useState('');
   const [fullDayRate, setFullDayRate] = useState<string>('');
   const [halfDayRate, setHalfDayRate] = useState<string>('');
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setUploadingPhoto(true);
+      setStatusMessage(null);
+      const res = await portfolioService.uploadGeneralImage(file);
+      setProfilePhotoUrl(res.imageUrl);
+      setStatusMessage({ type: 'success', text: 'Profile photo uploaded to AWS S3 successfully.' });
+    } catch (err: any) {
+      const msg = err.response?.data?.message || 'Failed to upload photo to AWS S3.';
+      setStatusMessage({ type: 'error', text: msg });
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
 
   // Catalogue data for editing
   const [allSkills, setAllSkills] = useState<Skill[]>([]);
@@ -620,13 +640,37 @@ export const FreelancerProfilePage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">Profile Photo URL</label>
-                  <input
-                    type="url"
-                    value={profilePhotoUrl}
-                    onChange={(e) => setProfilePhotoUrl(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-teal-500"
-                  />
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">Profile Photo</label>
+                  <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center">
+                    <input
+                      type="url"
+                      placeholder="https://... or upload photo"
+                      value={profilePhotoUrl}
+                      onChange={(e) => setProfilePhotoUrl(e.target.value)}
+                      className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-teal-500"
+                    />
+                    <label className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-medium transition cursor-pointer select-none ${
+                      uploadingPhoto
+                        ? 'bg-slate-800 text-slate-400 cursor-not-allowed border border-slate-700'
+                        : 'bg-teal-500/10 hover:bg-teal-500/20 text-teal-400 border border-teal-500/30'
+                    }`}>
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>{uploadingPhoto ? 'Uploading to S3...' : 'Upload Image'}</span>
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        className="hidden"
+                        disabled={uploadingPhoto}
+                        onChange={handlePhotoUpload}
+                      />
+                    </label>
+                  </div>
+                  {profilePhotoUrl && (
+                    <div className="mt-2.5 flex items-center gap-2.5 bg-slate-950/60 border border-slate-800 rounded-xl p-2">
+                      <img src={profilePhotoUrl} alt="Photo Preview" className="w-9 h-9 rounded-lg object-cover border border-slate-700 bg-slate-900" />
+                      <span className="text-xs text-slate-400 truncate max-w-xs font-mono">{profilePhotoUrl}</span>
+                    </div>
+                  )}
                 </div>
 
                 <div>

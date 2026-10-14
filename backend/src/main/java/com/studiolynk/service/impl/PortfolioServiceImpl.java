@@ -159,13 +159,12 @@ public class PortfolioServiceImpl implements PortfolioService {
             validateImageFile(file);
 
             String originalFilename = file.getOriginalFilename();
-            String extension = getFileExtension(originalFilename);
-            String sanitizedFilename = sanitizeFilename(originalFilename);
-            String uniqueFilename = UUID.randomUUID() + (extension.isEmpty() ? "" : "." + extension);
+            String uniqueFilename = generateTimestampedFilename(originalFilename);
+            String categorySlug = slugify(category.getName());
 
-            // S3 Key Layout (POR-008, docs/07-PORTFOLIO-S3-SPECIFICATION.md):
-            // portfolio/{freelancerId}/{categoryId}/{uniqueFilename}
-            String s3Key = String.format("portfolio/%d/%d/%s", freelancerId, categoryId, uniqueFilename);
+            // Organized S3 Key Layout:
+            // freelancers/{freelancerId}/portfolio/{categoryId}_{categorySlug}/{uniqueFilename}
+            String s3Key = String.format("freelancers/%d/portfolio/%d_%s/%s", freelancerId, categoryId, categorySlug, uniqueFilename);
 
             try {
                 String imageUrl = storageService.uploadFile(
@@ -253,20 +252,19 @@ public class PortfolioServiceImpl implements PortfolioService {
         validateImageFile(file);
 
         User user = getUserByEmail(userEmail);
-        String extension = getFileExtension(file.getOriginalFilename());
-        String uniqueFilename = UUID.randomUUID() + (extension.isEmpty() ? "" : "." + extension);
+        String uniqueFilename = generateTimestampedFilename(file.getOriginalFilename());
 
         String s3Key;
         if (user.getRole() == UserRole.STUDIO) {
             Optional<Studio> studio = studioRepository.findByUserId(user.getId());
             Long studioId = studio.map(Studio::getId).orElse(user.getId());
-            s3Key = String.format("studio-profiles/%d/%s", studioId, uniqueFilename);
+            s3Key = String.format("studios/%d/profile/%s", studioId, uniqueFilename);
         } else if (user.getRole() == UserRole.FREELANCER) {
             Optional<Freelancer> freelancer = freelancerRepository.findByUserId(user.getId());
             Long freelancerId = freelancer.map(Freelancer::getId).orElse(user.getId());
-            s3Key = String.format("freelancer-profiles/%d/%s", freelancerId, uniqueFilename);
+            s3Key = String.format("freelancers/%d/profile/%s", freelancerId, uniqueFilename);
         } else {
-            s3Key = String.format("profiles/%d/%s", user.getId(), uniqueFilename);
+            s3Key = String.format("users/%d/profile/%s", user.getId(), uniqueFilename);
         }
 
         try {
@@ -348,6 +346,33 @@ public class PortfolioServiceImpl implements PortfolioService {
     private String sanitizeFilename(String filename) {
         if (filename == null) return "image";
         return filename.replaceAll("[^a-zA-Z0-9.-]", "_");
+    }
+
+    private String slugify(String text) {
+        if (text == null || text.isBlank()) {
+            return "category";
+        }
+        String slug = text.trim().toLowerCase()
+                .replaceAll("[^a-z0-9_-]+", "_")
+                .replaceAll("_+", "_")
+                .replaceAll("^_|_$", "");
+        return slug.isEmpty() ? "category" : slug;
+    }
+
+    private String generateTimestampedFilename(String originalFilename) {
+        long timestamp = System.currentTimeMillis();
+        String extension = getFileExtension(originalFilename);
+        String baseName = (originalFilename != null && originalFilename.contains("."))
+                ? originalFilename.substring(0, originalFilename.lastIndexOf("."))
+                : (originalFilename != null ? originalFilename : "image");
+        String sanitizedBase = baseName.trim().toLowerCase()
+                .replaceAll("[^a-z0-9_-]+", "_")
+                .replaceAll("_+", "_")
+                .replaceAll("^_|_$", "");
+        if (sanitizedBase.isEmpty()) {
+            sanitizedBase = "image";
+        }
+        return timestamp + "_" + sanitizedBase + (extension.isEmpty() ? "" : "." + extension);
     }
 
     private PortfolioDto mapToPortfolioDto(Portfolio portfolio) {
