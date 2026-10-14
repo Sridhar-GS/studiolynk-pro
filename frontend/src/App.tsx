@@ -25,6 +25,12 @@ import { FreelancerRequestsPage } from './pages/freelancer/FreelancerRequestsPag
 import { FreelancerRequestDetailPage } from './pages/freelancer/FreelancerRequestDetailPage';
 import { MessagesPage } from './pages/messaging/MessagesPage';
 import { NotificationsPage } from './pages/notifications/NotificationsPage';
+import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
+import { AdminStudiosPage } from './pages/admin/AdminStudiosPage';
+import { AdminFreelancersPage } from './pages/admin/AdminFreelancersPage';
+import { AdminRequirementsPage } from './pages/admin/AdminRequirementsPage';
+import { AdminRequestsPage } from './pages/admin/AdminRequestsPage';
+import { AdminActivityPage } from './pages/admin/AdminActivityPage';
 
 export const App: React.FC = () => {
   return (
@@ -196,6 +202,55 @@ export const App: React.FC = () => {
               element={
                 <ProtectedRoute requireOnboardingCompleted={true} allowedRoles={['STUDIO', 'FREELANCER', 'ADMIN']}>
                   <NotificationsPage />
+                </ProtectedRoute>
+              }
+            />
+            {/* Phase 16: Admin Platform Routes (ADM-001 - ADM-006) */}
+            <Route
+              path="/admin/dashboard"
+              element={
+                <ProtectedRoute requireOnboardingCompleted={true} allowedRoles={['ADMIN']}>
+                  <AdminDashboardPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/studios"
+              element={
+                <ProtectedRoute requireOnboardingCompleted={true} allowedRoles={['ADMIN']}>
+                  <AdminStudiosPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/freelancers"
+              element={
+                <ProtectedRoute requireOnboardingCompleted={true} allowedRoles={['ADMIN']}>
+                  <AdminFreelancersPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/requirements"
+              element={
+                <ProtectedRoute requireOnboardingCompleted={true} allowedRoles={['ADMIN']}>
+                  <AdminRequirementsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/requests"
+              element={
+                <ProtectedRoute requireOnboardingCompleted={true} allowedRoles={['ADMIN']}>
+                  <AdminRequestsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/activity"
+              element={
+                <ProtectedRoute requireOnboardingCompleted={true} allowedRoles={['ADMIN']}>
+                  <AdminActivityPage />
                 </ProtectedRoute>
               }
             />

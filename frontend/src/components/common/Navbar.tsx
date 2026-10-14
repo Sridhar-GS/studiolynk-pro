@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Camera, LogOut, User as UserIcon, ShieldAlert, Building2, LayoutDashboard, Image as ImageIcon, Calendar, Search, Briefcase, Inbox, MessageSquare, Bell, CheckCheck, ExternalLink } from 'lucide-react';
+import { Camera, LogOut, User as UserIcon, ShieldAlert, Building2, LayoutDashboard, Image as ImageIcon, Calendar, Search, Briefcase, Inbox, MessageSquare, Bell, CheckCheck, ExternalLink, Users, Activity } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { notificationService } from '../../services/notificationService';
 import { AppNotification } from '../../types';
@@ -118,7 +118,7 @@ export const Navbar: React.FC = () => {
                 StudioLynk
               </span>
               <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/30 font-medium">
-                Phase 15 Active
+                Phase 16 Active
               </span>
             </div>
             <p className="text-[11px] text-slate-400">Photography Studio & Freelancer Network</p>
@@ -275,6 +275,83 @@ export const Navbar: React.FC = () => {
             >
               <UserIcon className="w-3.5 h-3.5" />
               <span>Creator Profile</span>
+            </Link>
+          </nav>
+        )}
+
+        {/* Admin Navigation Links (ADM-001 - ADM-006) */}
+        {isAuthenticated && user && user.role === 'ADMIN' && (
+          <nav className="hidden md:flex items-center gap-1.5 ml-4">
+            <Link
+              to="/admin/dashboard"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                location.pathname === '/admin/dashboard'
+                  ? 'bg-slate-800 text-teal-400'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+              }`}
+            >
+              <LayoutDashboard className="w-3.5 h-3.5" />
+              <span>Dashboard</span>
+            </Link>
+
+            <Link
+              to="/admin/studios"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                location.pathname.startsWith('/admin/studios')
+                  ? 'bg-slate-800 text-teal-400'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+              }`}
+            >
+              <Building2 className="w-3.5 h-3.5" />
+              <span>Studios</span>
+            </Link>
+
+            <Link
+              to="/admin/freelancers"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                location.pathname.startsWith('/admin/freelancers')
+                  ? 'bg-slate-800 text-teal-400'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+              }`}
+            >
+              <Users className="w-3.5 h-3.5" />
+              <span>Creators</span>
+            </Link>
+
+            <Link
+              to="/admin/requirements"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                location.pathname.startsWith('/admin/requirements')
+                  ? 'bg-slate-800 text-teal-400'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+              }`}
+            >
+              <Briefcase className="w-3.5 h-3.5" />
+              <span>Requirements</span>
+            </Link>
+
+            <Link
+              to="/admin/requests"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                location.pathname.startsWith('/admin/requests')
+                  ? 'bg-slate-800 text-teal-400'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+              }`}
+            >
+              <Inbox className="w-3.5 h-3.5" />
+              <span>Requests</span>
+            </Link>
+
+            <Link
+              to="/admin/activity"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                location.pathname.startsWith('/admin/activity')
+                  ? 'bg-slate-800 text-teal-400'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+              }`}
+            >
+              <Activity className="w-3.5 h-3.5" />
+              <span>Activity</span>
             </Link>
           </nav>
         )}

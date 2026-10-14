@@ -110,12 +110,12 @@ Status values: `PLANNED`, `IN PROGRESS`, `IMPLEMENTED`, `TESTED`.
 - RAT-006 — A completed work shall permit one rating per direction. `[TESTED]`
 
 ## Admin
-- ADM-001 — Admin shall have a separate admin panel.
-- ADM-002 — Admin login uses email and password.
-- ADM-003 — Admin is monitoring/view-only for normal data.
-- ADM-004 — Admin has no general edit/delete capability.
-- ADM-005 — Admin may view Studio verification/identity submission status for monitoring.
-- ADM-006 — No admin approval is required for Studios or Freelancers to enter the platform.
+- ADM-001 — Admin shall have a separate admin panel. `[TESTED]`
+- ADM-002 — Admin login uses email and password. `[TESTED]`
+- ADM-003 — Admin is monitoring/view-only for normal data. `[TESTED]`
+- ADM-004 — Admin has no general edit/delete capability. `[TESTED]`
+- ADM-005 — Admin may view Studio verification/identity submission status for monitoring. `[TESTED]`
+- ADM-006 — No admin approval is required for Studios or Freelancers to enter the platform. `[TESTED]`
 
 ## AI/ML
 - ML-001 — ML service shall use Python, FastAPI, pandas, NumPy, and scikit-learn. `[TESTED]`

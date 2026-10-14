@@ -1117,6 +1117,69 @@
    - ML Microservice: `pytest` -> **12 of 12 tests PASSED (0 failures, 0 errors)** in 2.23s.
    - Frontend: `npm run build` -> **0 TypeScript errors, production assets emitted cleanly**.
 
+---
+
+## Phase 16 — Admin Platform
+**Completed Date:** 2026-10-14  
+**Status:** COMPLETED & VERIFIED
+
+### Implemented Modules & Capabilities
+1. **Administrative Access Control & Seeded Credentials (ADM-001, ADM-002)**:
+   - Configured Spring Security `.requestMatchers("/api/admin/**").hasRole("ADMIN")` blocking all unauthenticated users and non-admin roles (returning HTTP 401/403).
+   - Seeded initial platform administrator account via `AdminDataInitializer.java` on application startup:
+     - Email: `admin@studiolynk.com`
+     - Password: `Admin@2026!` (BCrypt hashed)
+     - Role: `ROLE_ADMIN`
+     - `onboardingCompleted = true`
+   - Added `boolean existsByRole(UserRole role)` to `UserRepository` to avoid redundant seeds while guaranteeing administrator availability.
+   - Verified single login portal (`/login`) authentication seamlessly recognizes admin role and redirects directly to `/admin/dashboard`.
+
+2. **Strict Monitoring / View-Only Architecture & Zero Edit/Delete Mutation (ADM-003, ADM-004)**:
+   - All administrative endpoints on `/api/admin/*` are strictly HTTP `GET` read-only operations.
+   - `AdminService` and `AdminServiceImpl` contain exclusively analytical and inspection queries, with zero update, patch, or delete logic.
+   - `GlobalExceptionHandler` updated with `HttpRequestMethodNotSupportedException` returning standard `ApiResponse` with `HTTP 405 Method Not Allowed` when any write attempt (`POST`, `PUT`, `PATCH`, `DELETE`) is made to administrative resources.
+   - Admin frontend contains zero edit forms, status toggles, ban triggers, or delete actions.
+
+3. **Studio Verification & Identity Submission Monitoring (ADM-005, ADM-006)**:
+   - Implemented `GET /api/admin/identity-submissions` and `GET /api/admin/studios/{studioId}/identity` returning structured `AdminStudioIdentityDto` objects.
+   - Supports monitoring of identity verification statuses (`PENDING`, `VERIFIED`, `REJECTED`, or `NOT_SUBMITTED`).
+   - Detailed regulatory compliance inspection displaying registered business name, tax ID / GSTIN, owner government ID type, document URLs, and submission timestamps.
+   - Autonomous platform entry (ADM-006): Strictly preserves instantaneous access for Studios and Freelancers upon completing onboarding (STU-004, FRL-007) with zero admin approval gate or verification barrier.
+
+4. **Administrative API Layer & DTO Aggregators**:
+   - `GET /api/admin/dashboard`: Metrics overview (`AdminDashboardMetricsDto`) aggregating platform totals (users, studios, freelancers, open requirements, completed shoots, work requests, pending identity reviews, and average platform rating).
+   - `GET /api/admin/studios`: Searchable studio directory (`AdminStudioItemDto`) with identity status, rating, location, and requirement counts.
+   - `GET /api/admin/freelancers`: Searchable freelancer directory (`AdminFreelancerItemDto`) with skills, experience, rating, daily rates, and booking counts.
+   - `GET /api/admin/requirements`: Work requirements audit feed (`AdminRequirementItemDto`) with shoot dates, call times, day types, budgets, and lifecycle statuses.
+   - `GET /api/admin/requests`: Work requests audit feed (`AdminRequestItemDto`) with proposal status, agreed rates, and client contact privacy audit.
+   - `GET /api/admin/activity`: System-wide audit stream (`AdminActivityItemDto`) chronicling registrations, requirement postings, proposal exchanges, confirmations, and shoot completions.
+
+5. **React Administrative Portal UI (`/admin/*`)**:
+   - `frontend/src/services/adminService.ts`: Dedicated Axios API client for all administrative endpoints.
+   - `AdminDashboardPage.tsx`: KPI cards, monitoring architecture banner, pending identity review spotlight, and live activity stream.
+   - `AdminStudiosPage.tsx`: Searchable studio directory with identity badges and read-only inspection modal.
+   - `AdminFreelancersPage.tsx`: Searchable creator directory with skill chips, rates, and read-only inspection modal.
+   - `AdminRequirementsPage.tsx`: Status-filterable work requirements table and read-only shoot brief modal.
+   - `AdminRequestsPage.tsx`: Proposal and booking status audit table with read-only inspection modal.
+   - `AdminActivityPage.tsx`: Real-time system activity stream with category filters.
+   - Route security: All `/admin/*` routes protected by `<ProtectedRoute requireOnboardingCompleted={true} allowedRoles={['ADMIN']}>`.
+   - Top navigation: Added Admin navigation items and updated badge to "Phase 16 Active".
+
+6. **Automated Testing Suite & Verification**:
+   - Authored `AdminControllerTests.java` covering 10 integration test cases:
+     1. `testAdminDashboardMetrics_Authorized`: Verifies admin can access dashboard metrics.
+     2. `testAdminDashboardMetrics_UnauthorizedNonAdmin`: Verifies non-admin users receive HTTP 403 Forbidden.
+     3. `testAdminDashboardMetrics_Unauthenticated`: Verifies unauthenticated users receive HTTP 401 Unauthorized.
+     4. `testAdminStudiosList_ReadOnly`: Verifies studios directory listing.
+     5. `testAdminFreelancersList_ReadOnly`: Verifies freelancers directory listing.
+     6. `testAdminRequirementsList_ReadOnly`: Verifies work requirements listing.
+     7. `testAdminRequestsList_ReadOnly`: Verifies work requests listing.
+     8. `testAdminActivityStream_ReadOnly`: Verifies live activity audit stream.
+     9. `testAdminStudioIdentity_ReadOnly`: Verifies studio identity declaration retrieval.
+     10. `testAdminMutationRejected_MethodNotAllowed`: Verifies that attempting POST/PUT/DELETE on admin endpoints is strictly rejected with HTTP 405 Method Not Allowed.
+   - Frontend verification: `npm run build` compiled cleanly with 0 TypeScript errors in 6.99s.
+
+
 
 
 

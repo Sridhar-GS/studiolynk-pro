@@ -646,5 +646,135 @@ export interface RequirementRatingStatusDto {
   counterpartyRating?: RatingDto;
 }
 
+// Phase 16: Admin Platform (ADM-001 - ADM-006)
+export interface AdminActivityItem {
+  id: number;
+  timestamp: string;
+  type: string;
+  title: string;
+  description: string;
+  actorEmail: string;
+  actorRole: string;
+  targetEntity: string;
+  targetId?: number;
+}
 
+export interface AdminStudioIdentity {
+  id: number;
+  studioId: number;
+  studioName: string;
+  ownerName: string;
+  studioEmail: string;
+  phone: string;
+  documentType: string;
+  documentUrl?: string;
+  declarationText: string;
+  status: string;
+  submittedAt: string;
+}
 
+export interface AdminDashboardMetrics {
+  totalStudios: number;
+  totalFreelancers: number;
+  totalUsers: number;
+  activeUsers: number;
+  totalRequirements: number;
+  openRequirements: number;
+  confirmedRequirements: number;
+  completedRequirements: number;
+  totalRequests: number;
+  pendingRequests: number;
+  acceptedRequests: number;
+  confirmedRequests: number;
+  totalRatings: number;
+  averagePlatformRating: number;
+  totalIdentitySubmissions: number;
+  recentIdentitySubmissions: AdminStudioIdentity[];
+  recentActivity: AdminActivityItem[];
+}
+
+export interface AdminStudioItem {
+  id: number;
+  userId: number;
+  studioName: string;
+  ownerName: string;
+  email: string;
+  phone: string;
+  address: string;
+  latitude?: number;
+  longitude?: number;
+  yearsOfOperation: number;
+  logoUrl?: string;
+  onboardingCompleted: boolean;
+  createdAt: string;
+  totalRequirements: number;
+  completedShoots: number;
+  identityStatus: string;
+  identitySubmittedAt?: string;
+}
+
+export interface AdminFreelancerItem {
+  id: number;
+  userId: number;
+  fullName: string;
+  email: string;
+  phone: string;
+  address: string;
+  latitude?: number;
+  longitude?: number;
+  experienceYears: number;
+  fullDayRate: number;
+  halfDayRate: number;
+  bio?: string;
+  profilePhotoUrl?: string;
+  skills: string[];
+  services: string[];
+  equipment: string[];
+  onboardingCompleted: boolean;
+  createdAt: string;
+  totalRequests: number;
+  completedShoots: number;
+  averageRating: number;
+  ratingCount: number;
+}
+
+export interface AdminRequirementItem {
+  id: number;
+  studioId: number;
+  studioName: string;
+  studioEmail: string;
+  eventName: string;
+  eventType: string;
+  eventDate: string;
+  startTime: string;
+  endTime: string;
+  location: string;
+  dayType: string;
+  budget: number;
+  status: string;
+  description?: string;
+  confirmedFreelancerId?: number;
+  confirmedFreelancerName?: string;
+  requestCount: number;
+  requiredSkills: string[];
+  requiredServices: string[];
+  createdAt: string;
+}
+
+export interface AdminRequestItem {
+  id: number;
+  requirementId: number;
+  eventName: string;
+  eventDate: string;
+  studioId: number;
+  studioName: string;
+  freelancerId: number;
+  freelancerName: string;
+  freelancerEmail: string;
+  agreedPrice: number;
+  status: string;
+  message?: string;
+  cancellationReason?: string;
+  createdAt: string;
+  updatedAt: string;
+}

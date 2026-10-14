@@ -72,6 +72,8 @@ public class SecurityConfig {
                                 "/swagger-ui.html",
                                 "/error"
                         ).permitAll()
+                        // Admin endpoints (ADM-001 - ADM-006)
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         // Protected endpoints
                         .anyRequest().authenticated()
                 )
