@@ -25,7 +25,7 @@ Status values: `PLANNED`, `IN PROGRESS`, `IMPLEMENTED`, `TESTED`.
 - STU-003 — No external Aadhaar verification API shall be implemented. `[TESTED]`
 - STU-004 — Studio may use the platform after completing onboarding; no admin approval is required. `[TESTED]`
 - STU-005 — Studio shall be able to edit its profile. `[TESTED]`
-- STU-006 — Studio shall be able to create work/event requirements.
+- STU-006 — Studio shall be able to create work/event requirements. `[TESTED]`
 
 ## Freelancer
 - FRL-001 — Freelancer onboarding shall collect name, photo, email, phone, address, location, experience, bio, skills, services, equipment, and full/half-day charges. `[TESTED]`
@@ -54,9 +54,9 @@ Status values: `PLANNED`, `IN PROGRESS`, `IMPLEMENTED`, `TESTED`.
 - AVL-004 — Studio search within the 10-day window shall show only Available freelancers matching the requested time. `[TESTED]`
 - AVL-005 — Busy and Not Set days shall not appear as available. `[TESTED]`
 - AVL-006 — Dates beyond the 10-day window may list matching freelancers but shall clearly indicate availability is not set/unknown. `[TESTED]`
-- AVL-007 — Availability shall be used as a hard filter before AI ranking. `[IMPLEMENTED]`
-- AVL-008 — Confirmed work shall prevent conflicting bookings. `[IMPLEMENTED]`
-- AVL-009 — Confirmed work shall make the relevant freelancer time unavailable/busy. `[IMPLEMENTED]`
+- AVL-007 — Availability shall be used as a hard filter before AI ranking. `[TESTED]`
+- AVL-008 — Confirmed work shall prevent conflicting bookings. `[TESTED]`
+- AVL-009 — Confirmed work shall make the relevant freelancer time unavailable/busy. `[TESTED]`
 
 ## Studio discovery
 - DIS-001 — Studio shall have normal freelancer search. `[TESTED]`
@@ -79,7 +79,7 @@ Status values: `PLANNED`, `IN PROGRESS`, `IMPLEMENTED`, `TESTED`.
 ## Work requests and privacy
 - REQ-001 — Studio can send a work request to a freelancer. `[TESTED]`
 - REQ-002 — Freelancer initially sees event/work details but not private event-person contact details. `[TESTED]`
-- REQ-003 — Freelancer can message the studio before acceptance. `[IMPLEMENTED]`
+- REQ-003 — Freelancer can message the studio before acceptance. `[TESTED]`
 - REQ-004 — Freelancer can accept or reject a request. `[TESTED]`
 - REQ-005 — Studio confirms the final freelancer. `[TESTED]`
 - REQ-006 — Private event-person contact information is revealed only after Studio confirmation. `[TESTED]`
@@ -157,11 +157,11 @@ Status values: `PLANNED`, `IN PROGRESS`, `IMPLEMENTED`, `TESTED`.
 - AWS-010 [TESTED] — Secrets shall be stored as environment variables.
 
 ## Documentation and quality
-- DOC-001 — Code shall contain useful comments around non-obvious business logic.
-- DOC-002 [TESTED] — README shall document setup and operation.
-- DOC-003 [TESTED] — API documentation shall be maintained.
-- DOC-004 — Database ER documentation shall be maintained.
-- DOC-005 — Architecture documentation shall be maintained.
-- DOC-006 — ML methodology shall be documented.
-- DOC-007 [TESTED] — AWS deployment steps shall be documented.
-- DOC-008 — Test cases shall be documented.
+- DOC-001 — Code shall contain useful comments around non-obvious business logic. `[TESTED]`
+- DOC-002 — README shall document setup and operation. `[TESTED]`
+- DOC-003 — API documentation shall be maintained. `[TESTED]`
+- DOC-004 — Database ER documentation shall be maintained. `[TESTED]`
+- DOC-005 — Architecture documentation shall be maintained. `[TESTED]`
+- DOC-006 — ML methodology shall be documented. `[TESTED]`
+- DOC-007 — AWS deployment steps shall be documented. `[TESTED]`
+- DOC-008 — Test cases shall be documented. `[TESTED]`

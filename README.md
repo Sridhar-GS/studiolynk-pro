@@ -61,12 +61,37 @@ StudioLynk is a comprehensive, production-ready final-year academic prototype pl
 
 ---
 
-## Default Administrator Credentials
+## Demonstration Accounts & Credentials
 
-- **Portal URL:** `http://<ELASTIC_IP>/login`
-- **Email:** `admin@studiolynk.com`
-- **Password:** `Admin@2026!`
-- **Role:** `ROLE_ADMIN`
+The platform includes realistic seeded accounts across all three user roles with pre-configured profiles, portfolios, 10-day availability windows, requirement histories, and mutual ratings:
+
+| Role | Name / Brand | Email | Password | Location / Specialization |
+| :--- | :--- | :--- | :--- | :--- |
+| **Admin** | System Auditor | `admin@studiolynk.com` | `Admin@2026!` | Global View-Only Auditor |
+| **Studio** | Studio Lumière | `studio.lumiere@studiolynk.com` | `Demo@2026!` | Chennai (Adyar) &bull; Commercial / Wedding |
+| **Studio** | Monochrome Media | `studio.monochrome@studiolynk.com` | `Demo@2026!` | Bangalore (Indiranagar) &bull; Fashion / Editorial |
+| **Freelancer** | Karthik Lens | `karthik.lens@studiolynk.com` | `Demo@2026!` | Chennai &bull; Candid Wedding & Drone &bull; Sony A7IV |
+| **Freelancer** | Ananya Visuals | `ananya.visuals@studiolynk.com` | `Demo@2026!` | Chennai &bull; Fashion & Newborn &bull; Canon R5 |
+| **Freelancer** | Vignesh Cinema | `vignesh.cinema@studiolynk.com` | `Demo@2026!` | Chennai &bull; Cinematic Video & Gimbals &bull; Sony FX3 |
+| **Freelancer** | Deepak Shoots | `deepak.shoots@studiolynk.com` | `Demo@2026!` | Bangalore &bull; Destination & Wildlife &bull; Nikon Z8 |
+
+> **Login Portal URL:** `http://<ELASTIC_IP>/login` (or `http://localhost:5173/login` in dev mode)
+
+---
+
+## Academic Documentation Index
+
+StudioLynk includes a comprehensive suite of academic artifacts and engineering specifications:
+
+| Doc # | Document Title | Description |
+| :--- | :--- | :--- |
+| **19** | [Architecture & ER Diagrams](docs/19-ARCHITECTURE-AND-ER-DIAGRAMS.md) | Multi-tier C4 architecture, AI matching sequence flow, and complete 27-table relational ER diagram. |
+| **20** | [REST API Catalogue](docs/20-API-CATALOGUE.md) | Full endpoint specification across 11 functional domains with auth scopes, schemas, and status codes. |
+| **21** | [ML Methodology Report](docs/21-ML-METHODOLOGY-REPORT.md) | Mathematical formulation, 6 normalized features, Decision Tree tuning, $R^2=0.843$ metrics, and ethical fairness rules. |
+| **22** | [Test Case Specification](docs/22-TEST-CASE-SPECIFICATION.md) | Comprehensive test matrix covering 87 JUnit backend tests, 12 FastAPI pytest tests, and Vite build probes. |
+| **23** | [Viva Defense Guide](docs/23-VIVA-DEFENSE-GUIDE.md) | 15 anticipated university examination questions and defensible academic responses. |
+| **Demo** | [Academic SQL Seed](backend/src/main/resources/db/demo/demo_academic_seed.sql) | Comprehensive SQL seed script populating studios, creators, portfolios, shoots, and chat records. |
+| **01-18** | [Specifications & Architecture](docs/) | Foundation documents covering requirements, data dictionary, UI/UX, security, and architectural decisions. |
 
 ---
 
