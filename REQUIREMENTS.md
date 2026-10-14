@@ -133,16 +133,16 @@ Status values: `PLANNED`, `IN PROGRESS`, `IMPLEMENTED`, `TESTED`.
 - ML-013 — Portfolio relevance shall use structured categories and metadata/text, not computer vision. `[TESTED]`
 
 ## UI/UX
-- UI-001 — React + TypeScript + Tailwind CSS shall be used.
-- UI-002 — Lucide React shall provide interface icons.
-- UI-003 — Major forms shall use meaningful icons/visual cues.
-- UI-004 — Relevant service/equipment/category selections shall use visual cards/icons/images where useful.
-- UI-005 — Desktop shall use a top navigation.
-- UI-006 — Mobile shall use a bottom navigation.
-- UI-007 — Application shall be responsive for desktop, tablet, and mobile.
-- UI-008 — Forms shall provide validation, loading, error, and success states.
-- UI-009 — Freelancer profile shall present complete professional information as a strong first impression.
-- UI-010 — Freelancer shall be able to edit profile information.
+- UI-001 — React + TypeScript + Tailwind CSS shall be used. `[TESTED]`
+- UI-002 — Lucide React shall provide interface icons. `[TESTED]`
+- UI-003 — Major forms shall use meaningful icons/visual cues. `[TESTED]`
+- UI-004 — Relevant service/equipment/category selections shall use visual cards/icons/images where useful. `[TESTED]`
+- UI-005 — Desktop shall use a top navigation. `[TESTED]`
+- UI-006 — Mobile shall use a bottom navigation. `[TESTED]`
+- UI-007 — Application shall be responsive for desktop, tablet, and mobile. `[TESTED]`
+- UI-008 — Forms shall provide validation, loading, error, and success states. `[TESTED]`
+- UI-009 — Freelancer profile shall present complete professional information as a strong first impression. `[TESTED]`
+- UI-010 — Freelancer shall be able to edit profile information. `[TESTED]`
 
 ## AWS
 - AWS-001 [TESTED] — EC2 shall use Ubuntu 24.04 LTS.

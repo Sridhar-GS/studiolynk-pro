@@ -31,16 +31,19 @@ import { AdminFreelancersPage } from './pages/admin/AdminFreelancersPage';
 import { AdminRequirementsPage } from './pages/admin/AdminRequirementsPage';
 import { AdminRequestsPage } from './pages/admin/AdminRequestsPage';
 import { AdminActivityPage } from './pages/admin/AdminActivityPage';
+import { BottomNav } from './components/common/BottomNav';
+import { ToastProvider } from './context/ToastContext';
 
 export const App: React.FC = () => {
   return (
     <Router>
       <AuthProvider>
-        <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-teal-500 selection:text-slate-950">
-          <Navbar />
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/login" element={<LoginPage />} />
+        <ToastProvider>
+          <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-teal-500 selection:text-slate-950 pb-16 md:pb-0">
+            <Navbar />
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route
@@ -257,10 +260,12 @@ export const App: React.FC = () => {
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
+          <BottomNav />
         </div>
-      </AuthProvider>
-    </Router>
-  );
+      </ToastProvider>
+    </AuthProvider>
+  </Router>
+);
 };
 
 export default App;
